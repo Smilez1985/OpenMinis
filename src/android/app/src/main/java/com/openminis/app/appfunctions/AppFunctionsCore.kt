@@ -12,7 +12,8 @@ import javax.xml.parsers.DocumentBuilderFactory
  * that does not need an Android Context, so it runs in JVM unit tests.
  *
  * - [parseList]: `cmd app_function list-app-functions` JSON -> [FunctionEntry]
- * - [parseSchemaXml]: a target app's `assets/*app_function*.xml` -> [FunctionSchema]
+ * - [parseSchemaXml]: a target app's schema file (assets, name contains
+ *   "app_function", ends in .xml) -> [FunctionSchema]
  *   (two shapes exist in the wild: full Google schemas with typed parameters,
  *   and minimal ones that only carry schema_name/schema_category)
  * - [resolve]: short name -> full function id, unique or a named error
