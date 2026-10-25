@@ -88,6 +88,13 @@ android {
     buildTypes {
         getByName("debug") {
             buildConfigField("boolean", "DEV_TOOLS", "true")
+            // Optional suffix so a CI/test build installs NEXT TO an existing
+            // install signed with a different key (installing over it would
+            // fail; uninstalling would wipe its data). Unset = unchanged.
+            // ./gradlew :app:assembleDebug -PminisIdSuffix=.appfn
+            providers.gradleProperty("minisIdSuffix").orNull
+                ?.takeIf { it.isNotBlank() }
+                ?.let { applicationIdSuffix = it }
         }
         // `perf`: the debug variant minus android:debuggable. ART refuses to
         // AOT-compile a debuggable app (`cmd package compile -m speed`

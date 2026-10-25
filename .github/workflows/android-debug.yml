@@ -1,0 +1,123 @@
+name: Android debug APK
+
+# Builds an installable debug APK (arm64) on push to feature branches and on
+# demand. Follows BUILDING.md: native deps from source (proot, Alpine rootfs,
+# rclone), then :app:assembleDebug. Unit tests run as a separate step so a
+# test failure does not hide whether the app compiles.
+on:
+  push:
+    branches: ["feature/**"]
+  workflow_dispatch:
+    inputs:
+      id_suffix:
+        description: "applicationIdSuffix for side-by-side install (empty = none)"
+        default: ".appfn"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NDK_VERSION: "28.0.12433566"
+  CMAKE_VERSION: "3.22.1"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - name: Android NDK + CMake
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install \
+            "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}" "platforms;android-36" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+          test -x "$ANDROID_HOME/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
+
+      - name: Cache native deps
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/android/app/src/main/assets/proot-aarch64
+            src/android/app/src/main/jniLibs/arm64-v8a
+            src/android/app/src/main/assets/alpine-minirootfs.tar.gz
+            src/android/app/libs/rclone.aar
+          key: deps-v1-${{ env.NDK_VERSION }}-${{ hashFiles('deps/build_proot.sh', 'deps/build_rclone_android.sh', 'scripts/prepare_android_sandbox.sh', 'deps/rclone-mobile/**', '.gitmodules') }}
+
+      - name: Native deps (proot, rootfs, rclone)
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          GOBIN_DIR="$(go env GOPATH)/bin"
+          export PATH="$PATH:$GOBIN_DIR"
+          gomobile init
+          ./deps/build_proot.sh
+          ./scripts/prepare_android_sandbox.sh
+          ./deps/build_rclone_android.sh
+          mkdir -p src/android/app/libs
+          cp deps/build/rclone/rclone.aar src/android/app/libs/
+
+      - name: Verify native artifacts
+        run: |
+          for f in src/android/app/src/main/jniLibs/arm64-v8a/libproot-loader.so \
+                   src/android/app/src/main/jniLibs/arm64-v8a/libproot-loader32.so \
+                   src/android/app/src/main/assets/alpine-minirootfs.tar.gz \
+                   src/android/app/libs/rclone.aar; do
+            test -s "$f" || { echo "missing: $f"; exit 1; }
+          done
+
+      - name: Customization template
+        run: cp src/android/app/provider-customization.properties.example src/android/app/provider-customization.properties
+
+      - name: Assemble debug APK
+        working-directory: src/android
+        run: |
+          SUFFIX="${{ github.event.inputs.id_suffix }}"
+          [ "${{ github.event_name }}" = "push" ] && SUFFIX=".appfn"
+          ./gradlew --no-daemon --stacktrace :app:assembleDebug -PminisIdSuffix="$SUFFIX"
+
+      - name: Check APK
+        run: |
+          APK=$(find src/android/app/build/outputs/apk/github/debug -name '*.apk' | head -1)
+          test -n "$APK" || { echo "no APK built"; exit 1; }
+          echo "APK=$APK" >> "$GITHUB_ENV"
+          test "$(unzip -l "$APK" | grep -c 'libproot')" -ge 3
+          sha256sum "$APK"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openminis-debug-${{ github.sha }}
+          path: ${{ env.APK }}
+          retention-days: 14
+
+      - name: Unit tests
+        working-directory: src/android
+        run: ./gradlew --no-daemon :app:testDebugUnitTest -PminisIdSuffix=.appfn
+
+      - name: Test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report-${{ github.sha }}
+          path: src/android/app/build/reports/tests
+          retention-days: 7
