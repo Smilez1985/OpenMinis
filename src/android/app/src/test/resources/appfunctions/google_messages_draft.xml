@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature#draftMessage</id>
+        <scope>activity</scope>
+        <description>The user is currently in the context of an active conversation screen in Google Messages. Use
+this tool whenever the user asks to compose, draft, write, type, paste, insert, or populate a
+message or reply into the conversation text composer. Insert only the content requested by the
+user without extra conversational pretext, filler words, or padding unless explicitly asked to
+generate or compose content. After invoking this tool, provide a natural confirmation quoting
+the drafted message.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>parameters</name>
+            <description>Contains the message text to inject into the composer.</description>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+            <description>The confirmed [DraftedMessage] entity with the active composer text.</description>
+        </response>
+        <functionId>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature#draftMessage</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters</objectQualifiedName>
+                <description>Execution payload for drafting a message.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>The text content to populate into the active conversation input field. Insert only the exact
+content requested by the user without adding conversational pretext, filler words, or padding,
+unless the user explicitly asks to compose or elaborate on the message.</description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>text</name>
+                </properties>
+                <required>text</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters</name>
+        </dataTypes>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage</objectQualifiedName>
+                <description>Result entity confirming the active draft content.</description>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <description>The resulting text content set in the composer.</description>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>text</name>
+                </properties>
+                <required>text</required>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage</name>
+        </dataTypes>
+        <id>draft_message_app_functions</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

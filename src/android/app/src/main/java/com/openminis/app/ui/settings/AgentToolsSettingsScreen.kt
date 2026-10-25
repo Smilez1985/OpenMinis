@@ -39,6 +39,10 @@ fun AgentToolsSettingsScreen(onBack: () -> Unit) {
         mutableStateOf(com.openminis.app.agent.userask.UserAskSettings.notifyInBackground(context))
     }
     var showWaitPicker by remember { mutableStateOf(false) }
+    // [T-appfunctions-caller] app_functions: off by default.
+    var appFunctionsEnabled by remember {
+        mutableStateOf(AgentToolSwitch.APP_FUNCTIONS.isEnabled(context))
+    }
 
     SettingsScaffold(title = stringResource(R.string.settings_agent_tools), onBack = onBack) {
         SettingsSection(footer = stringResource(R.string.agent_tools_browser_footer)) {
@@ -48,6 +52,17 @@ fun AgentToolsSettingsScreen(onBack: () -> Unit) {
                 onCheckedChange = {
                     browserEnabled = it
                     AgentToolSwitch.BROWSER.setEnabled(context, it)
+                },
+                showDivider = false,
+            )
+        }
+        SettingsSection(footer = stringResource(R.string.agent_tools_appfunctions_footer)) {
+            SettingsSwitchRow(
+                title = stringResource(R.string.agent_tools_appfunctions),
+                checked = appFunctionsEnabled,
+                onCheckedChange = {
+                    appFunctionsEnabled = it
+                    AgentToolSwitch.APP_FUNCTIONS.setEnabled(context, it)
                 },
                 showDivider = false,
             )

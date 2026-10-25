@@ -27,6 +27,10 @@ enum class AgentToolSwitch(val key: String, val defaultValue: Boolean) {
 
     /** [T-port-user-ask] user_ask - on by default, as on iOS (UserAskSettings.defaultEnabled). */
     USER_ASK(com.openminis.app.agent.userask.UserAskSettingsSpec.ENABLED_KEY, com.openminis.app.agent.userask.UserAskSettingsSpec.DEFAULT_ENABLED),
+
+    /** [T-appfunctions-caller] app_functions — calls other apps' AppFunctions;
+     *  off by default (drives other apps, write calls need approval). */
+    APP_FUNCTIONS("agent.tools.appfunctions.enabled", false),
     ;
 
     fun isEnabled(context: Context): Boolean =
@@ -50,6 +54,7 @@ enum class AgentToolSwitch(val key: String, val defaultValue: Boolean) {
             // replayed call from an older transcript.
             "subagent_task", "delegate_task", "agent_status" -> AGENTS
             com.openminis.app.agent.userask.UserAskPromptText.TOOL_NAME -> USER_ASK
+            AppFunctionsTool.NAME -> APP_FUNCTIONS
             else -> null
         }
 

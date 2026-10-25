@@ -50,6 +50,10 @@ object AgentTools {
         // not a sub agent, an interactive run). Not in the list = does not
         // exist: no schema, no prompt line, no retries on it. Last, as on iOS.
         userAskExposed: Boolean = false,
+        // [T-appfunctions-caller] Settings › Agent Tools switch AND a usable
+        // execution path (Android 16+, permission or Shizuku). Decided by the
+        // caller per schema build, so enabling Shizuku takes effect next turn.
+        appFunctionsExposed: Boolean = false,
     ): List<AgentToolDefinition> = buildList {
         add(shellExecuteDefinition())
         add(FileReadTool.definition())
@@ -66,6 +70,8 @@ object AgentTools {
         if (!isHelper && delegateEnabled) {
             add(subAgentTaskDefinition(rosterNames))
         }
+        // Not for helpers: write calls need the user's approval mid-run.
+        if (appFunctionsExposed && !isHelper) add(AppFunctionsTool.definition())
         if (userAskExposed && !isHelper) add(com.openminis.app.agent.userask.UserAskPromptText.definition())
     }
 

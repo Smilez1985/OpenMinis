@@ -2520,6 +2520,11 @@ class ChatViewModel(
             // would reject.
             rosterNames = providerRepository.subAgents.map { it.name },
             userAskExposed = userAskExposedThisRun,
+            // [T-appfunctions-caller] Switch on AND a path that carries
+            // (Android 16+, permission or Shizuku ready).
+            appFunctionsExposed = com.openminis.app.tools.AgentToolSwitch.APP_FUNCTIONS.isEnabled(context) &&
+                com.openminis.app.appfunctions.AppFunctionsManager.decidePath(context).path !=
+                com.openminis.app.appfunctions.AppFunctionsManager.Path.NONE,
         )
 
     /**
@@ -14167,6 +14172,14 @@ class ChatViewModel(
             // request) can still emit the call, and executing it would ignore
             // the user's setting. Mirrors iOS's isToolEnabled guard in
             // AIChatViewModel+ConcurrentTools.
+            com.openminis.app.tools.AppFunctionsTool.NAME ->
+                if (com.openminis.app.tools.AgentToolSwitch.APP_FUNCTIONS.isEnabled(context)) {
+                    com.openminis.app.tools.AppFunctionsTool.execute(context, argsJson) { pkg, fid, arguments ->
+                        confirmAppFunctionWrite(pkg, fid, arguments)
+                    }
+                } else {
+                    toolDisabledResult(com.openminis.app.tools.AppFunctionsTool.NAME)
+                }
             "browser_use" ->
                 if (com.openminis.app.tools.AgentToolSwitch.BROWSER.isEnabled(context)) {
                     executeBrowserUseTool(argsJson)
@@ -15623,6 +15636,30 @@ class ChatViewModel(
      * to retry, so a refusal ends the attempt instead of provoking a loop. The
      * user is not shown an error — they turned the tool off on purpose.
      */
+    /**
+     * [T-appfunctions-caller] Approval for an AppFunction that changes
+     * something. Reuses the minis-config confirmation gate: one dialog
+     * queue, 120 s timeout, notification when backgrounded. Only an
+     * explicit approval proceeds; reject and timeout do not.
+     */
+    private suspend fun confirmAppFunctionWrite(packageName: String, functionId: String, arguments: String): Boolean {
+        val shortName = functionId.substringAfter('#')
+        val item = com.openminis.app.config.confirm.PendingConfigChangeItem(
+            displayName = shortName,
+            path = "$packageName/$functionId",
+            oldDisplay = "",
+            newDisplay = arguments.take(500),
+            verb = com.openminis.app.appfunctions.AppFunctionsCore.verbOf(functionId).ifEmpty { "call" },
+            risk = com.openminis.app.config.ConfigRisk.SENSITIVE,
+        )
+        val change = com.openminis.app.config.confirm.PendingConfigChange(
+            items = listOf(item),
+            caption = "App action: $shortName in $packageName",
+        )
+        return com.openminis.app.config.confirm.ConfigConfirmationGate.requestConfirmation(change) is
+            com.openminis.app.config.confirm.ConfirmOutcome.Approved
+    }
+
     private fun toolDisabledResult(name: String): ToolExecutionResult =
         ToolExecutionResult(
             "The $name tool is disabled in this app's settings and cannot be used. " +
@@ -18563,6 +18600,7 @@ Scheduled tasks: crontab / at / nohup loops will stop when the app is suspended,
         "file_write" -> "Write File"
         "file_edit" -> "Edit File"
         "browser_use" -> "Browse Web"
+        com.openminis.app.tools.AppFunctionsTool.NAME -> "App Functions"
         "read_image" -> "Read Image"
         "memory_write" -> "Write Memory"
         "memory_get" -> "Read Memory"

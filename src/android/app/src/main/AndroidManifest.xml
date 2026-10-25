@@ -93,6 +93,13 @@
          doesn't unblock the call — the permission does. -->
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
+    <!-- [T-appfunctions-caller] Direct path for the app_functions tool.
+         Granted only where the device declares it grantable (docs: normal
+         on 16 QPR2/17; measured internal|privileged|knownSigner on a
+         Samsung Android 17). Not granted = Shizuku path, see
+         AppFunctionsManager.decidePath. Harmless where unknown. -->
+    <uses-permission android:name="android.permission.EXECUTE_APP_FUNCTIONS" />
+
     <!-- [T-android-privileged-backend] AXManager only pushes its binder to
          apps whose requestedPermissions list contains one of three sentinels
          (see AxManager BinderSender#sendBinder). Without one of these
@@ -109,6 +116,10 @@
     <!-- Package visibility for speech recognition services + Custom Tabs
          (Android 11+ scoped queries). -->
     <queries>
+        <!-- [T-appfunctions-caller] Apps that expose AppFunctions. -->
+        <intent>
+            <action android:name="android.app.appfunctions.AppFunctionService" />
+        </intent>
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
