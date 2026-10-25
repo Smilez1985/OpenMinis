@@ -1,225 +1,186 @@
-# Native tool `app_functions` — design notes
+# Native tool `app_functions` — design
 
-Branch `feature/appfunctions-caller`, based on release 1.15. This is a
-reference sketch for a feature proposal, not a pull request (the upstream
-repository does not take PRs). Measured facts and untested assumptions are
-labelled as such.
+Blueprint for calling other apps' Android AppFunctions from Minis. It
+describes the **target state**. What is still missing is in
+[ROADMAP.md](ROADMAP.md), what has been built in [CHANGELOG.md](CHANGELOG.md).
+Whoever changes something described here changes this file first.
+
+This lives on a fork as a reference for a feature proposal; the upstream
+repository does not take pull requests.
 
 ## Goal
 
 Minis calls the **AppFunctions of other installed apps** (Android platform API
-since Android 16, "Android MCP") as a **native agent tool**: the model sees the
-functions through tool use, without going through the screen, the
-accessibility service or the Linux sandbox. Examples on the test device:
-clock alarms/timers/stopwatch, reminders, calendar, contacts, call log,
-gallery, browser bookmarks, Play services device-state settings.
+since Android 16, "Android MCP") as a **native agent tool**: the model uses
+them through tool use, without the screen, the accessibility service or the
+Linux sandbox. Typical targets: clock alarms/timers/stopwatch, reminders,
+calendar, contacts, call log, gallery, browser bookmarks, device-state
+settings of Play services.
 
-Out of scope: Minis as a **provider** of its own AppFunctions (separate topic;
-needs KSP and the AppFunctions compiler, and from `androidx.appfunctions`
-alpha09 on compileSdk 37 + AGP 9.1).
+Out of scope: Minis as a **provider** of its own AppFunctions. That is a
+separate topic (KSP, the AppFunctions compiler, and from
+`androidx.appfunctions` alpha09 on compileSdk 37 + AGP 9.1).
 
-## Finding that shapes the architecture
+## Rule D1 — One core, two execution paths
 
-| Path | Requires | State on the test device (Samsung, Android 17 / SDK 37) |
-|---|---|---|
-| **Direct** (`android.app.appfunctions.AppFunctionManager`) | permission `EXECUTE_APP_FUNCTIONS` **and** an agent-allowlist entry **and** user consent | **not reachable**: the permission is `prot=internal\|privileged\|knownSigner`, so a sideloaded app does not get it. The reference docs say `normal`; that evidently does not hold on every device. |
-| **Shizuku** (shell, uid 2000) | Shizuku running and granted | **works**: the shell holds `EXECUTE_APP_FUNCTIONS_SYSTEM`; `cmd app_function list-app-functions` and `execute-app-function` return real data (measured). Per the platform source this permission is not checked against the agent allowlist. |
-
-Consequence: **one core, two execution paths.** The direct path is built and
-chosen by measurement at runtime; where it does not carry, the core uses the
-Shizuku path. The model does not notice — it is the same tool.
-
-Further measurements (test device, read-only):
-- ~110 registered functions in 15 packages (the number changes with app updates;
-  the raw dump has two documents per function, static + runtime metadata).
-- An allowlist service exists (`cmd allowlist`); list 2 (AppFunctions) is
-  writable by the shell and currently empty. It does not help while the
-  permission itself is not grantable.
-- `targetSdk` is not evaluated by the caller check (platform source), so
-  targetSdk 35 can stay.
-
-## Architecture
-
-```
-model ──tool_use "app_functions"──▶ ChatViewModel.executeTool
-                                       │  (switch AgentToolSwitch.APP_FUNCTIONS,
-                                       │   confirmation for write functions)
-                                       ▼
-                              AppFunctionsTool  (schema, arguments, output)
-                                       │
-                                       ▼
-                              AppFunctionsManager
-                                 ├── decidePath: direct | shizuku | none
-                                 ├── list    ── cmd app_function list-app-functions (Shizuku)
-                                 ├── schema  ── assets/…app_function….xml from the target APK
-                                 ├── direct  ── PlatformExecutor → AppFunctionManager.executeAppFunction
-                                 └── shizuku ── cmd app_function execute-app-function (argv)
-                                       │
-                              AppFunctionsCore  (pure Kotlin, JVM-tested)
-```
-
-### Files
-
-New (`src/android/app/src/main/java/com/openminis/app/`):
-
-| File | Role |
+| Path | Requires |
 |---|---|
-| `appfunctions/AppFunctionsCore.kt` | Context-free core: parse the function list, resolve short names, parse schema XML (both shapes, DOCTYPE disabled), read/write classification, build the shell argv, interpret execution output, format output for the model |
-| `appfunctions/AppFunctionsManager.kt` | Path decision, discovery, schema reading (`ZipFile` on `sourceDir` + splits), execution dispatch |
-| `appfunctions/PlatformExecutor.kt` | Direct path: `executeAppFunction` with a generic JSON ↔ `GenericDocument` mapping |
-| `tools/AppFunctionsTool.kt` | The tool: definition and `list` / `schema` / `execute` |
+| **Direct** — `android.app.appfunctions.AppFunctionManager` | permission `EXECUTE_APP_FUNCTIONS`, an agent-allowlist entry, user consent |
+| **Shizuku** — `cmd app_function` as the shell (uid 2000) | Shizuku running and granted to Minis |
 
-Hooks in existing files:
+Both paths sit behind one core; the model sees one tool and never learns
+which path ran.
 
-1. `tools/AgentTools.kt` — `makeAgentTools()`: parameter `appFunctionsExposed`,
-   adds `AppFunctionsTool.definition()` (not for helper agents: write calls need
-   the user mid-run).
-2. `ui/chat/ChatViewModel.kt` — `agentTools` getter: exposed = switch on **and**
-   a path that carries; `executeTool()`: branch `app_functions` (pattern of
-   `browser_use`, incl. `toolDisabledResult`); `confirmAppFunctionWrite()`;
-   display name "App Functions".
-3. `tools/AgentToolSwitch.kt` — `APP_FUNCTIONS`, **off by default**;
-   `ui/settings/AgentToolsSettingsScreen.kt` — switch row; strings `en` + `de`.
-4. `AndroidManifest.xml` — `<uses-permission
-   android:name="android.permission.EXECUTE_APP_FUNCTIONS"/>` (harmless where
-   not granted, enables the direct path where it is) and a `<queries>` entry for
-   the action `android.app.appfunctions.AppFunctionService` (measured as the
-   service action of target apps).
+**Why:** the reference docs list `EXECUTE_APP_FUNCTIONS` as protection level
+`normal`, but devices exist where it is `internal|privileged|knownSigner` and
+therefore not grantable to an installed app. The shell holds
+`EXECUTE_APP_FUNCTIONS_SYSTEM`, which the platform does not check against the
+agent allowlist. A design that relies on the direct path alone would be dead on
+those devices; one that relies on Shizuku alone would ignore the path Google
+intends.
 
-No system-prompt block is needed; the tool describes itself.
+## Rule D2 — The path is measured, never assumed
 
-### Tool shape (one tool, three actions)
+The path is decided per request, in this order:
 
-Minis has no dynamic tool registration (the list is hard-coded), and a device
-exposes 100+ functions, so this is **one** tool with an `action`:
+1. API < 36 → **none**, reason named.
+2. `EXECUTE_APP_FUNCTIONS` granted **and** a read-only probe call passes the
+   platform's allowlist → **direct**. The probe result is cached for the
+   process lifetime and dropped when a direct call is denied (code 1000).
+3. Shizuku ready **and** the Shizuku integration permitted for Minis by the
+   user (existing `OffloadPermissionManager` level for Shizuku) → **shizuku**.
+4. Otherwise **none**, with the reason.
+
+Never by device model or manufacturer. The decided path and its reason are
+visible in diagnostics.
+
+**Why:** a granted permission alone does not prove the allowlist passes; an
+allowlisted agent without the permission does not exist. Only a real call
+answers both.
+
+## Rule D3 — One tool, three actions
+
+Minis has no dynamic tool registration, and a device exposes 100+ functions.
+So there is **one** tool `app_functions` with an `action`:
 
 | Parameter | Use |
 |---|---|
 | `action` | `list` \| `schema` \| `execute` |
 | `package` | target app (schema, execute) |
-| `function` | full id or unique short name after `#` (e.g. `findAlarms`) |
-| `arguments` | execute: parameters as a JSON object (a JSON string is accepted too) |
+| `function` | full id, or the short name after `#` if unique in the package |
+| `arguments` | execute: parameters as a JSON object (a JSON string is accepted) |
 | `query` | list: filter on package, function name or category |
 | `timeout_s` | execute: seconds, default 30, max 120 |
 
-Output is compact so the context does not fill up:
-- `list` → per package the short names, `read`/`write`, category, `(disabled)`.
-- `schema` → parameters with type, required, description; referenced data types.
-- `execute` → the return value as JSON; errors with the platform code.
+Output stays compact so the context does not fill up:
+- `list` → per package: short names, `read`/`write`, category, `(disabled)`.
+- `schema` → parameters with type, required, description; referenced types.
+- `execute` → the return value as JSON; errors with their code.
 
-Possible later step: expose the **read** functions of frequently used apps as
-individual tools at turn start (pattern: official sample `android/appfunctions`,
-`agent/…/GeminiToolConverter.kt`, Apache-2.0).
+A later stage may additionally expose the **read** functions of frequently
+used apps as individual tools at turn start, with schemas generated from the
+metadata (pattern: official sample `android/appfunctions`,
+`GeminiToolConverter.kt`, Apache-2.0). The single tool stays the fallback.
 
-### Discovery and schemas
+The same core can alternatively be exposed as a sandbox CLI
+`android-app-functions`, consistent with the other `android-*` commands. The
+exposure is a product decision; the core does not change with it.
 
-- **List**: `cmd app_function list-app-functions` via Shizuku (JSON, measured).
-  The direct path's own discovery (`searchAppFunctions`) needs API 37 /
-  compileSdk 37 and is not wired; on API 36 AppSearch (`apps-db`, namespace
-  `app_functions`) would be an option — **untested** whether a third-party app
-  may read those documents.
-- **Schemas**: from the target APK, asset files whose name contains
-  `app_function` and ends in `.xml` (measured: Google apps ship full parameter
-  schemas, Samsung apps only `schema_name` / `schema_category`). Read with
-  `PackageManager` → `ApplicationInfo.sourceDir` → `ZipFile`; no privilege
-  needed. Type codes follow `androidx.appfunctions`
-  `AppFunctionDataTypeMetadata.TYPE_*` (0 unit … 8 string, 10 array,
-  11 reference, 12 allOf, 13 parcelable, 14 oneOf).
-- Where no parameter schema exists, the target's error names the missing
-  field (measured: `Parameter [findAlarmsParams] cannot be null (code 1001)`);
-  it is passed through to the model.
-- **Not implemented**: caching the list/schemas per package `versionCode`.
+## Rule D4 — Discovery and schemas without privilege where possible
 
-### Execution
+- **List**: `cmd app_function list-app-functions` via Shizuku (API 36 and 37).
+  On the direct path from API 37: `AppFunctionManager.searchAppFunctions`.
+- **Schemas**: read from the target APK — asset files whose name contains
+  `app_function` and ends in `.xml` — via `PackageManager` →
+  `ApplicationInfo.sourceDir` + split APKs → `ZipFile`. No privilege needed.
+  Two shapes exist: full schemas (typed parameters, descriptions, data types)
+  and minimal ones (`schema_name` / `schema_category` only). Type codes follow
+  `androidx.appfunctions` `AppFunctionDataTypeMetadata.TYPE_*`.
+- Where no parameter schema exists, the target's error message names the
+  missing field; it is passed through unchanged. That is the intended way, not
+  guessing.
+- List and schemas are cached per package and `versionCode`; a package update
+  invalidates its entries.
+- Schema XML comes from another app: parsed with DOCTYPE and external entities
+  disabled.
 
-- **Direct** (`PlatformExecutor`): `AppFunctionManager.executeAppFunction(
-  ExecuteAppFunctionRequest.Builder(pkg, id).setParameters(GenericDocument), …)`.
-  JSON → `GenericDocument` is mapped **generically by JSON value type** (string,
-  long, double, boolean, nested object, homogeneous arrays). Schema-driven typed
-  conversion (as in the official sample) is a follow-up. compileSdk 36 is
-  enough; no Jetpack dependency. Signatures were checked with `javap` against
-  `platform-36_r02` `android.jar`. **Not tested on a device** (no device at hand
-  grants the permission).
+## Rule D5 — Execution
+
+- **Direct**: `executeAppFunction(ExecuteAppFunctionRequest.Builder(pkg, id)
+  .setParameters(GenericDocument), executor, cancellation, receiver)`.
+  JSON → `GenericDocument` is converted **along the target's schema** when one
+  exists (types, nested objects, arrays); without a schema, generically by JSON
+  value type. The result document's `PROPERTY_RETURN_VALUE` is returned as JSON.
+  compileSdk 36 suffices; no Jetpack dependency.
 - **Shizuku**: `cmd app_function execute-app-function --package … --function …
   --parameters <json> --timeout-duration <s>` as an **argument array**, never
-  `sh -c`; parameters validated as JSON first; timeout clamped to 1–120 s.
-- **Path decision** (`decidePath`, per request): API < 36 → none;
-  `checkSelfPermission(EXECUTE_APP_FUNCTIONS) == GRANTED` → direct; else Shizuku
-  ready → shizuku; else none with the reason. Never by device model.
-  **Not implemented**: a read-only probe call to confirm the direct path also
-  passes the allowlist (today a granted permission alone selects it).
+  through `sh -c`. Parameters are validated as JSON first; the timeout is
+  clamped to 1–120 s.
 
-### Safety
+## Rule D6 — Safety
 
-- Switch **off** by default; the settings text names both paths.
-- **Read** functions (short name verb `find|get|search|list|is|query|read|
-  lookup|fetch`) run directly; **everything else** (create/delete/update/set/
-  start/show/draft …) only after confirmation through the existing
-  `ConfigConfirmationGate` (same dialog queue as `minis-config`, 120 s timeout,
-  notification when backgrounded). Only an explicit approval proceeds. The
-  classification is by name, not by evidence of side effects; the tool
+- The tool switch is **off** by default.
+- **Read** functions — verb of the short name in `find|get|search|list|is|query|
+  read|lookup|fetch` — run directly. **Everything else** (create, delete,
+  update, set, start, show, draft …) runs only after the user approved it
+  through the existing confirmation gate (`ConfigConfirmationGate`: one dialog
+  queue, timeout, notification when backgrounded). Reject and timeout do not
+  proceed.
+- The classification is by **name**, not by evidence of side effects; the tool
   description says so. `show…` opens the target's UI and counts as write.
 - An empty result with success status is reported as `EMPTY_RESULT`, never as
   success.
-- Not offered to helper (sub-) agents.
-- **Open**: the Shizuku path does not consult `OffloadPermissionManager`'s
-  per-tool level (only the tool switch and Shizuku's own grant). Whether it
-  should, is a product decision.
-- Parameters/results are not logged; only package, short name and path.
+- Not offered to helper (sub-) agents: write calls need the user mid-run.
+- Arguments and results are never logged; only package, short name and path.
 
-### Error codes
+## Rule D7 — Error codes
 
 | Code | Origin | Meaning |
 |---|---|---|
-| 1000 / 1001 / 1002 / 1003 | platform | denied / invalid argument (missing field) / disabled / function not found |
+| 1000 / 1001 / 1002 / 1003 | platform | denied / invalid argument (names the field) / disabled / not found |
 | 2000 / 2001 / 2002 | platform | system error / cancelled / enterprise policy |
 | 3000 | target app | app error |
-| `NO_PATH` | Minis | neither direct path nor Shizuku |
+| `NO_PATH` | Minis | no path carries (D2), with reason |
 | `NEEDS_CONFIRMATION` | Minis | write function not approved |
-| `EMPTY_RESULT` | Minis | rc 0 but no content — outcome unknown |
+| `EMPTY_RESULT` | Minis | success status but no content — outcome unknown |
 
-## Test stages
+## Integration points (release 1.15)
 
-1. **Without a build (done, test device)**: the Shizuku path exercised with a
-   local script — list count equals raw count, schemas from APKs, real read
-   calls with data, write lock, error paths.
-2. **JVM unit tests (done)**: `AppFunctionsCoreTest`, 18 cases, against two
-   unmodified schema files taken from real APKs (Google shape, Samsung shape);
-   a mutation check (17 deliberate defects in the core) turns every one red.
-   The new files compile with kotlinc 2.1.0 against the API 36 `android.jar`.
-3. **Device, Shizuku path (pending)**: CI debug APK installed side by side
-   (`applicationIdSuffix .appfn`), tool on, `list` / `schema` / read `execute`,
-   then one write function with confirmation.
-4. **Device, direct path (pending, needs a suitable device)**: where
-   `EXECUTE_APP_FUNCTIONS` is `normal`, plus an allowlist entry for developer
-   tests: `cmd allowlist add-package-multimap 2 <pkg>:<sha256> '*'`,
-   `cmd app_function flush-allowlist-changes`. **Untested**: whether the entry
-   survives a reboot; whether the consent intent (`createRequestAccessIntent`,
-   API 37) appears on production devices.
+Paths relative to `src/android/app/src/main/java/com/openminis/app/`.
 
-Build: `.github/workflows/android-debug.yml` on the fork builds the native
-dependencies from source per `BUILDING.md` and a debug APK; the Gradle heap is
-raised for CI only.
+| Where | What |
+|---|---|
+| `appfunctions/AppFunctionsCore.kt` | context-free core: list parsing, short-name resolution, schema XML, read/write classification, shell argv, output interpretation and formatting |
+| `appfunctions/AppFunctionsManager.kt` | path decision (D2), discovery, schemas, cache, dispatch |
+| `appfunctions/PlatformExecutor.kt` | direct path, JSON ↔ `GenericDocument` |
+| `tools/AppFunctionsTool.kt` | the tool (D3) |
+| `tools/AgentTools.kt` | `makeAgentTools(appFunctionsExposed)` |
+| `ui/chat/ChatViewModel.kt` | gate = switch on **and** a path carries; branch in `executeTool()`; confirmation; display name |
+| `tools/AgentToolSwitch.kt` + `ui/settings/AgentToolsSettingsScreen.kt` | switch `APP_FUNCTIONS` |
+| `AndroidManifest.xml` | `EXECUTE_APP_FUNCTIONS`; `<queries>` for `android.app.appfunctions.AppFunctionService` |
+| `res/values*/strings.xml` | settings texts in every shipped locale |
 
-## Open / untested
+No system-prompt block: the tool describes itself.
 
-- Which devices report `EXECUTE_APP_FUNCTIONS` as `normal`, and who is in the
-  `knownSigner` list.
-- AppSearch readability of the metadata for third-party apps (API 36).
-- A Shizuku binder path (`ShizukuBinderWrapper` on the `app_function` service)
-  instead of the shell — cleaner, but Minis has no binder-wrapper precedent yet.
-- Functions with `scope=activity` (e.g. drafting a message) only work with the
-  target screen in the foreground.
-- Native tool vs. a sandbox CLI `android-app-functions` like the other
-  `android-*` commands: the core would be the same, only the exposure differs.
+## Rule D8 — Verification
+
+- The core is tested on the JVM against **unmodified** schema files taken from
+  real APKs (both shapes), not against hand-written samples only.
+- Every regression test has a counter-check: deliberately break the core and
+  the test must turn red.
+- Both paths are tested on a device before the feature is called done: the
+  Shizuku path on any Android 16+ device with Shizuku, the direct path on a
+  device that grants the permission, with a developer allowlist entry
+  (`cmd allowlist add-package-multimap 2 <pkg>:<sha256> '*'`,
+  `cmd app_function flush-allowlist-changes`).
+- CI builds a side-by-side installable debug APK (`applicationIdSuffix`), so
+  testing never touches an existing install.
 
 ## Sources
 
-- https://developer.android.com/ai/appfunctions ;
-  `Manifest.permission.EXECUTE_APP_FUNCTIONS` reference ("allowlist checks for
-  AppFunctions API access are enforced at runtime")
-- https://github.com/android/appfunctions (sample agent, schema converter)
+- https://developer.android.com/ai/appfunctions ; reference of
+  `Manifest.permission.EXECUTE_APP_FUNCTIONS`
+- https://github.com/android/appfunctions (sample agent)
 - AOSP `frameworks/base/core/api/current.txt` (android-16.0.0_r1),
   `packages/modules/AppSearch/framework/api/current.txt`,
-  `frameworks/base/services/appfunctions/` (tags 16.0.0_r1 / _r4, 17.0.0_r1)
-- Measurements on the test device, read-only
+  `frameworks/base/services/appfunctions/`
