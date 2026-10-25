@@ -17,5 +17,6 @@ on Minis release 1.15 and has no release of its own.
 - Settings switch "App Functions" under Agent Tools, off by default, with English and German texts.
 - Manifest declares `EXECUTE_APP_FUNCTIONS` and package visibility for apps that expose AppFunctions.
 - CI workflow on the fork that builds a debug APK installable next to an existing Minis.
+- The CI build skips pushes that only change documentation.
 - Optional `applicationIdSuffix` for debug builds (`-PminisIdSuffix`).
 - Design notes, roadmap and changelog for the feature.

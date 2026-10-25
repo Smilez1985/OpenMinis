@@ -7,6 +7,10 @@ name: Android debug APK
 on:
   push:
     branches: ["feature/**"]
+    # Docs-only pushes would cancel a running build (concurrency) for nothing.
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
   workflow_dispatch:
     inputs:
       id_suffix:
