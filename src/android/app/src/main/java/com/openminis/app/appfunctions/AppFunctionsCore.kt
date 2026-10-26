@@ -95,6 +95,32 @@ object AppFunctionsCore {
     fun needsConfirmation(functionId: String, confirmWrites: Boolean): Boolean =
         confirmWrites && !isReadOnly(functionId)
 
+    /**
+     * [T-appfunctions-confirm-note] The notes that belong on a successful
+     * result, because the transcript would otherwise hide what the call was.
+     *
+     * Measured on the device (TEST2-LOG.md 3.6): a write that the user
+     * approved came back exactly like a write with the gate switched off, so
+     * "who approved what, and when" cannot be reconstructed from a transcript.
+     * The refused case is unambiguous; the approved one needs the line.
+     *
+     * The second note is unchanged behaviour, only moved next to the first:
+     * a target that declares no parameters has its arguments unchecked, and
+     * unknown fields are dropped silently.
+     */
+    fun successNotes(packageName: String, confirmed: Boolean, parametersDeclared: Boolean): List<String> =
+        buildList {
+            if (confirmed) {
+                add("this call changes state and the user confirmed it before it ran")
+            }
+            if (!parametersDeclared) {
+                add(
+                    "$packageName declares no parameters, so the arguments were not checked and " +
+                        "unknown fields are dropped silently. Read the result back before reporting success.",
+                )
+            }
+        }
+
     // ------------------------------------------------------------------ list
 
     /** Values in the dump are wrapped in single-element arrays. */

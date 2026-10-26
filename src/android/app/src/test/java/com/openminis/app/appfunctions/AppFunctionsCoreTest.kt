@@ -273,4 +273,38 @@ class AppFunctionsCoreTest {
         val r = AppFunctionsCore.parseExecuteOutput(0, "Error executing app function: something", "")
         assertTrue(r is AppFunctionsCore.ExecOutcome.FunctionError)
     }
+
+    // [T-appfunctions-confirm-note] Gemessen am Geraet (TEST2-LOG.md 3.6): ein
+    // bestaetigter Schreibaufruf kam genau wie einer ohne Schranke zurueck.
+    @Test fun successNotes_confirmOnly() {
+        val n = AppFunctionsCore.successNotes("com.example.app", confirmed = true, parametersDeclared = true)
+        assertEquals(1, n.size)
+        assertTrue(n[0].startsWith("this call changes state and the user confirmed it"))
+    }
+
+    @Test fun successNotes_noConfirmNoNote() {
+        // Ohne Schranke laeuft der Aufruf auf den Werkzeugschalter hin -- dann
+        // gehoert hier keine Zeile hin, sonst waere der Vermerk wertlos.
+        assertTrue(AppFunctionsCore.successNotes("com.example.app", confirmed = false, parametersDeclared = true).isEmpty())
+    }
+
+    @Test fun successNotes_unpublishedKeepsItsNote() {
+        val n = AppFunctionsCore.successNotes("com.samsung.clock", confirmed = false, parametersDeclared = false)
+        assertEquals(1, n.size)
+        assertTrue(n[0].startsWith("com.samsung.clock declares no parameters"))
+    }
+
+    @Test fun successNotes_bothNotesInOrder() {
+        val n = AppFunctionsCore.successNotes("com.samsung.clock", confirmed = true, parametersDeclared = false)
+        assertEquals(2, n.size)
+        assertTrue(n[0].startsWith("this call changes state"))
+        assertTrue(n[1].startsWith("com.samsung.clock declares no parameters"))
+    }
+
+    @Test fun successNotes_readCallGetsNothing() {
+        // Lesefunktionen stehen nie unter der Schranke (D6) -- also auch kein
+        // Bestaetigungsvermerk. Der zweite Teil haelt die Kopplung fest.
+        assertFalse(AppFunctionsCore.needsConfirmation("pkg#getDeviceStateItem", confirmWrites = true))
+        assertTrue(AppFunctionsCore.successNotes("pkg", confirmed = false, parametersDeclared = true).isEmpty())
+    }
 }

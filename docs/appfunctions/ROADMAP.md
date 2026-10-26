@@ -7,8 +7,9 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
       `com.openminis.app.appfn`).
-- [ ] **Device test, Shizuku path** (D8) — install side by side, `list`,
-      `schema`, a read `execute`, then one write function with confirmation.
+- [x] **Device test, Shizuku path** (D8) — done, see
+      [TEST2-LOG.md](TEST2-LOG.md): `list`, `schema`, a read `execute`, a write
+      with and without the confirmation switch, and the refusals.
 - [ ] **Shizuku permission level** (D2 step 3) — consult the existing
       `OffloadPermissionManager` level for Shizuku before choosing the path.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
@@ -19,8 +20,9 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       the gap so their calls can be validated too.
 - [ ] **Read-back after write** — compare the stored state with the request.
 - [ ] **Type checks of leaf values** (int vs. string) in the validation.
-- [ ] **Device check of the confirmation switch** — off: a write runs without
-      a sheet; on: reject once, expect `NEEDS_CONFIRMATION`.
+- [x] **Device check of the confirmation switch** — off: a write runs without
+      a sheet; on: reject once, expect `NEEDS_CONFIRMATION`. The gap it exposed
+      (an approved call looked like an ungated one) is fixed.
 
 ## Then
 
@@ -32,7 +34,9 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [ ] **Path and reason in diagnostics** (D2).
 - [ ] **Settings texts in every shipped locale** — today `en` and `de`.
 - [ ] **Device test, direct path** (D8) — on a device that grants
-      `EXECUTE_APP_FUNCTIONS`.
+      `EXECUTE_APP_FUNCTIONS`. Measured: on a stock device the permission is
+      privileged and cannot be handed to a sideloaded app, so this needs a
+      privileged install (TEST2-LOG.md 4.).
 
 ## Later
 
@@ -42,3 +46,5 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [ ] **Exposure decision** (D3) — native tool or sandbox CLI
       `android-app-functions`.
 - [ ] **`scope=activity` functions** — decide whether to expose them at all.
+      Measured: through Shizuku they answer `SCOPE_ACTIVITY … (code 1003)`,
+      because the caller has no activity to name (TEST2-LOG.md 2.1).

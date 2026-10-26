@@ -143,17 +143,23 @@ object AppFunctionsTool {
                 "use 'schema' for the declared fields.", title)
         }
         val unvalidated = entry.parameters == null
-        if (AppFunctionsCore.needsConfirmation(fid, AppFunctionsSettings.confirmWrites(context)) &&
-            !confirm(pkg, fid, arguments)
-        ) {
+        val needsConfirmation = AppFunctionsCore.needsConfirmation(fid, AppFunctionsSettings.confirmWrites(context))
+        if (needsConfirmation && !confirm(pkg, fid, arguments)) {
             return fail("NEEDS_CONFIRMATION: the user did not approve ${fid.substringAfter('#')} " +
                 "(verb '${AppFunctionsCore.verbOf(fid)}' changes something). Do not retry without asking.", title)
         }
+        // Reaching this point with the gate on means the user approved it --
+        // the result has to say so, see [AppFunctionsCore.successNotes].
+        val confirmed = needsConfirmation
         val timeout = args.optInt("timeout_s", DEFAULT_TIMEOUT_S).coerceIn(1, 120)
         return when (val r = AppFunctionsManager.execute(context, pkg, fid, arguments, timeout)) {
             is AppFunctionsCore.ExecOutcome.Success -> ok(
-                if (!unvalidated) r.json else r.json + "\n(note: $pkg declares no parameters, so the arguments were " +
-                    "not checked and unknown fields are dropped silently. Read the result back before reporting success.)",
+                buildString {
+                    append(r.json)
+                    for (note in AppFunctionsCore.successNotes(pkg, confirmed, !unvalidated)) {
+                        append("\n(note: ").append(note).append(')')
+                    }
+                },
                 title)
             is AppFunctionsCore.ExecOutcome.FunctionError -> fail("${fid.substringAfter('#')}: ${r.message}", title)
             AppFunctionsCore.ExecOutcome.Empty -> fail("EMPTY_RESULT: ${fid.substringAfter('#')} returned nothing; the outcome is unknown, do not treat it as done.", title)

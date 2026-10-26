@@ -8,6 +8,7 @@ on Minis release 1.15 and has no release of its own.
 
 ### Fixed
 
+- A write call the user approved says so in its result; previously it looked exactly like a call with the confirmation switch off, so nothing in a transcript showed that a confirmation had been given.
 - Reading an app's schema file no longer fails on Android (unsupported XML parser feature); DOCTYPE declarations are still refused.
 
 ### Added
@@ -28,3 +29,4 @@ on Minis release 1.15 and has no release of its own.
 - Optional `applicationIdSuffix` for debug builds (`-PminisIdSuffix`).
 - Design notes, roadmap and changelog for the feature.
 - `docs/appfunctions/TEST-LOG.md`: field notes from the first on-device test, with timestamps, findings, the official discovery API and the plan that replaces guessing with a published contract.
+- `docs/appfunctions/TEST2-LOG.md`: field notes from the second round on the device (`b2cb2ab`) — what the parameter reading and the validation do in reality, the limits of the Shizuku path (`scope: activity`, the privileged permission), why the direct path is out of reach on a stock device, and the finding that closed the confirmation gap.

@@ -15,6 +15,11 @@ the device; nothing is inferred unless it says so.
 
 ---
 
+> **Second round:** `docs/appfunctions/TEST2-LOG.md` — the on-device test of
+> `b2cb2ab` (parameter reading, validation, the confirmation switch) and the
+> limits of the Shizuku path. It supersedes the open points of this log where
+> they overlap.
+
 ## 1. Chronological log
 
 | Time (CET) | Action | Result |
