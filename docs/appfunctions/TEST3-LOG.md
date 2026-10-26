@@ -35,7 +35,22 @@ korrekt, `findAlbums` für dasselbe Album dagegen `1970-01-21 19:03:43` — die
 Galerie gibt beim Suchen einen Ersatzwert aus. Wer aus der Suche ein Datum liest,
 liest Unsinn; aus dem Anlegen ist es brauchbar.
 
-## 2. Offen
+## 2. Nebenbefund der Testumgebung
+
+Die Parallelinstallation (`-PminisIdSuffix=.appfn`) hat **eigenen** Speicher:
+`/data/user/0/com.openminis.app.appfn/files/`. Die Sandbox-Wurzel
+(`…/files/alpine-rootfs`) ist deshalb ein **frisches Alpine** — `git`,
+`python3`, `rg`, `gh` fehlen, obwohl sie in der Hauptinstallation längst
+installiert sind. Für jede Prüfrunde heißt das: Werkzeuge neu holen, bevor
+Repo-Arbeit möglich ist.
+
+Geteilt sind dagegen `skills`, `shared` und `memory` — Änderungen wirken auf
+beiden Seiten. Unmittelbare Folge: im Arbeitsbaum erscheinen Dutzende Dateien
+mit **reiner Modusänderung** (`100755` → `100644`), weil die gemeinsame Ablage
+das Ausführbar-Bit nicht durchreicht. Diese Änderungen gehören **nie** in einen
+Commit; nur gezielt `git add <datei>`.
+
+## 3. Offen
 
 - **Kein Löschweg für Alben.** Die Galerie bietet `createAlbum`, `findAlbums`,
   `updateMediaItem` — aber kein `deleteAlbum`. Das Testalbum muss von Hand in

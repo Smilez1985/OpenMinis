@@ -23,6 +23,14 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       gate is then the only guard), and the gallery offers `createAlbum`
       without any matching delete — a write test there cannot be undone
       through the same interface.
+- [ ] **Testing the parallel install** — the fork's APK installs next to a
+      signed Minis and therefore owns a separate data directory: its sandbox
+      rootfs is a fresh Alpine with none of the tools the main install has
+      (`git`, `python3`, `rg`, `gh`), while `skills`, `shared` and `memory` are
+      the same files on both sides. Consequences measured in
+      [TEST3-LOG.md](TEST3-LOG.md) 2.: tools must be fetched per install, and
+      the shared folder drops the executable bit, so dozens of files show up as
+      mode-only changes in the working tree and must never be committed.
 - [ ] **Catalogue for predefined schemas** — Samsung apps declare no
       parameters (e.g. `clock/createAlarm@1`); a dated, labelled catalogue fills
       the gap so their calls can be validated too.
