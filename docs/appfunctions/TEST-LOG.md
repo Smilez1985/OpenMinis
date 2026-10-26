@@ -62,14 +62,25 @@ Same root cause: the parameter document is not what Samsung expects, the app
 returns an empty list, and the tool reports an empty result as an answer. An empty
 list from a filter the caller invented is not evidence of absence.
 
-### F4 — The confirmation gate did not ask
-`executeTool START 01:48:17.300` → app executed at `01:48:19.582`. About two of
-those 2.3 s are the `list-app-functions` call that resolves the short name, so
-`ConfigConfirmationGate.requestConfirmation` returned `Approved` within
-milliseconds, without a sheet. The wiring in code looks correct
-(`ChatViewModel:14177` → `confirmAppFunctionWrite` → gate, `risk = SENSITIVE`).
-**Cause unknown — unverified.** Until it is understood, every write path of this
-tool is unprotected.
+### F4 — Withdrawn: the confirmation gate did ask
+First read: `executeTool START 01:48:17.300` → app executed at `01:48:19.582`,
+too fast for a sheet, so the gate looked bypassed.
+
+Corrected: the gate asked and the tester approved it (confirmed by the tester).
+2.3 s is enough for one tap. The code agrees: `deleteAlarms` classifies as a
+write (verb `delete`), `runExecute` calls `confirm` before `execute`, the gate
+suspends until `userApprove`/`userReject`/120 s timeout, and the only bypass
+(`skipConfirmation`) belongs to config-audit reverts, not to this tool.
+
+The real defect is upstream of the gate: the sheet showed arguments the model
+had **guessed** (F2/F6), so the user approved a wrong call in good faith. A
+confirmation is only as good as what it shows. Consequences:
+- validate arguments against the declared parameters **before** asking (S2), so
+  an invalid call never reaches the sheet;
+- show the resolved, validated arguments in the sheet, not the raw model input.
+
+Still owed: a rejection check on the device (reject once, expect
+`NEEDS_CONFIRMATION`, nothing executed).
 
 ### F5 — There is no schema getter in the API level we compile against
 `javap` on `platform-36_r02/android.jar`:
@@ -269,8 +280,9 @@ one.
 
 ## 5. To improve — ordered
 
-1. **Confirmation gate (F4).** Unblocked writes are a safety defect, higher than any
-   convenience fix. Reproduce, find the cause, add a regression test.
+1. **Validate before confirming (F4, corrected).** The gate works; it showed
+   guessed arguments. Strict validation (S2) must run before the sheet. Device
+   check: reject once, expect `NEEDS_CONFIRMATION`.
 2. **Schema parser (F1).** Replace `setFeature` with `runCatching` plus
    `isExpandEntityReferences = false`, or parse with Android's `XmlPullParser`.
    Add a device test — a JVM test cannot cover this.
@@ -309,7 +321,7 @@ one.
 
 ## 7. Open, unverified
 
-- **F4 cause.** The gate is wired but approves instantly. Not explained.
+- **F4 rejection path** on the device (approval path is confirmed).
 - **Does `searchAppFunctions` return parameters for Samsung's predefined-schema
   functions?** Unknown. The platform reads the same XML, so probably not — but that
   is an assumption. Test: small APK with `compileSdk 37` (or a reflective call)
