@@ -20,3 +20,4 @@ on Minis release 1.15 and has no release of its own.
 - The CI build skips pushes that only change documentation.
 - Optional `applicationIdSuffix` for debug builds (`-PminisIdSuffix`).
 - Design notes, roadmap and changelog for the feature.
+- `docs/appfunctions/TEST-LOG.md`: field notes from the first on-device test, with timestamps, findings, the official discovery API and the plan that replaces guessing with a published contract.
