@@ -35,9 +35,16 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       Also measured: the restored copy does not carry the executable bit, so
       dozens of files show up as mode-only changes (`100755` → `100644`) in the
       working tree — they must never be committed, add files explicitly.
-- [ ] **Catalogue for predefined schemas** — Samsung apps declare no
-      parameters (e.g. `clock/createAlarm@1`); a dated, labelled catalogue fills
-      the gap so their calls can be validated too.
+- [ ] **Catalogue for predefined schemas** — most Samsung apps declare no
+      parameters (e.g. `clock/createAlarm@1`), the gallery does. Measured
+      2026-10-26: the *parameter* names and types can be had from the runtime
+      metadata (`dumpsys app_function`) and confirmed by a read-only probe; the
+      **fields inside** the parameter object cannot — the shipped schema
+      classes carry renamed fields and no Kotlin metadata. A dated catalogue of
+      what is measurable is in place
+      ([SAMSUNG-PARAMETERS.md](SAMSUNG-PARAMETERS.md),
+      [catalogue/](catalogue/)). Still open: the inner field names, and
+      validating against them.
 - [ ] **Read-back after write** — compare the stored state with the request.
 - [ ] **Type checks of leaf values** (int vs. string) in the validation.
 - [x] **Device check of the confirmation switch** — off: a write runs without

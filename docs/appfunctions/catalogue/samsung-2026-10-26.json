@@ -1,0 +1,1086 @@
+{
+ "datum": "2026-10-26",
+ "grundlage": "dumpsys app_function (Laufzeit-Metadaten) + Aufruf-Sonde",
+ "funktionen": 109,
+ "funktionen_mit_parametern": 33,
+ "pakete": {
+  "com.google.android.googlequicksearchbox": [
+   {
+    "funktion": "com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeTextQueryIntelligentAssist",
+    "parameter": [
+     {
+      "name": "textQueryIntelligentAssistParams",
+      "pflicht": true,
+      "typ": "TextQueryIntelligentAssistParams",
+      "typ_voll": "com.android.personalcontext.appfunctions.schemas.TextQueryIntelligentAssistParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "invokeTextQueryIntelligentAssist",
+    "kategorie": "intelligent_assist",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeRememberThis",
+    "parameter": [
+     {
+      "name": "rememberThisParams",
+      "pflicht": true,
+      "typ": "RememberThisParams",
+      "typ_voll": "com.android.personalcontext.appfunctions.schemas.RememberThisParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "invokeRememberThis",
+    "kategorie": "remember_this",
+    "scope": "global"
+   }
+  ],
+  "com.samsung.android.calendar": [
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_getEvents",
+    "parameter": [
+     {
+      "name": "eventIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getEvents",
+    "kategorie": "calendar",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_findEvents",
+    "parameter": [
+     {
+      "name": "findEventsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findEvents",
+    "kategorie": "calendar",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_createEvent",
+    "parameter": [],
+    "schema": "createEvent",
+    "kategorie": "calendar",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_updateEvent",
+    "parameter": [],
+    "schema": "updateEvent",
+    "kategorie": "calendar",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_showEvent",
+    "parameter": [],
+    "schema": "showEvent",
+    "kategorie": "calendar",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.calendar.crossapp#CrossAppEvent_deleteEvents",
+    "parameter": [],
+    "schema": "deleteEvents",
+    "kategorie": "calendar",
+    "scope": "global"
+   }
+  ],
+  "com.samsung.android.incallui": [
+   {
+    "funktion": "com.android.incallui.call.appfunctions#CallAppFunctions_rejectCall",
+    "parameter": [],
+    "schema": "rejectCall",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall",
+    "parameter": [],
+    "schema": "acceptCall",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.android.incallui.call.appfunctions#CallAppFunctions_getPersons",
+    "parameter": [
+     {
+      "name": "personIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getPersons",
+    "kategorie": "persons",
+    "scope": "global"
+   }
+  ],
+  "com.google.android.apps.messaging": [
+   {
+    "funktion": "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature#draftMessage",
+    "parameter": [
+     {
+      "name": "parameters",
+      "pflicht": true,
+      "typ": "DraftMessageParameters",
+      "typ_voll": "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": null,
+    "kategorie": null,
+    "scope": "activity"
+   }
+  ],
+  "com.google.android.permissioncontroller": [
+   {
+    "funktion": "getPermissionsDeviceState",
+    "parameter": [],
+    "schema": "getPermissionsDeviceState",
+    "kategorie": "device_state",
+    "scope": "global"
+   }
+  ],
+  "com.sec.android.gallery3d": [
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.PhotoFunctions#updateMediaItem",
+    "parameter": [
+     {
+      "name": "updateMediaItemParams",
+      "pflicht": true,
+      "typ": "UpdateMediaItemParams",
+      "typ_voll": "com.google.android.appfunctions.schema.photos.v1.UpdateMediaItemParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "updateMediaItem",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.PhotoFunctions#findMediaItems",
+    "parameter": [
+     {
+      "name": "findMediaItemsParams",
+      "pflicht": true,
+      "typ": "FindMediaItemsParams",
+      "typ_voll": "com.google.android.appfunctions.schema.photos.v1.FindMediaItemsParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "findMediaItems",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.AlbumFunctions#createAlbum",
+    "parameter": [
+     {
+      "name": "createAlbumParams",
+      "pflicht": true,
+      "typ": "CreateAlbumParams",
+      "typ_voll": "com.google.android.appfunctions.schema.photos.v1.CreateAlbumParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "createAlbum",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.SearchFunctions#findPhotos",
+    "parameter": [
+     {
+      "name": "queryString",
+      "pflicht": true,
+      "typ": "LocalDateTime",
+      "typ_voll": "java.time.LocalDateTime",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     },
+     {
+      "name": "endTime",
+      "pflicht": false,
+      "typ": "LocalDateTime",
+      "typ_voll": "java.time.LocalDateTime",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.AlbumFunctions#showAlbum",
+    "parameter": [],
+    "schema": "showAlbum",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.PhotoFunctions#getMediaItemContentUris",
+    "parameter": [],
+    "schema": "getMediaItemContentUris",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.PhotoFunctions#showMediaItem",
+    "parameter": [],
+    "schema": "showMediaItem",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.gallery.crossapp.function.AlbumFunctions#findAlbums",
+    "parameter": [
+     {
+      "name": "findAlbumsParams",
+      "pflicht": true,
+      "typ": "FindAlbumsParams",
+      "typ_voll": "com.google.android.appfunctions.schema.photos.v1.FindAlbumsParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "findAlbums",
+    "kategorie": "photos",
+    "scope": "global"
+   }
+  ],
+  "com.samsung.android.app.contacts": [
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_findPersons",
+    "parameter": [
+     {
+      "name": "findPersonsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findPersons",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_createPerson",
+    "parameter": [],
+    "schema": "createPerson",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_showPerson",
+    "parameter": [],
+    "schema": "showPerson",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_deletePersons",
+    "parameter": [],
+    "schema": "deletePersons",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_getPersons",
+    "parameter": [
+     {
+      "name": "personIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getPersons",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.contacts.person#PersonFunctions_updatePerson",
+    "parameter": [],
+    "schema": "updatePerson",
+    "kategorie": "persons",
+    "scope": "global"
+   }
+  ],
+  "com.samsung.android.app.reminder": [
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#CategoryFunctions_updateTaskCategory",
+    "parameter": [],
+    "schema": "updateTaskCategory",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_deleteTasks",
+    "parameter": [],
+    "schema": "deleteTasks",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#CategoryFunctions_findTaskCategories",
+    "parameter": [
+     {
+      "name": "findTaskCategoriesParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findTaskCategories",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_findTasks",
+    "parameter": [
+     {
+      "name": "findTasksParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findTasks",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#CategoryFunctions_createTaskCategory",
+    "parameter": [],
+    "schema": "createTaskCategory",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#CategoryFunctions_deleteTaskCategories",
+    "parameter": [],
+    "schema": "deleteTaskCategories",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_showTask",
+    "parameter": [],
+    "schema": "showTask",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#CategoryFunctions_showTaskCategory",
+    "parameter": [],
+    "schema": "showTaskCategory",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_createTask",
+    "parameter": [],
+    "schema": "createTask",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_getTasks",
+    "parameter": [
+     {
+      "name": "taskIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getTasks",
+    "kategorie": "tasks",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.app.reminder.data.crossappactions#TaskFunctions_updateTask",
+    "parameter": [],
+    "schema": "updateTask",
+    "kategorie": "tasks",
+    "scope": "global"
+   }
+  ],
+  "com.sec.android.app.clockpackage": [
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#StopwatchCrossAppFunctions_startStopwatch",
+    "parameter": [],
+    "schema": "startStopwatch",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_findTimers",
+    "parameter": [
+     {
+      "name": "findTimersParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findTimers",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_findAlarms",
+    "parameter": [
+     {
+      "name": "findAlarmsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findAlarms",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#StopwatchCrossAppFunctions_showStopwatch",
+    "parameter": [],
+    "schema": "showStopwatch",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_deleteAlarms",
+    "parameter": [],
+    "schema": "deleteAlarms",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_showAlarm",
+    "parameter": [],
+    "schema": "showAlarm",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_showTimer",
+    "parameter": [],
+    "schema": "showTimer",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_createTimers",
+    "parameter": [],
+    "schema": "createTimers",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#StopwatchCrossAppFunctions_stopStopwatch",
+    "parameter": [],
+    "schema": "stopStopwatch",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_createAlarms",
+    "parameter": [],
+    "schema": "createAlarms",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_getTimers",
+    "parameter": [
+     {
+      "name": "timerIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getTimers",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_getAlarms",
+    "parameter": [
+     {
+      "name": "alarmIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getAlarms",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_createAlarm",
+    "parameter": [],
+    "schema": "createAlarm",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_updateAlarm",
+    "parameter": [],
+    "schema": "updateAlarm",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_createTimer",
+    "parameter": [],
+    "schema": "createTimer",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_updateTimer",
+    "parameter": [],
+    "schema": "updateTimer",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#TimerCrossAppFunctions_deleteTimers",
+    "parameter": [],
+    "schema": "deleteTimers",
+    "kategorie": "clock",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.clockpackage.crossappactions#StopwatchCrossAppFunctions_resetStopwatch",
+    "parameter": [],
+    "schema": "resetStopwatch",
+    "kategorie": "clock",
+    "scope": "global"
+   }
+  ],
+  "com.google.android.gms": [
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItems",
+    "parameter": [
+     {
+      "name": "getDeviceStateItemsParams",
+      "pflicht": true,
+      "typ": "GetDeviceStateItemParams",
+      "typ_voll": "com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateItemParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "getDeviceStateItems",
+    "kategorie": "device_state",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata",
+    "parameter": [
+     {
+      "name": "getDeviceStateMetadataParams",
+      "pflicht": true,
+      "typ": "GetDeviceStateMetadataParams",
+      "typ_voll": "com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateMetadataParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "getDeviceStateMetadata",
+    "kategorie": "device_state",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchFitDataScreen",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchBarcodeScannerWithResult",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#castMyScreen",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#isSystemUpToDate",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchBackupSettings",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#openDeviceSetupTips",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#updatePreviewImage",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#extendScreenTime",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getPLinkUrl",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#setDeviceStateItem",
+    "parameter": [
+     {
+      "name": "setDeviceStateItemParams",
+      "pflicht": true,
+      "typ": "SetDeviceStateItemParams",
+      "typ_voll": "com.google.android.appfunctions.schema.devicestate.v1.SetDeviceStateItemParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "setDeviceStateItem",
+    "kategorie": "device_state",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchDocumentScannerWithResult",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getPlayerStatus",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getUncategorizedDeviceState",
+    "parameter": [
+     {
+      "name": "getUncategorizedDeviceStateParams",
+      "pflicht": true,
+      "typ": "GetUncategorizedDeviceStateParams",
+      "typ_voll": "com.google.android.appfunctions.schema.devicestate.v1.GetUncategorizedDeviceStateParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "getUncategorizedDeviceState",
+    "kategorie": "device_state",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#openHelpService",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#setAncState",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#addCardToWallet",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItem",
+    "parameter": [
+     {
+      "name": "getDeviceStateItemParams",
+      "pflicht": true,
+      "typ": "GetDeviceStateItemParams",
+      "typ_voll": "com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateItemParams",
+      "art": 11,
+      "quelle": "laufzeit-metadaten"
+     }
+    ],
+    "schema": "getDeviceStateItem",
+    "kategorie": "device_state",
+    "scope": "global"
+   }
+  ],
+  "com.sec.android.app.myfiles": [
+   {
+    "funktion": "com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_getFileContentUris",
+    "parameter": [
+     {
+      "name": "fileIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getFileContentUris",
+    "kategorie": "files",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_showFile",
+    "parameter": [],
+    "schema": "showFile",
+    "kategorie": "files",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles",
+    "parameter": [
+     {
+      "name": "findFilesParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findFiles",
+    "kategorie": "files",
+    "scope": "global"
+   }
+  ],
+  "com.sec.android.mimage.photoretouching": [
+   {
+    "funktion": "com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor",
+    "parameter": [],
+    "schema": "showMediaItemFilterEditor",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter",
+    "parameter": [],
+    "schema": "setMediaItemFilter",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem",
+    "parameter": [],
+    "schema": "straightenMediaItem",
+    "kategorie": "photos",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor",
+    "parameter": [],
+    "schema": "showMediaItemStraightenEditor",
+    "kategorie": "photos",
+    "scope": "global"
+   }
+  ],
+  "com.sec.android.app.sbrowser": [
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_deleteBookmarks",
+    "parameter": [],
+    "schema": "deleteBookmarks",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showTab",
+    "parameter": [],
+    "schema": "showTab",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks",
+    "parameter": [
+     {
+      "name": "findBookmarksParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findBookmarks",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_createBookmark",
+    "parameter": [],
+    "schema": "createBookmark",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark",
+    "parameter": [],
+    "schema": "updateBookmark",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories",
+    "parameter": [
+     {
+      "name": "getHistoriesParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getHistories",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showBookmark",
+    "parameter": [],
+    "schema": "showBookmark",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showSite",
+    "parameter": [],
+    "schema": "showSite",
+    "kategorie": "browser",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findTabs",
+    "parameter": [
+     {
+      "name": "findTabsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findTabs",
+    "kategorie": "browser",
+    "scope": "global"
+   }
+  ],
+  "com.samsung.android.dialer": [
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_deleteCallRecords",
+    "parameter": [],
+    "schema": "deleteCallRecords",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_findPersons",
+    "parameter": [
+     {
+      "name": "findPersonsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findPersons",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_showCallRecord",
+    "parameter": [],
+    "schema": "showCallRecord",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall",
+    "parameter": [],
+    "schema": "makeCall",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_getPersons",
+    "parameter": [
+     {
+      "name": "personIds",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "getPersons",
+    "kategorie": "persons",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords",
+    "parameter": [
+     {
+      "name": "findCallRecordsParams",
+      "pflicht": true,
+      "typ": null,
+      "bestaetigt_durch": "typfehler-sonde",
+      "quelle": "sonde"
+     }
+    ],
+    "schema": "findCallRecords",
+    "kategorie": "phone",
+    "scope": "global"
+   },
+   {
+    "funktion": "com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist",
+    "parameter": [],
+    "schema": "addToBlocklist",
+    "kategorie": "phone",
+    "scope": "global"
+   }
+  ],
+  "com.google.android.apps.adm": [
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#clearAllMemories",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#objectsRemembered",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#rememberAboutPersonalItem",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#ringDevice",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#listDevices",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#recallLocation",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#getAllMemoriesForDisambiguation",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#locateDevice",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#deleteMemory",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#refreshDeviceLocation",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   },
+   {
+    "funktion": "com.google.android.apps.adm.memory.BaseMemoryAppFunctionService#recallLocationForMultipleObjects",
+    "parameter": [],
+    "schema": null,
+    "kategorie": null,
+    "scope": "global"
+   }
+  ]
+ }
+}
