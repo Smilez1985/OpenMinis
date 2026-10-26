@@ -12,8 +12,11 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
       alone must not select it; drop the result on code 1000.
 
-- [ ] **Validate arguments against the declared parameters** before execute
-      (and before any confirmation) — unknown or missing fields are an error.
+- [ ] **Catalogue for predefined schemas** — Samsung apps declare no
+      parameters (e.g. `clock/createAlarm@1`); a dated, labelled catalogue fills
+      the gap so their calls can be validated too.
+- [ ] **Read-back after write** — compare the stored state with the request.
+- [ ] **Type checks of leaf values** (int vs. string) in the validation.
 - [ ] **Device check of the confirmation switch** — off: a write runs without
       a sheet; on: reject once, expect `NEEDS_CONFIRMATION`.
 

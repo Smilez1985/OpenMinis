@@ -6,6 +6,10 @@ on Minis release 1.15 and has no release of its own.
 
 ## [Unreleased]
 
+### Fixed
+
+- Reading an app's schema file no longer fails on Android (unsupported XML parser feature); DOCTYPE declarations are still refused.
+
 ### Added
 
 - Native agent tool `app_functions` to list, inspect and execute the AppFunctions of other installed apps (Android 16+).
@@ -14,6 +18,9 @@ on Minis release 1.15 and has no release of its own.
 - Short function names are accepted when unique within the app.
 - Setting "Confirm actions that change something" (off by default): when on, functions that change something run only after the user approves them in the existing confirmation dialog.
 - An empty result is reported as unknown instead of as success.
+- `list` and `schema` show the parameters, descriptions and data types each app declares in the system's function registry.
+- `execute` refuses arguments with unknown or missing required fields before anything runs or is shown for confirmation.
+- Results of functions without declared parameters carry a note to read the outcome back.
 - Settings switch "App Functions" under Agent Tools, off by default, with English and German texts.
 - Manifest declares `EXECUTE_APP_FUNCTIONS` and package visibility for apps that expose AppFunctions.
 - CI workflow on the fork that builds a debug APK installable next to an existing Minis.

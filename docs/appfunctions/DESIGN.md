@@ -90,6 +90,16 @@ exposure is a product decision; the core does not change with it.
 
 - **List**: `cmd app_function list-app-functions` via Shizuku (API 36 and 37).
   On the direct path from API 37: `AppFunctionManager.searchAppFunctions`.
+- **Declared parameters come first from the list.** The registry dump carries,
+  per function, `parameters`, `description` and `response`, and per package a
+  component document with the data types. `list` and `schema` show them; the
+  APK files are only the fallback for apps that declare nothing there.
+- **Validation before execution** (and before any confirmation): unknown
+  fields and missing required fields are an error, nested objects and array
+  elements are checked against the declared data types. Reason: the platform
+  drops unknown fields silently and fills defaults — a guessed `hour` became
+  00:00 on the device. A function that declares no parameters cannot be
+  validated; its result says so and asks for a read-back.
 - **Schemas**: read from the target APK — asset files whose name contains
   `app_function` and ends in `.xml` — via `PackageManager` →
   `ApplicationInfo.sourceDir` + split APKs → `ZipFile`. No privilege needed.
@@ -101,8 +111,9 @@ exposure is a product decision; the core does not change with it.
   guessing.
 - List and schemas are cached per package and `versionCode`; a package update
   invalidates its entries.
-- Schema XML comes from another app: parsed with DOCTYPE and external entities
-  disabled.
+- Schema XML comes from another app: a DOCTYPE is refused before parsing
+  (Android's parser does not support the Xerces feature for it), and entity
+  references are not expanded.
 
 ## Rule D5 — Execution
 

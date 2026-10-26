@@ -54,11 +54,14 @@ object AppFunctionsManager {
 
     // ------------------------------------------------------------- discovery
 
-    fun list(): Result<List<AppFunctionsCore.FunctionEntry>> = runCatching {
+    fun list(): Result<List<AppFunctionsCore.FunctionEntry>> = listDocument().map { it.entries }
+
+    /** Discovery dump with declared parameters and data types. */
+    fun listDocument(): Result<AppFunctionsCore.ListDocument> = runCatching {
         check(ShizukuManager.isReady()) { "discovery needs Shizuku (state ${ShizukuManager.snapshot.value.state})" }
         val r = ShizukuManager.runProcess(arrayOf("cmd", "app_function", "list-app-functions"), timeoutMs = LIST_TIMEOUT_MS)
         check(r.exitCode == 0) { "list-app-functions rc ${r.exitCode}: ${r.stderr.take(300)}" }
-        AppFunctionsCore.parseList(r.stdout)
+        AppFunctionsCore.parseListDocument(r.stdout)
     }
 
     /**

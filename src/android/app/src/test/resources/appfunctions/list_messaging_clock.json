@@ -1,0 +1,246 @@
+{
+ "com.google.android.apps.messaging": [
+  {
+   "AppFunctionStaticMetadata-com.google.android.apps.messaging": {
+    "serviceName": [
+     "@null"
+    ],
+    "description": [
+     "The user is currently in the context of an active conversation screen in Google Messages. Use\nthis tool whenever the user asks to compose, draft, write, type, paste, insert, or populate a\nmessage or reply into the conversation text composer. Insert only the content requested by the\nuser without extra conversational pretext, filler words, or padding unless explicitly asked to\ngenerate or compose content. After invoking this tool, provide a natural confirmation quoting\nthe drafted message."
+    ],
+    "response": [
+     {
+      "description": [
+       "The confirmed [DraftedMessage] entity with the active composer text."
+      ],
+      "valueType": [
+       {
+        "dataTypeReference": [
+         "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage"
+        ],
+        "type": [
+         11
+        ],
+        "isNullable": [
+         false
+        ]
+       }
+      ]
+     }
+    ],
+    "enabledByDefault": [
+     false
+    ],
+    "functionId": [
+     "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature#draftMessage"
+    ],
+    "packageNameHash": [
+     -1430093937
+    ],
+    "scope": [
+     "activity"
+    ],
+    "parameters": [
+     {
+      "description": [
+       "Contains the message text to inject into the composer."
+      ],
+      "isRequired": [
+       true
+      ],
+      "name": [
+       "parameters"
+      ],
+      "dataTypeMetadata": [
+       {
+        "dataTypeReference": [
+         "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters"
+        ],
+        "type": [
+         11
+        ],
+        "isNullable": [
+         false
+        ]
+       }
+      ]
+     }
+    ],
+    "mobileApplicationQualifiedId": [
+     "android$apps-db/apps#com.google.android.apps.messaging"
+    ],
+    "packageName": [
+     "com.google.android.apps.messaging"
+    ]
+   },
+   "AppFunctionRuntimeMetadata-com.google.android.apps.messaging": {
+    "AppFunctionRuntimeMetadata-com.google.android.apps.messaging": {
+     "appFunctionStaticMetadataQualifiedId": [
+      "android$apps-db/app_functions#com.google.android.apps.messaging/com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature\\#draftMessage"
+     ],
+     "functionId": [
+      "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageSignature#draftMessage"
+     ],
+     "packageName": [
+      "com.google.android.apps.messaging"
+     ]
+    }
+   }
+  },
+  {
+   "AppFunctionComponentMetadataDocument-com.google.android.apps.messaging": {
+    "dataTypes": [
+     {
+      "name": [
+       "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters"
+      ],
+      "dataTypeMetadata": [
+       {
+        "description": [
+         "Execution payload for drafting a message."
+        ],
+        "properties": [
+         {
+          "name": [
+           "text"
+          ],
+          "dataTypeMetadata": [
+           {
+            "description": [
+             "The text content to populate into the active conversation input field. Insert only the exact\ncontent requested by the user without adding conversational pretext, filler words, or padding,\nunless the user explicitly asks to compose or elaborate on the message."
+            ],
+            "type": [
+             8
+            ],
+            "isNullable": [
+             false
+            ]
+           }
+          ]
+         }
+        ],
+        "required": [
+         "text"
+        ],
+        "objectQualifiedName": [
+         "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftMessageParameters"
+        ],
+        "type": [
+         3
+        ],
+        "isNullable": [
+         true
+        ]
+       }
+      ]
+     },
+     {
+      "name": [
+       "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage"
+      ],
+      "dataTypeMetadata": [
+       {
+        "description": [
+         "Result entity confirming the active draft content."
+        ],
+        "properties": [
+         {
+          "name": [
+           "text"
+          ],
+          "dataTypeMetadata": [
+           {
+            "description": [
+             "The resulting text content set in the composer."
+            ],
+            "type": [
+             8
+            ],
+            "isNullable": [
+             false
+            ]
+           }
+          ]
+         }
+        ],
+        "required": [
+         "text"
+        ],
+        "objectQualifiedName": [
+         "com.google.android.apps.messaging.conversation2.appfunctions.draftmessage.DraftedMessage"
+        ],
+        "type": [
+         3
+        ],
+        "isNullable": [
+         true
+        ]
+       }
+      ]
+     }
+    ],
+    "mobileApplicationQualifiedId": [
+     "android$apps-db/apps#com.google.android.apps.messaging"
+    ],
+    "packageName": [
+     "com.google.android.apps.messaging"
+    ]
+   }
+  }
+ ],
+ "com.sec.android.app.clockpackage": [
+  {
+   "AppFunctionStaticMetadata-com.sec.android.app.clockpackage": {
+    "serviceName": [
+     "com.google.android.appfunctions.service.MainAppFunctionService"
+    ],
+    "schemaCategory": [
+     "clock"
+    ],
+    "schemaName": [
+     "createAlarm"
+    ],
+    "schemaVersion": [
+     1
+    ],
+    "enabledByDefault": [
+     true
+    ],
+    "functionId": [
+     "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_createAlarm"
+    ],
+    "packageNameHash": [
+     138102030
+    ],
+    "scope": [
+     "global"
+    ],
+    "restrictCallersWithExecuteAppFunctions": [
+     false
+    ],
+    "displayNameStringRes": [
+     0
+    ],
+    "mobileApplicationQualifiedId": [
+     "android$apps-db/apps#com.sec.android.app.clockpackage"
+    ],
+    "packageName": [
+     "com.sec.android.app.clockpackage"
+    ]
+   },
+   "AppFunctionRuntimeMetadata-com.sec.android.app.clockpackage": {
+    "AppFunctionRuntimeMetadata-com.sec.android.app.clockpackage": {
+     "appFunctionStaticMetadataQualifiedId": [
+      "android$apps-db/app_functions#com.sec.android.app.clockpackage/com.sec.android.app.clockpackage.crossappactions\\#AlarmCrossAppActions_createAlarm"
+     ],
+     "functionId": [
+      "com.sec.android.app.clockpackage.crossappactions#AlarmCrossAppActions_createAlarm"
+     ],
+     "packageName": [
+      "com.sec.android.app.clockpackage"
+     ]
+    }
+   }
+  }
+ ]
+}

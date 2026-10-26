@@ -118,6 +118,80 @@ class AppFunctionsCoreTest {
         assertFalse(AppFunctionsCore.needsConfirmation("p#A_findAlarms", confirmWrites = true))
     }
 
+    // ------------------------------------------------- declared parameters
+
+    // Unmodified excerpt of `cmd app_function list-app-functions` on a Samsung
+    // Android 17 device: Google Messages (declares parameters) and the Samsung
+    // clock's createAlarm (declares none).
+    private val dump by lazy { String(fixture("list_messaging_clock.json")) }
+    private val msg = "com.google.android.apps.messaging"
+    private val samsungClock = "com.sec.android.app.clockpackage"
+
+    @Test fun parseListDocument_readsDeclaredParametersAndTypes() {
+        val doc = AppFunctionsCore.parseListDocument(dump)
+        val draft = doc.entries.single { it.packageName == msg }
+        assertEquals(listOf("parameters"), draft.parameters!!.map { it.name })
+        assertEquals("DraftMessageParameters", draft.parameters!!.single().type)
+        assertTrue(draft.parameters!!.single().required)
+        assertTrue(draft.description.startsWith("The user is currently"))
+        val text = doc.types.getValue(msg).getValue("DraftMessageParameters").single()
+        assertEquals("text", text.name); assertEquals("string", text.type); assertTrue(text.required)
+    }
+
+    @Test fun parseListDocument_unpublishedIsNull_notEmpty() {
+        val create = AppFunctionsCore.parseListDocument(dump).entries.single { it.packageName == samsungClock }
+        assertEquals(null, create.parameters)
+        assertEquals("createAlarm", create.schemaName)
+    }
+
+    @Test fun validate_rejectsUnknownAndMissingFields() {
+        val doc = AppFunctionsCore.parseListDocument(dump)
+        val draft = doc.entries.single { it.packageName == msg }
+        val types = doc.types.getValue(msg)
+        fun v(json: String) = AppFunctionsCore.validate(draft, types, JSONObject(json))
+        assertTrue(v("{\"parameters\":{\"text\":\"hi\"}}").isEmpty())
+        assertTrue(v("{}").single().contains("missing required field 'parameters'"))
+        assertTrue(v("{\"parameters\":{}}").single().contains("missing required field 'parameters.text'"))
+        assertTrue(v("{\"parameters\":{\"text\":\"hi\",\"txt\":1}}").single().contains("unknown field 'parameters.txt'"))
+        assertTrue(v("{\"draftMessageParams\":{}}").any { it.contains("unknown field 'draftMessageParams'") })
+        assertTrue(v("{\"parameters\":\"hi\"}").single().contains("must be an object"))
+    }
+
+    @Test fun validate_unpublishedChecksNothing() {
+        val doc = AppFunctionsCore.parseListDocument(dump)
+        val create = doc.entries.single { it.packageName == samsungClock }
+        assertTrue(AppFunctionsCore.validate(create, emptyMap(), JSONObject("{\"anything\":1}")).isEmpty())
+    }
+
+    @Test fun validate_checksArrayElements() {
+        val e = AppFunctionsCore.FunctionEntry("p", "p#f", null, null, null, null,
+            parameters = listOf(AppFunctionsCore.Param("items", "array<It>", true, "")))
+        val types = mapOf("It" to listOf(AppFunctionsCore.Param("id", "long", true, "")))
+        assertTrue(AppFunctionsCore.validate(e, types, JSONObject("{\"items\":[{\"id\":1}]}")).isEmpty())
+        assertTrue(AppFunctionsCore.validate(e, types, JSONObject("{\"items\":[{}]}")).single().contains("items[0].id"))
+        assertTrue(AppFunctionsCore.validate(e, types, JSONObject("{\"items\":{}}")).single().contains("must be an array"))
+    }
+
+    @Test fun schemaFromList_onlyWhenPublished() {
+        val doc = AppFunctionsCore.parseListDocument(dump)
+        assertEquals(null, AppFunctionsCore.schemaFromList(doc, samsungClock, null))
+        val s = AppFunctionsCore.schemaFromList(doc, msg, "draftMessage")!!
+        assertEquals("parameters", s.functions.single().parameters.single().name)
+        assertTrue(s.types.containsKey("DraftMessageParameters"))
+    }
+
+    @Test fun formatList_showsDeclaredParameters() {
+        val out = AppFunctionsCore.formatList(AppFunctionsCore.parseList(dump), null)
+        assertTrue(out, out.contains("draftMessage(parameters: DraftMessageParameters)"))
+        assertTrue(out, out.contains("AlarmCrossAppActions_createAlarm(? unpublished)"))
+    }
+
+    @Test fun schemaXml_doctypeInUtf16IsRefused() {
+        val evil = "<?xml version=\"1.0\" encoding=\"UTF-16\"?><!DOCTYPE x [<!ENTITY e \"x\">]><appfunctions/>"
+        try { AppFunctionsCore.parseSchemaXml(evil.toByteArray(Charsets.UTF_16LE)); fail("DOCTYPE must be rejected") }
+        catch (_: IllegalArgumentException) {}
+    }
+
     // ---------------------------------------------------------------- schema
 
     @Test fun schema_googleShape_typedParametersAndDataTypes() {

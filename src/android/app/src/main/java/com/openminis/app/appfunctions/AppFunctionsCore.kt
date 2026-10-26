@@ -29,6 +29,10 @@ object AppFunctionsCore {
         val category: String?,
         val scope: String?,
         val enabledByDefault: Boolean?,
+        val description: String = "",
+        /** Declared parameters; null = the app publishes none (Samsung apps). */
+        val parameters: List<Param>? = null,
+        val returns: String? = null,
     ) {
         /** Part after '#', e.g. `AlarmCrossAppActions_findAlarms`. */
         val shortName: String get() = id.substringAfter('#')
@@ -47,6 +51,9 @@ object AppFunctionsCore {
     )
 
     data class SchemaDocument(val functions: List<FunctionSchema>, val types: Map<String, List<Param>>)
+
+    /** The discovery dump: functions plus, per package, the declared data types (simple name -> fields). */
+    data class ListDocument(val entries: List<FunctionEntry>, val types: Map<String, Map<String, List<Param>>>)
 
     sealed class ExecOutcome {
         data class Success(val json: String) : ExecOutcome()
@@ -96,14 +103,60 @@ object AppFunctionsCore {
         return if (v is JSONArray) (if (v.length() > 0) v.opt(0) else null) else v
     }
 
-    fun parseList(json: String): List<FunctionEntry> {
+    private fun firstObj(o: JSONObject?, key: String): JSONObject? = o?.let { first(it, key) as? JSONObject }
+    private fun firstStr(o: JSONObject?, key: String): String? = o?.let { first(it, key) as? String }
+    private fun objects(o: JSONObject?, key: String): List<JSONObject> =
+        o?.optJSONArray(key)?.let { a -> (0 until a.length()).mapNotNull { a.optJSONObject(it) } } ?: emptyList()
+
+    /** Type of a dump `dataTypeMetadata` object, same notation as [typeOf] for XML. */
+    private fun jsonTypeOf(dt: JSONObject?): String {
+        if (dt == null) return "?"
+        firstStr(dt, "dataTypeReference")?.let { return it.substringAfterLast('.') }
+        val code = (first(dt, "type") as? Number)?.toInt()
+        val name = code?.let { TYPE_NAMES[it] ?: "type$it" } ?: "?"
+        if (name == "array") return "array<${jsonTypeOf(firstObj(dt, "itemType"))}>"
+        return name
+    }
+
+    private fun jsonParam(p: JSONObject, required: Boolean?): Param {
+        val dt = firstObj(p, "dataTypeMetadata")
+        return Param(
+            firstStr(p, "name") ?: "?", jsonTypeOf(dt),
+            required ?: (first(p, "isRequired") as? Boolean ?: false),
+            firstStr(p, "description") ?: firstStr(dt, "description").orEmpty(),
+        )
+    }
+
+    fun parseList(json: String): List<FunctionEntry> = parseListDocument(json).entries
+
+    /**
+     * The whole dump: per function its declared `parameters`, `description` and
+     * `response`; per package the data types of its component document. A
+     * function without a `parameters` key publishes none (null), which is not
+     * the same as taking none (empty list).
+     */
+    fun parseListDocument(json: String): ListDocument {
         require(json.isNotBlank()) { "list-app-functions returned nothing" }
         val root = JSONObject(json)
         val out = mutableListOf<FunctionEntry>()
+        val types = linkedMapOf<String, Map<String, List<Param>>>()
         for (pkg in root.keys()) {
             val entries = root.optJSONArray(pkg) ?: continue
+            val pkgTypes = linkedMapOf<String, List<Param>>()
             for (i in 0 until entries.length()) {
                 val e = entries.optJSONObject(i) ?: continue
+                val compKey = e.keys().asSequence().firstOrNull { it.startsWith("AppFunctionComponentMetadataDocument") }
+                if (compKey != null) {
+                    for (dts in objects(e.optJSONObject(compKey), "dataTypes")) {
+                        val name = firstStr(dts, "name") ?: continue
+                        val dt = firstObj(dts, "dataTypeMetadata") ?: continue
+                        val req = dt.optJSONArray("required")
+                            ?.let { a -> (0 until a.length()).map { a.optString(it) } }?.toSet() ?: emptySet()
+                        pkgTypes[name.substringAfterLast('.')] = objects(dt, "properties").map { p ->
+                            jsonParam(p, (firstStr(p, "name") ?: "") in req)
+                        }
+                    }
+                }
                 val staticKey = e.keys().asSequence().firstOrNull { it.startsWith("AppFunctionStaticMetadata") }
                     ?: continue
                 val st = e.optJSONObject(staticKey) ?: continue
@@ -115,10 +168,83 @@ object AppFunctionsCore {
                     category = first(st, "schemaCategory") as? String,
                     scope = first(st, "scope") as? String,
                     enabledByDefault = first(st, "enabledByDefault") as? Boolean,
+                    description = firstStr(st, "description").orEmpty(),
+                    parameters = if (st.has("parameters")) objects(st, "parameters").map { jsonParam(it, null) } else null,
+                    returns = firstObj(firstObj(st, "response"), "valueType")?.let { jsonTypeOf(it) },
                 )
             }
+            if (pkgTypes.isNotEmpty()) types[pkg] = pkgTypes
         }
+        return ListDocument(out, types)
+    }
+
+    /**
+     * Schema answer from the dump for [packageName] (optionally one [function]).
+     * Null when none of the matching functions publishes parameters: then only
+     * the app's own XML can say more.
+     */
+    fun schemaFromList(doc: ListDocument, packageName: String, function: String?): SchemaDocument? {
+        val hits = doc.entries.filter { it.packageName == packageName }.filter { e ->
+            function.isNullOrEmpty() || e.id == function || e.shortName.endsWith(function)
+        }
+        if (hits.none { it.parameters != null }) return null
+        return SchemaDocument(
+            hits.map { e ->
+                FunctionSchema(e.id, e.description, e.scope, e.schemaName, e.category,
+                    e.parameters ?: emptyList(), e.returns ?: "?")
+            },
+            doc.types[packageName].orEmpty(),
+        )
+    }
+
+    // --------------------------------------------------------------- validate
+
+    /**
+     * Checks [arguments] against what [entry] declares, before anything runs or
+     * is shown for confirmation. Unknown fields and missing required fields are
+     * errors: the platform drops unknown fields silently and fills defaults (a
+     * guessed `hour` became 00:00 on the device). Returns the problems; empty =
+     * valid. [Entry.parameters] null = nothing published, nothing to check.
+     */
+    fun validate(entry: FunctionEntry, types: Map<String, List<Param>>, arguments: JSONObject): List<String> {
+        val params = entry.parameters ?: return emptyList()
+        val out = mutableListOf<String>()
+        checkObject("", params, arguments, types, out, 0)
         return out
+    }
+
+    private fun checkObject(
+        path: String, params: List<Param>, obj: JSONObject,
+        types: Map<String, List<Param>>, out: MutableList<String>, depth: Int,
+    ) {
+        val known = params.map { it.name }.toSet()
+        for (k in obj.keys()) if (k !in known) {
+            out += "unknown field '$path$k' (allowed: ${params.joinToString(", ") { it.name }.ifEmpty { "none" }})"
+        }
+        for (p in params) {
+            if (!obj.has(p.name) || obj.isNull(p.name)) {
+                if (p.required) out += "missing required field '$path${p.name}' (${p.type})"
+                continue
+            }
+            if (depth >= 6) continue
+            val v = obj.opt(p.name)
+            val sub = types[p.type]
+            if (sub != null) {
+                if (v is JSONObject) checkObject("$path${p.name}.", sub, v, types, out, depth + 1)
+                else out += "field '$path${p.name}' must be an object of type ${p.type}"
+                continue
+            }
+            val item = p.type.removePrefix("array<").removeSuffix(">")
+            val itemFields = if (p.type.startsWith("array<")) types[item] else null
+            if (itemFields != null) {
+                if (v !is JSONArray) { out += "field '$path${p.name}' must be an array of $item"; continue }
+                for (i in 0 until v.length()) {
+                    val el = v.opt(i)
+                    if (el is JSONObject) checkObject("$path${p.name}[$i].", itemFields, el, types, out, depth + 1)
+                    else out += "field '$path${p.name}[$i]' must be an object of type $item"
+                }
+            }
+        }
     }
 
     /** Short name (unique within the package) or full id -> full id. */
@@ -172,9 +298,13 @@ object AppFunctionsCore {
     }
 
     fun parseSchemaXml(xml: ByteArray): SchemaDocument {
+        // No DTDs / external entities: the file comes from another app. Refused
+        // here, before parsing, because Android's parser does not support the
+        // Xerces feature `disallow-doctype-decl` (setFeature throws on the device).
+        // Zero bytes are dropped first so a UTF-16 file cannot hide the marker.
+        val ascii = String(xml.filter { it != 0.toByte() }.toByteArray(), Charsets.ISO_8859_1)
+        require(!ascii.contains("<!DOCTYPE", ignoreCase = true)) { "schema file declares a DOCTYPE; refused" }
         val f = DocumentBuilderFactory.newInstance().apply {
-            // No DTDs / external entities: the file comes from another app.
-            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
             isExpandEntityReferences = false
             isNamespaceAware = false
         }
@@ -252,13 +382,18 @@ object AppFunctionsCore {
             sb.append(pkg).append(" (").append(fs.size).append(")\n")
             fs.sortedBy { it.shortName }.forEach { f ->
                 sb.append("  ").append(if (isReadOnly(f.id)) "read " else "write").append("  ").append(f.shortName)
+                sb.append(when (val ps = f.parameters) {
+                    null -> "(? unpublished)"
+                    else -> ps.joinToString(", ", "(", ")") { it.name + ": " + it.type + if (it.required) "" else "?" }
+                })
                 f.category?.let { sb.append("  [").append(it).append(']') }
                 if (f.enabledByDefault == false) sb.append("  (disabled)")
                 sb.append('\n')
             }
         }
         sb.append("Total ${filtered.size} in ${filtered.map { it.packageName }.toSet().size} apps. " +
-            "write = needs the user's approval.")
+            "write = changes something. (…) = declared parameters, '?' after a type = optional; " +
+            "'(? unpublished)' = the app declares none, use 'schema' and read errors.")
         return sb.toString()
     }
 

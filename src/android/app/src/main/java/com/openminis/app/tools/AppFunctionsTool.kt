@@ -82,6 +82,12 @@ object AppFunctionsTool {
             "schema" -> {
                 val pkg = args.optString("package").trim()
                 if (pkg.isEmpty()) return@withContext fail("schema needs 'package'", title)
+                // Declared parameters first: the discovery dump carries them.
+                val listDoc = AppFunctionsManager.listDocument().getOrNull()
+                AppFunctionsCore.schemaFromList(listDoc ?: AppFunctionsCore.ListDocument(emptyList(), emptyMap()),
+                    pkg, args.optString("function").trim().ifEmpty { null })?.let {
+                    return@withContext ok(AppFunctionsCore.schemaToJson(it).toString(1), title)
+                }
                 AppFunctionsManager.schema(context, pkg).fold(
                     onSuccess = { doc ->
                         val fn = args.optString("function").trim()
@@ -90,7 +96,9 @@ object AppFunctionsTool {
                             id == fn || id.substringAfter('#').endsWith(fn)
                         })
                         if (fn.isNotEmpty() && filtered.functions.isEmpty()) fail("function '$fn' not in the schema of $pkg", title)
-                        else ok(AppFunctionsCore.schemaToJson(filtered).toString(1), title)
+                        else ok(AppFunctionsCore.schemaToJson(filtered).toString(1) +
+                            "\n(note: $pkg declares no parameters for these functions; the names above come from " +
+                            "its package only. Call once with '{}' and read the error, it names the missing field.)", title)
                     },
                     onFailure = { fail("schema failed: ${it.message}", title) },
                 )
@@ -121,13 +129,20 @@ object AppFunctionsTool {
         val decision = AppFunctionsManager.decidePath(context)
         if (decision.path == AppFunctionsManager.Path.NONE) return fail("unavailable: ${decision.reason}", title)
 
-        // Resolving a short name needs the list; a full id does not.
-        val fid = if ('#' in fn) fn else {
-            val entries = AppFunctionsManager.list().getOrElse { return fail("cannot resolve '$fn': ${it.message}", title) }
-            try { AppFunctionsCore.resolve(entries, pkg, fn) } catch (e: AppFunctionsCore.ResolveException) {
-                return fail(e.message ?: "unresolved", title)
-            }
+        // The list resolves short names AND carries the declared parameters to
+        // validate against, so it is read for every execute.
+        val doc = AppFunctionsManager.listDocument().getOrElse { return fail("cannot read the function list: ${it.message}", title) }
+        val fid = try { AppFunctionsCore.resolve(doc.entries, pkg, fn) } catch (e: AppFunctionsCore.ResolveException) {
+            return fail(e.message ?: "unresolved", title)
         }
+        val entry = doc.entries.firstOrNull { it.packageName == pkg && it.id == fid }
+            ?: return fail("function $fid is not registered for $pkg", title)
+        val problems = AppFunctionsCore.validate(entry, doc.types[pkg].orEmpty(), JSONObject(arguments))
+        if (problems.isNotEmpty()) {
+            return fail("INVALID_ARGUMENTS for ${entry.shortName}: ${problems.joinToString("; ")}. Nothing was executed; " +
+                "use 'schema' for the declared fields.", title)
+        }
+        val unvalidated = entry.parameters == null
         if (AppFunctionsCore.needsConfirmation(fid, AppFunctionsSettings.confirmWrites(context)) &&
             !confirm(pkg, fid, arguments)
         ) {
@@ -136,7 +151,10 @@ object AppFunctionsTool {
         }
         val timeout = args.optInt("timeout_s", DEFAULT_TIMEOUT_S).coerceIn(1, 120)
         return when (val r = AppFunctionsManager.execute(context, pkg, fid, arguments, timeout)) {
-            is AppFunctionsCore.ExecOutcome.Success -> ok(r.json, title)
+            is AppFunctionsCore.ExecOutcome.Success -> ok(
+                if (!unvalidated) r.json else r.json + "\n(note: $pkg declares no parameters, so the arguments were " +
+                    "not checked and unknown fields are dropped silently. Read the result back before reporting success.)",
+                title)
             is AppFunctionsCore.ExecOutcome.FunctionError -> fail("${fid.substringAfter('#')}: ${r.message}", title)
             AppFunctionsCore.ExecOutcome.Empty -> fail("EMPTY_RESULT: ${fid.substringAfter('#')} returned nothing; the outcome is unknown, do not treat it as done.", title)
         }

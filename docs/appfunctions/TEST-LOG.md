@@ -283,6 +283,10 @@ one.
 1. **Validate before confirming (F4, corrected).** The gate works; it showed
    guessed arguments. Strict validation (S2) must run before the sheet. Device
    check: reject once, expect `NEEDS_CONFIRMATION`.
+Status after commit "declared parameters": items 2, 3 and 4 are built and
+unit-tested (fixture = unmodified excerpt of the device dump); a device test
+of them is still owed.
+
 2. **Schema parser (F1).** Replace `setFeature` with `runCatching` plus
    `isExpandEntityReferences = false`, or parse with Android's `XmlPullParser`.
    Add a device test — a JVM test cannot cover this.
