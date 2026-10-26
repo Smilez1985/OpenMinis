@@ -110,6 +110,23 @@ fields more than the second source (`h: String`, `i: String`), so those two
 newer properties stay unnamed instead of being guessed. Field catalogue:
 [catalogue/schema-fields-2026-10-26.json](catalogue/schema-fields-2026-10-26.json).
 
+## 4c. Reading the names back: the answer uses the same keys
+
+The cross-check proves the mapping inside the class, not the JSON. A read-only
+call closes that gap: gallery `findAlbums` / `findMediaItems`, called with the
+catalogue's field names, answered with objects whose keys are exactly those
+names — `id`, `title`, `dateCreated`, and for a media item `albumId`,
+`starred`, `type`, `location`, with `DateTime` → `timeZone`, `date`,
+`timeOfDay` and `Date` → `day`, `month`, `year`. No key appeared that the
+catalogue does not contain; the catalogue's extra entries are the document
+envelope fields that stay empty in an answer.
+
+An empty `{}` as the parameter object is *rejected* by the framework
+(`Parameter findAlbumsParams should be the type of …FindAlbumsParams`); passing
+the envelope fields (`namespace`, `id`, `query`, `maxCount`) with it works.
+That is worth knowing for any test that expects a parameterless call to be the
+easy case.
+
 ## 5. What this means for validation
 
 A catalogue can check a function's **parameters**: name, required, type
@@ -120,8 +137,9 @@ documented rather than guessed.
 
 ## 6. Open
 
-- A returned object with real data would confirm that the names above are also
-  the **JSON keys** the framework uses; the cross-check proves the mapping, not
-  the wire format.
+- The same cross-check for the *other* schema domains the Samsung apps use
+  (messages, tasks, phone, browser, files, notes, maps) has been done for the
+  classes the second source covers; a class that our copy has newer fields for
+  stays unnamed (`phone.CallRecord`).
 - The roadmap sentence should be sharpened: the gap is the *inner* fields and
   the apps that declare nothing, not Samsung as a vendor.
