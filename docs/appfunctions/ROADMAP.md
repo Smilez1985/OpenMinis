@@ -24,13 +24,17 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       without any matching delete — a write test there cannot be undone
       through the same interface.
 - [ ] **Testing the parallel install** — the fork's APK installs next to a
-      signed Minis and therefore owns a separate data directory: its sandbox
-      rootfs is a fresh Alpine with none of the tools the main install has
-      (`git`, `python3`, `rg`, `gh`), while `skills`, `shared` and `memory` are
-      the same files on both sides. Consequences measured in
-      [TEST3-LOG.md](TEST3-LOG.md) 2.: tools must be fetched per install, and
-      the shared folder drops the executable bit, so dozens of files show up as
-      mode-only changes in the working tree and must never be committed.
+      signed Minis as a self-contained second setup, not as a second view of
+      the same one: its sandbox rootfs is a fresh Alpine, and `skills`,
+      `shared` and `memory` are a **copy** (in the measured case from a restored
+      backup, identifiable by one timestamp across every folder), so writes
+      only land in the install that makes them. The rootfs ships a small base
+      set (`age`, `curl`, `busybox`, `apk-tools`) — everything else, e.g.
+      `git`, `python3`, `rg`, `gh`, is handwork per install and is **not** part
+      of a backup. Details and the measurements: [TEST3-LOG.md](TEST3-LOG.md) 2.
+      Also measured: the restored copy does not carry the executable bit, so
+      dozens of files show up as mode-only changes (`100755` → `100644`) in the
+      working tree — they must never be committed, add files explicitly.
 - [ ] **Catalogue for predefined schemas** — Samsung apps declare no
       parameters (e.g. `clock/createAlarm@1`); a dated, labelled catalogue fills
       the gap so their calls can be validated too.

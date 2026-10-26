@@ -37,17 +37,29 @@ liest Unsinn; aus dem Anlegen ist es brauchbar.
 
 ## 2. Nebenbefund der Testumgebung
 
-Die Parallelinstallation (`-PminisIdSuffix=.appfn`) hat **eigenen** Speicher:
-`/data/user/0/com.openminis.app.appfn/files/`. Die Sandbox-Wurzel
-(`…/files/alpine-rootfs`) ist deshalb ein **frisches Alpine** — `git`,
-`python3`, `rg`, `gh` fehlen, obwohl sie in der Hauptinstallation längst
-installiert sind. Für jede Prüfrunde heißt das: Werkzeuge neu holen, bevor
-Repo-Arbeit möglich ist.
+Die Parallelinstallation (`-PminisIdSuffix=.appfn`) ist ein **eigener** Aufbau,
+keine zweite Ansicht desselben:
 
-Geteilt sind dagegen `skills`, `shared` und `memory` — Änderungen wirken auf
-beiden Seiten. Unmittelbare Folge: im Arbeitsbaum erscheinen Dutzende Dateien
-mit **reiner Modusänderung** (`100755` → `100644`), weil die gemeinsame Ablage
-das Ausführbar-Bit nicht durchreicht. Diese Änderungen gehören **nie** in einen
+| Ebene | Verhältnis der beiden Installationen |
+|---|---|
+| Sandbox-Wurzel (`…/files/alpine-rootfs`) | **getrennt** — frisches Alpine je Installation |
+| `skills`, `shared`, `memory` | **getrennt** — was hier steht, stammt aus einer eingespielten Sicherung (die Ordner tragen alle denselben Zeitstempel des Kopiervorgangs), nicht aus laufendem Zugriff auf dieselben Dateien |
+| Schreibvorgänge | wirken **nur** in der Installation, in der sie geschehen |
+
+Nachgemessen: die Bindung der Sandbox zeigt auf den Datenordner **der eigenen**
+Installation (Paketkennung `com.openminis.app.appfn`), nicht auf den der
+Hauptinstallation.
+
+Zur Wurzel: sie kommt mit einer **Grundausstattung** (`age`, `curl`, `busybox`,
+`apk-tools`, `alpine-*`). Alles andere — `git`, `python3`, `rg`, `gh` und was
+sonst für Repo-Arbeit nötig ist — ist Handarbeit in genau dieser Installation
+und **nicht Teil einer Sicherung**. Jede neue oder wiederhergestellte
+Installation ist damit eine andere Arbeitsumgebung, auch wenn die Daten gleich
+aussehen.
+
+Unmittelbare Folge für den Arbeitsbaum: Dutzende Dateien erscheinen mit
+**reiner Modusänderung** (`100755` → `100644`), weil die eingespielte Ablage
+das Ausführbar-Bit nicht mitbringt. Diese Änderungen gehören **nie** in einen
 Commit; nur gezielt `git add <datei>`.
 
 ## 3. Offen
