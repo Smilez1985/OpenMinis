@@ -89,6 +89,27 @@ The document envelope around a call does show a few real names —
 `namespace`, `id`, `score`, `schemaType`, `creationTimestampMillis`,
 `timeToLiveMillis`.
 
+## 4a. The names come back through a second source — and are checked
+
+A public smali copy of the same schema classes (a Samsung Messages mod) still
+carries the Kotlin metadata, i.e. the original property names. Such a source is
+only usable **after** a check against our own copy, and the check is
+falsifiable: inside a class the obfuscated fields sort as `a`, `b`, `c` … and
+their **types** are in declaration order, while the second source delivers
+names plus the constructor signature.
+
+142 classes compared (`abgleich.py`):
+
+| result | count |
+|---|---|
+| field count **and** type sequence agree → names assigned | **141** |
+| differ | 1 |
+
+The one difference is `…schema.common.v1.phone.CallRecord`: our copy has two
+fields more than the second source (`h: String`, `i: String`), so those two
+newer properties stay unnamed instead of being guessed. Field catalogue:
+[catalogue/schema-fields-2026-10-26.json](catalogue/schema-fields-2026-10-26.json).
+
 ## 5. What this means for validation
 
 A catalogue can check a function's **parameters**: name, required, type
@@ -99,9 +120,8 @@ documented rather than guessed.
 
 ## 6. Open
 
-- Inner field names can only come from the schema library itself: either a
-  second source that still carries the Kotlin metadata (to be cross-checked
-  against our own copy by field count, types and order), or a returned object
-  with real data.
+- A returned object with real data would confirm that the names above are also
+  the **JSON keys** the framework uses; the cross-check proves the mapping, not
+  the wire format.
 - The roadmap sentence should be sharpened: the gap is the *inner* fields and
   the apps that declare nothing, not Samsung as a vendor.

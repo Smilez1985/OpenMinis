@@ -1,0 +1,3260 @@
+{
+ "datum": "2026-10-26",
+ "gegenstand": "Felder der Google-Schema-Klassen com.google.android.appfunctions.schema.**, wie sie die Samsung-Apps auf dem Gerät mitbringen",
+ "methode": "Namen aus einer fremden smali-Fassung derselben Klassen (Kotlin-Metadaten), gegen die eigene APK geprüft: Feldzahl und Typfolge müssen übereinstimmen",
+ "bestaetigt": 141,
+ "klassen": {
+  "com.google.android.appfunctions.schema.common.v1.browser.Bookmark": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "url",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.CreateBookmarkParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "url",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.FindBookmarksParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.FindTabsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.GetHistoriesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.ShowSiteParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "url",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "shouldShowInNewTab",
+    "typ": "Z"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.Tab": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "url",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.browser.UpdateBookmarkParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "bookmarkId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "url",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetUriField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.calendar.CreateEventParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "attendeeIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "location",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "eventStatus",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.calendar.Event": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "attendeeIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "location",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "eventStatus",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "isReadOnly",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isInPublicCalendar",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isOrganizer",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "selfAttendeeStatus",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.calendar.FindEventsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "attendeeIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   },
+   {
+    "name": "orderBy",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.calendar.UpdateEventParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "eventId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "description",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetDateTimeField;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetDateTimeField;"
+   },
+   {
+    "name": "attendeeIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetBooleanField;"
+   },
+   {
+    "name": "location",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "eventStatus",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.camera.ScanDocumentParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.camera.TakePhotoParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "delaySeconds",
+    "typ": "Ljava/lang/Integer;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.Alarm": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "time",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   },
+   {
+    "name": "alarmStatus",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dayPattern",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/DayPattern;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.CreateAlarmParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "time",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   },
+   {
+    "name": "alarmStatus",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dayPattern",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/DayPattern;"
+   },
+   {
+    "name": "externalId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.CreateTimerParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "originalDurationMillis",
+    "typ": "J"
+   },
+   {
+    "name": "timerState",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.DayPattern": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "date",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Date;"
+   },
+   {
+    "name": "recurrencePattern",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.FindAlarmsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "alarmStatus",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dayPattern",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/DayPattern;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   },
+   {
+    "name": "sortingOrder",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.FindTimersParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "timerState",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   },
+   {
+    "name": "sortingOrder",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.SetDayPatternField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/DayPattern;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.SetDayPatternListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.SetDayPatternNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/DayPattern;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.Timer": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "originalDurationMillis",
+    "typ": "J"
+   },
+   {
+    "name": "durationMillis",
+    "typ": "J"
+   },
+   {
+    "name": "timerState",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "remainingDurationMillis",
+    "typ": "J"
+   },
+   {
+    "name": "expireTimeEpochMillis",
+    "typ": "Ljava/lang/Long;"
+   },
+   {
+    "name": "isFiring",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.UpdateAlarmParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "alarmId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "time",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetTimeOfDayField;"
+   },
+   {
+    "name": "alarmStatus",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "dayPattern",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/clock/SetDayPatternNullableField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.clock.UpdateTimerParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "timerId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "label",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "durationMs",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetLongField;"
+   },
+   {
+    "name": "timerState",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.Account": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "emailAddress",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.CreateEmailDraftParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "subject",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "message",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "senderAccountId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "ccRecipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "bccRecipientIds",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.Email": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "subject",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "message",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "senderId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "ccRecipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "bccRecipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "isDraft",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "dateSent",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "dateReceived",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "dateRead",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.FindAccountsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.FindEmailsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "sent",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "read",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "senderIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "recipientIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "labels",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.SendEmailParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "emailId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.email.UpdateEmailParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "emailId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "subject",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "message",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "recipientIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   },
+   {
+    "name": "ccRecipientIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   },
+   {
+    "name": "bccRecipientIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   },
+   {
+    "name": "isRead",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetBooleanField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.files.File": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dateCreated",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.files.FindFilesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "fileType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.DirectionsResult": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "routes",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.FindDirectionsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "origin",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/maps/Location;"
+   },
+   {
+    "name": "destinations",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "transportationType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "avoidTypes",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.FindPlacesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "locationBias",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/maps/Location;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.LatLng": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "latitude",
+    "typ": "D"
+   },
+   {
+    "name": "longitude",
+    "typ": "D"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.Leg": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "durationInSecond",
+    "typ": "J"
+   },
+   {
+    "name": "durationDisplayString",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "distanceInMeter",
+    "typ": "J"
+   },
+   {
+    "name": "distanceDisplayString",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startAddress",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "endAddress",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.Location": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "placeUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "latLng",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/maps/LatLng;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.OpeningHours": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "monday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "tuesday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "wednesday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "thursday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "friday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "saturday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   },
+   {
+    "name": "sunday",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDayRange;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.Place": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "uri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "address",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "openingHours",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/maps/OpeningHours;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.maps.Route": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "legs",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "summary",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "directionUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "navigationUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "directionImageUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.messages.FindMessagesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "senderId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientsIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "read",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.messages.ForwardMessageParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "messageId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientsIds",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.messages.Message": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "messageType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "body",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "senderId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientsIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "dateSent",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "dateReceived",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "dateRead",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "messageAttachments",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.messages.ReplyMessageParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "originalMessageId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "body",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "messageAttachments",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.messages.SendMessageParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "body",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "recipientsIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "messageAttachments",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.music.CreatePersonalPlaylistParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "itemIds",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.music.FindMusicItemsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.music.MusicItem": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "deeplink",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "artistNames",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "publishDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Date;"
+   },
+   {
+    "name": "lengthInSeconds",
+    "typ": "Ljava/lang/Long;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "thumbnail",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "childMusicItemIds",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.music.UpdatePersonalPlaylistParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "playlistId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "itemIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.nearbysharing.FindNearbyDevicesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "deviceType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "isMyDevice",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "maxSearchTimeMillis",
+    "typ": "Ljava/lang/Long;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.nearbysharing.NearbyDevice": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "nearbyDeviceId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "deviceName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "deviceType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "isMyDevice",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.nearbysharing.ShareFilesToNearbyDeviceParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "targetDeviceId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "files",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.CreateFolderParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.CreateNoteParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "content",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "attachments",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "folderId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.FindFoldersParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.FindNotesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endDate",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.Folder": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.Note": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "content",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "attachments",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "folderId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.UpdateFolderParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "folderId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "name",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.notes.UpdateNoteParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "noteId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "content",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "attachments",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetAttachmentListField;"
+   },
+   {
+    "name": "folderId",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.CreatePersonParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "displayName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "givenName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "middleName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "familyName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "phoneNumbers",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "emailAddresses",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.Person": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "displayName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "givenName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "middleName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "familyName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "phoneNumbers",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "emailAddresses",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.PersonEmailAddress": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "emailAddress",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "customType",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.PersonPhoneNumber": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "phoneNumber",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "customType",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonEmailAddressField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/PersonEmailAddress;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonEmailAddressListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonEmailAddressNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/PersonEmailAddress;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonPhoneNumberField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/PersonPhoneNumber;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonPhoneNumberListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.SetPersonPhoneNumberNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/PersonPhoneNumber;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.persons.UpdatePersonParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "personId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "displayName",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "givenName",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "middleName",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "familyName",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "externalUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetUriNullableField;"
+   },
+   {
+    "name": "phoneNumbers",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/SetPersonPhoneNumberListField;"
+   },
+   {
+    "name": "emailAddresses",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/persons/SetPersonEmailAddressListField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.AcceptCallParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "shouldRecord",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isSpeakerOn",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isVideoCall",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.AddToBlocklistParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "phoneNumber",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "contactId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.Call": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "contactId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "isVideoCall",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.FindCallRecordsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "contactId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "callType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.MakeCallParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "phoneNumber",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "contactId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "shouldRecord",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isSpeakerOn",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "isVideoCall",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.Album": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dateCreated",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.CreateAlbumParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.FindAlbumsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.FindMediaItemsParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "location",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "starred",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "albumId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.MediaItem": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "type",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dateCreated",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "starred",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "location",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "albumId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.SetMediaItemFilterParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mediaItemId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mediaItemUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "filter",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.StraightenMediaItemParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mediaItemId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mediaItemUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "autoStraighten",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "straightenDegrees",
+    "typ": "Ljava/lang/Double;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.UpdateAlbumParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "albumId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.photos.UpdateMediaItemParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mediaItemId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "starred",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetBooleanNullableField;"
+   },
+   {
+    "name": "albumId",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.CreateTaskCategoryParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "taskIds",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.CreateTaskParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "completed",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "dateTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "externalId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "taskCategoryId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.FindTaskCategoriesParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.FindTasksParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "completed",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "taskCategoryId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.Task": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "description",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "completed",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "taskCategoryId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "dateTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.TaskCategory": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "taskIds",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "isReadOnly",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.UpdateTaskCategoryParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "taskCategoryId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "taskIds",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringListField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.tasks.UpdateTaskParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "taskId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringField;"
+   },
+   {
+    "name": "description",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   },
+   {
+    "name": "completed",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetBooleanNullableField;"
+   },
+   {
+    "name": "dateTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetDateTimeNullableField;"
+   },
+   {
+    "name": "allDay",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetBooleanNullableField;"
+   },
+   {
+    "name": "recurrenceSchedule",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/SetStringNullableField;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.Attachment": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "displayName",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "mimeType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "uri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.Date": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "year",
+    "typ": "I"
+   },
+   {
+    "name": "month",
+    "typ": "I"
+   },
+   {
+    "name": "day",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.DateTime": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "timeZone",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "date",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Date;"
+   },
+   {
+    "name": "timeOfDay",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetAttachmentField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Attachment;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetAttachmentListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetAttachmentNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Attachment;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetBooleanField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Z"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetBooleanListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetBooleanNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/Boolean;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetByteArrayField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "[B"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetByteArrayListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetByteArrayNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "[B"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDateTimeField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDateTimeListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDateTimeNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDoubleField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "D"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDoubleListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetDoubleNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/Double;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetFloatField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "F"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetFloatListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetFloatNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/Float;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetIntField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetIntListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetIntNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/Integer;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetLongField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "J"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetLongListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetLongNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/Long;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetStringField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetStringListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetStringNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetTimeOfDayField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetTimeOfDayListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetTimeOfDayNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetUriField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetUriListField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.SetUriNullableField": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "value",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.TimeOfDay": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "hours",
+    "typ": "I"
+   },
+   {
+    "name": "minutes",
+    "typ": "I"
+   },
+   {
+    "name": "seconds",
+    "typ": "I"
+   },
+   {
+    "name": "nanos",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.TimeOfDayRange": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   },
+   {
+    "name": "endTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/TimeOfDay;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.types.Uri": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "uri",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.video.FindVideosParams": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "query",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "maxCount",
+    "typ": "I"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.video.TimedText": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "startTimeMillis",
+    "typ": "J"
+   },
+   {
+    "name": "durationMills",
+    "typ": "J"
+   },
+   {
+    "name": "confidence",
+    "typ": "D"
+   },
+   {
+    "name": "text",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.video.Transcript": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "content",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "text",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "timedText",
+    "typ": "Ljava/util/List;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.video.VideoItem": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "title",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "durationInSecond",
+    "typ": "J"
+   },
+   {
+    "name": "thumbnailUri",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/Uri;"
+   },
+   {
+    "name": "thumbnailWidth",
+    "typ": "I"
+   },
+   {
+    "name": "thumbnailHeight",
+    "typ": "I"
+   },
+   {
+    "name": "categories",
+    "typ": "Ljava/util/List;"
+   },
+   {
+    "name": "attributionText",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "transcriptId",
+    "typ": "Ljava/lang/String;"
+   }
+  ],
+  "com.google.android.appfunctions.schema.common.v1.phone.CallRecord": [
+   {
+    "name": "namespace",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "id",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "contactId",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "callType",
+    "typ": "Ljava/lang/String;"
+   },
+   {
+    "name": "isVideoCall",
+    "typ": "Ljava/lang/Boolean;"
+   },
+   {
+    "name": "startTime",
+    "typ": "Lcom/google/android/appfunctions/schema/common/v1/types/DateTime;"
+   },
+   {
+    "name": "durationMillis",
+    "typ": "Ljava/lang/Long;"
+   }
+  ]
+ },
+ "abweichung": {
+  "klasse": "com.google.android.appfunctions.schema.common.v1.phone.CallRecord",
+  "grund": "eigene Fassung hat zwei Felder mehr (neuer); ohne Namen",
+  "rest": [
+   {
+    "feld": "h",
+    "typ": "Ljava/lang/String;",
+    "name": null
+   },
+   {
+    "feld": "i",
+    "typ": "Ljava/lang/String;",
+    "name": null
+   }
+  ]
+ }
+}

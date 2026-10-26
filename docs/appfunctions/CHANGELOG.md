@@ -29,5 +29,6 @@ on Minis release 1.15 and has no release of its own.
 - Optional `applicationIdSuffix` for debug builds (`-PminisIdSuffix`).
 - Design notes, roadmap and changelog for the feature.
 - Measured note on where the parameters of Samsung apps come from, with a dated catalogue of the parameter names and types that are reachable on the device ([SAMSUNG-PARAMETERS.md](SAMSUNG-PARAMETERS.md)).
+- Field names of the predefined schema classes, recovered from a second source and checked against the installed copy by field count and type sequence (141 of 142 classes agree).
 - `docs/appfunctions/TEST-LOG.md`: field notes from the first on-device test, with timestamps, findings, the official discovery API and the plan that replaces guessing with a published contract.
 - `docs/appfunctions/TEST2-LOG.md`: field notes from the second round on the device (`b2cb2ab`) — what the parameter reading and the validation do in reality, the limits of the Shizuku path (`scope: activity`, the privileged permission), why the direct path is out of reach on a stock device, and the finding that closed the confirmation gap.
