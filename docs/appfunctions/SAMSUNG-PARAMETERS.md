@@ -89,7 +89,7 @@ The document envelope around a call does show a few real names —
 `namespace`, `id`, `score`, `schemaType`, `creationTimestampMillis`,
 `timeToLiveMillis`.
 
-## 4a. The names come back through a second source — and are checked
+## 5. The names come back through a second source — and are checked
 
 A public smali copy of the same schema classes (a Samsung Messages mod) still
 carries the Kotlin metadata, i.e. the original property names. Such a source is
@@ -110,7 +110,7 @@ fields more than the second source (`h: String`, `i: String`), so those two
 newer properties stay unnamed instead of being guessed. Field catalogue:
 [catalogue/schema-fields-2026-10-26.json](catalogue/schema-fields-2026-10-26.json).
 
-## 4c. Reading the names back: the answer uses the same keys
+## 6. The names are the keys on the wire — seen on a real answer
 
 The cross-check proves the mapping inside the class, not the JSON. A read-only
 call closes that gap: gallery `findAlbums` / `findMediaItems`, called with the
@@ -127,7 +127,7 @@ the envelope fields (`namespace`, `id`, `query`, `maxCount`) with it works.
 That is worth knowing for any test that expects a parameterless call to be the
 easy case.
 
-## 5. What this means for validation
+## 7. What this means for validation
 
 A catalogue can check a function's **parameters**: name, required, type
 reference — and for the apps that declare them (e.g. the gallery) their fields
@@ -135,7 +135,7 @@ too. For clock, contacts, reminders, calendar, browser and files it can check
 the parameter object's name and type, and nothing inside it. That limit is
 documented rather than guessed.
 
-## 6. Open
+## 8. Open
 
 - The same cross-check for the *other* schema domains the Samsung apps use
   (messages, tasks, phone, browser, files, notes, maps) has been done for the
