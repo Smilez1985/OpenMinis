@@ -15,6 +15,14 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
       alone must not select it; drop the result on code 1000.
 
+- [x] **Device check of the confirmation fix** (`8a0922d`) — done, see
+      [TEST3-LOG.md](TEST3-LOG.md): an approved write now says in its result
+      that the user confirmed it, and a read of the same target does not. Two
+      things surfaced on the way, both in that log: Samsung apps that declare
+      no parameters reach the confirmation with **nothing** validated (the
+      gate is then the only guard), and the gallery offers `createAlbum`
+      without any matching delete — a write test there cannot be undone
+      through the same interface.
 - [ ] **Catalogue for predefined schemas** — Samsung apps declare no
       parameters (e.g. `clock/createAlarm@1`); a dated, labelled catalogue fills
       the gap so their calls can be validated too.
