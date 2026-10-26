@@ -108,6 +108,16 @@ class AppFunctionsCoreTest {
             assertFalse(id, AppFunctionsCore.isReadOnly(id))
     }
 
+    @Test fun needsConfirmation_onlyWhenSwitchOnAndWrite() {
+        // Switch off (default): nothing asks, not even a delete.
+        assertFalse(AppFunctionsCore.needsConfirmation("p#A_deleteAlarms", confirmWrites = false))
+        assertFalse(AppFunctionsCore.needsConfirmation("p#A_findAlarms", confirmWrites = false))
+        // Switch on: writes ask, reads do not.
+        assertTrue(AppFunctionsCore.needsConfirmation("p#A_deleteAlarms", confirmWrites = true))
+        assertTrue(AppFunctionsCore.needsConfirmation("p#A_createAlarm", confirmWrites = true))
+        assertFalse(AppFunctionsCore.needsConfirmation("p#A_findAlarms", confirmWrites = true))
+    }
+
     // ---------------------------------------------------------------- schema
 
     @Test fun schema_googleShape_typedParametersAndDataTypes() {

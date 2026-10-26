@@ -1892,6 +1892,10 @@
     <string name="scheduled_card_left">Noch %1$d</string>
     <string name="scheduled_card_next">Nächste %1$s</string>
     <string name="scheduled_card_task_complete">Aufgabe abgeschlossen</string>
+    <string name="agent_tools_appfunctions">App-Funktionen</string>
+    <string name="agent_tools_appfunctions_footer">Das Modell darf Funktionen aufrufen, die andere Apps über Android AppFunctions anbieten (Android 16+), z. B. Wecker, Erinnerungen, Kalender, Kontakte, ohne deren Bildschirm zu bedienen. Nutzt die eigene Berechtigung dieser App, wo das System sie erteilt, sonst Shizuku. Standardmäßig aus.</string>
+    <string name="agent_tools_appfunctions_confirm">Ändernde Aktionen bestätigen</string>
+    <string name="agent_tools_appfunctions_confirm_subtitle">Vor jedem Anlegen, Ändern oder Löschen in einer anderen App nachfragen. Lesen läuft immer direkt.</string>
     <string name="settings_agent_tools">Agenten-Werkzeuge</string>
     <string name="settings_agents">Subagenten</string>
     <string name="settings_agents_subtitle">Benannte Agenten, an die der Assistent delegieren kann</string>

@@ -43,6 +43,9 @@ fun AgentToolsSettingsScreen(onBack: () -> Unit) {
     var appFunctionsEnabled by remember {
         mutableStateOf(AgentToolSwitch.APP_FUNCTIONS.isEnabled(context))
     }
+    var appFunctionsConfirm by remember {
+        mutableStateOf(com.openminis.app.appfunctions.AppFunctionsSettings.confirmWrites(context))
+    }
 
     SettingsScaffold(title = stringResource(R.string.settings_agent_tools), onBack = onBack) {
         SettingsSection(footer = stringResource(R.string.agent_tools_browser_footer)) {
@@ -63,6 +66,16 @@ fun AgentToolsSettingsScreen(onBack: () -> Unit) {
                 onCheckedChange = {
                     appFunctionsEnabled = it
                     AgentToolSwitch.APP_FUNCTIONS.setEnabled(context, it)
+                },
+            )
+            SettingsSwitchRow(
+                title = stringResource(R.string.agent_tools_appfunctions_confirm),
+                subtitle = stringResource(R.string.agent_tools_appfunctions_confirm_subtitle),
+                checked = appFunctionsConfirm,
+                enabled = appFunctionsEnabled,
+                onCheckedChange = {
+                    appFunctionsConfirm = it
+                    com.openminis.app.appfunctions.AppFunctionsSettings.setConfirmWrites(context, it)
                 },
                 showDivider = false,
             )

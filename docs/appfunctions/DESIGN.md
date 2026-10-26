@@ -119,13 +119,20 @@ exposure is a product decision; the core does not change with it.
 
 ## Rule D6 — Safety
 
-- The tool switch is **off** by default.
-- **Read** functions — verb of the short name in `find|get|search|list|is|query|
-  read|lookup|fetch` — run directly. **Everything else** (create, delete,
-  update, set, start, show, draft …) runs only after the user approved it
-  through the existing confirmation gate (`ConfigConfirmationGate`: one dialog
-  queue, timeout, notification when backgrounded). Reject and timeout do not
-  proceed.
+- The tool switch is **off** by default. Turning it on is the consent: like
+  shell or Shizuku, the tool then acts without asking per call.
+- A second switch, **"Confirm actions that change something"**, also **off** by
+  default and only usable while the tool is on, adds a per-call question.
+  Reason: a confirmation sheet is only as good as what it shows — in the first
+  device test the user approved arguments the model had guessed. Correct calls
+  come from validation (D4/D5), not from a dialog; the dialog stays available
+  for users who want it.
+- With that switch on, **read** functions — verb of the short name in
+  `find|get|search|list|is|query|read|lookup|fetch` — still run directly.
+  **Everything else** (create, delete, update, set, start, show, draft …) runs
+  only after the user approved it through the existing confirmation gate
+  (`ConfigConfirmationGate`: one dialog queue, timeout, notification when
+  backgrounded). Reject and timeout do not proceed.
 - The classification is by **name**, not by evidence of side effects; the tool
   description says so. `show…` opens the target's UI and counts as write.
 - An empty result with success status is reported as `EMPTY_RESULT`, never as

@@ -3,6 +3,7 @@ package com.openminis.app.tools
 import android.content.Context
 import com.openminis.app.appfunctions.AppFunctionsCore
 import com.openminis.app.appfunctions.AppFunctionsManager
+import com.openminis.app.appfunctions.AppFunctionsSettings
 import com.openminis.app.data.model.AgentToolDefinition
 import com.openminis.app.data.model.AgentToolParam
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +18,11 @@ import org.json.JSONObject
  * ONE tool with an `action` instead of one tool per function: OpenMinis has no
  * dynamic tool registration, and a device lists 100+ functions.
  *
- * Safety: write functions (everything whose verb is not read-only, see
- * [AppFunctionsCore.isReadOnly]) run only after [confirm] returns true. The
- * caller supplies [confirm] so the dialog stays in the UI layer.
+ * Safety: the tool switch (off by default) is the consent. When the user also
+ * turned on [AppFunctionsSettings.confirmWrites], every function that is not
+ * read-only (see [AppFunctionsCore.needsConfirmation]) runs only after
+ * [confirm] returns true. The caller supplies [confirm] so the dialog stays in
+ * the UI layer.
  */
 object AppFunctionsTool {
     const val NAME = "app_functions"
@@ -35,9 +38,10 @@ object AppFunctionsTool {
             "Steps: 'list' to discover (optionally filter with 'query'), 'schema' with 'package' (and " +
             "optionally 'function') to read parameters, then 'execute' with 'package', 'function' and " +
             "'arguments'. 'function' may be the short name after '#' (e.g. 'findAlarms') when unique.\n\n" +
-            "Read functions (find/get/search/list/is/query/read/lookup/fetch) run directly; every other " +
-            "function changes something and asks the user for approval first — the classification is by " +
-            "name only. Some apps publish no parameter schema: then call once with '{}' and read the error, " +
+            "Functions other than reads (find/get/search/list/is/query/read/lookup/fetch) change " +
+            "something; if the user enabled confirmation in settings they ask first, otherwise they run " +
+            "directly — so get the arguments right before calling. The classification is by name only. " +
+            "Some apps publish no parameter schema: then call once with '{}' and read the error, " +
             "it names the missing field. A result with no content is reported as empty, not as success.",
         parameters = mapOf(
             "tool_title" to AgentToolParam("string", "A concise 5-10 word summary of this call, shown to the user. Use the same language as the user."),
@@ -53,7 +57,8 @@ object AppFunctionsTool {
     )
 
     /**
-     * @param confirm asked for every non-read-only execute; receives package,
+     * @param confirm asked for every non-read-only execute while
+     *   [AppFunctionsSettings.confirmWrites] is on; receives package,
      *   full function id and the arguments JSON. Return true to proceed.
      */
     suspend fun execute(
@@ -123,7 +128,9 @@ object AppFunctionsTool {
                 return fail(e.message ?: "unresolved", title)
             }
         }
-        if (!AppFunctionsCore.isReadOnly(fid) && !confirm(pkg, fid, arguments)) {
+        if (AppFunctionsCore.needsConfirmation(fid, AppFunctionsSettings.confirmWrites(context)) &&
+            !confirm(pkg, fid, arguments)
+        ) {
             return fail("NEEDS_CONFIRMATION: the user did not approve ${fid.substringAfter('#')} " +
                 "(verb '${AppFunctionsCore.verbOf(fid)}' changes something). Do not retry without asking.", title)
         }

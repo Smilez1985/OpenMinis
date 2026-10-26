@@ -80,6 +80,14 @@ object AppFunctionsCore {
 
     fun isReadOnly(functionId: String): Boolean = verbOf(functionId) in READ_VERBS
 
+    /**
+     * Ask the user before this call? Only when the user turned confirmation
+     * on AND the function is not read-only. Off by default: the tool switch
+     * itself is the consent (D6).
+     */
+    fun needsConfirmation(functionId: String, confirmWrites: Boolean): Boolean =
+        confirmWrites && !isReadOnly(functionId)
+
     // ------------------------------------------------------------------ list
 
     /** Values in the dump are wrapped in single-element arrays. */

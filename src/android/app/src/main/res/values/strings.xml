@@ -2228,7 +2228,9 @@
     <string name="settings_agent_tools_subtitle">Which optional tools the agent may use</string>
     <string name="agent_tools_browser">Browser Use</string>
     <string name="agent_tools_appfunctions">App Functions</string>
-    <string name="agent_tools_appfunctions_footer">Let the model call functions other apps expose through Android AppFunctions (Android 16+), e.g. alarms, reminders, calendar, contacts, without operating their screens. Uses this app\'s own permission where the system grants it, otherwise Shizuku. Actions that change something always ask you first. Off by default.</string>
+    <string name="agent_tools_appfunctions_footer">Let the model call functions other apps expose through Android AppFunctions (Android 16+), e.g. alarms, reminders, calendar, contacts, without operating their screens. Uses this app\'s own permission where the system grants it, otherwise Shizuku. Off by default.</string>
+    <string name="agent_tools_appfunctions_confirm">Confirm actions that change something</string>
+    <string name="agent_tools_appfunctions_confirm_subtitle">Ask before creating, changing or deleting anything in another app. Reads always run directly.</string>
     <string name="agent_tools_browser_footer">Browse the web in the in-app browser: open pages, read them, click and type. Stable and on by default. When off, the tool is removed from every conversation — the model does not see it at all.</string>
     <string name="agent_tools_agents">Agents</string>
     <string name="agent_tools_agents_footer">Hand self-contained sub-tasks to sub agents that work in their own hidden sessions and report back. The same tool also lets the assistant check on or stop what it started. Configure the roster under Settings › Agents › Sub Agents.</string>

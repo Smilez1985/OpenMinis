@@ -12,6 +12,11 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
       alone must not select it; drop the result on code 1000.
 
+- [ ] **Validate arguments against the declared parameters** before execute
+      (and before any confirmation) — unknown or missing fields are an error.
+- [ ] **Device check of the confirmation switch** — off: a write runs without
+      a sheet; on: reject once, expect `NEEDS_CONFIRMATION`.
+
 ## Then
 
 - [ ] **Cache per package and `versionCode`** (D4) — list and schemas.
