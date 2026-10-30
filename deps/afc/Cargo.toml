@@ -1,0 +1,19 @@
+[package]
+name = "afc"
+version = "0.1.0"
+edition = "2021"
+description = "AppFunctions-Aufrufer: Registry, Pruefung vor dem Aufruf, Fehleruebersetzung, Binder-Weg"
+license = "MIT"
+
+# Keine Abhaengigkeiten: das Binary muss statisch auf dem Geraet laufen und
+# ohne Netzzugang baubar sein (Sandkarte hat kein crates.io).
+[dependencies]
+
+[[bin]]
+name = "afc"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"

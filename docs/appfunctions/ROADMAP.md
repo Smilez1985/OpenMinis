@@ -4,6 +4,16 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 
 ## Next
 
+- [x] **`afc` — Rust tool for registry, checking and calling** (`deps/afc`,
+      uncommitted at the time of writing, 30.10.). The measured registry is
+      embedded (`data/registry.txt`, generated from
+      `appfunctions-registry.xml`), rules P0–P7 check the arguments before a
+      call, error codes are translated, and the call goes through the binder via
+      `aus.jar` (uid 2000). 27 tests, three counter-checks that turn red when a
+      rule is disabled; device test on 30.10.: 10 calls, 8 with content, 2
+      without (as measured on 29.10.), 0 errors. One finding: `findTabs`
+      answers 1001 "Invalid Argument" with `maxCount` alone — not confirmed.
+      This fixes the data and rule layer that the Kotlin port takes over.
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
       `com.openminis.app.appfn`).

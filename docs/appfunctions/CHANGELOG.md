@@ -6,6 +6,10 @@ on Minis release 1.15 and has no release of its own.
 
 ## [Unreleased]
 
+### Added
+
+- `deps/afc`: a Rust tool that carries the measured AppFunctions registry, checks arguments before a call (required fields, unknown fields, types, the `maxCount` limit) and translates the platform's error codes. Arguments are checked against the registry instead of being passed through, because the platform drops unknown fields silently and treats a number given as text as an empty result. The tool is the pre-stage of the Kotlin core: same data, same rules.
+
 ### Fixed
 
 - A write call the user approved says so in its result; previously it looked exactly like a call with the confirmation switch off, so nothing in a transcript showed that a confirmation had been given.
