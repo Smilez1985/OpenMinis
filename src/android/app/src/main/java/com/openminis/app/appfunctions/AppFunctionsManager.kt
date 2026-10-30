@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import org.json.JSONObject
 import com.openminis.app.offload.ShizukuManager
 import java.util.zip.ZipFile
 
@@ -54,14 +55,36 @@ object AppFunctionsManager {
 
     // ------------------------------------------------------------- discovery
 
-    fun list(): Result<List<AppFunctionsCore.FunctionEntry>> = listDocument().map { it.entries }
+    fun list(context: Context): Result<List<AppFunctionsCore.FunctionEntry>> =
+        listDocument(context).map { it.entries }
 
-    /** Discovery dump with declared parameters and data types. */
-    fun listDocument(): Result<AppFunctionsCore.ListDocument> = runCatching {
-        check(ShizukuManager.isReady()) { "discovery needs Shizuku (state ${ShizukuManager.snapshot.value.state})" }
+    /**
+     * Die Funktionsliste. Zuerst der Geräteabzug (`cmd app_function
+     * list-app-functions`) — er ist der frische Stand. Gibt es den Befehl nicht
+     * (auf diesem Gerät: „No shell command implementation"), trägt die
+     * mitgelieferte Registry die Angaben, samt Parametern und Pflichtfeldern.
+     */
+    fun listDocument(context: Context): Result<AppFunctionsCore.ListDocument> {
+        val dump = runCatching { dumpListDocument() }
+        if (dump.isSuccess) return dump
+        val grund = dump.exceptionOrNull()?.message
+        return runCatching {
+            val funktionen = AppFunctionsRegistry.laden(context)
+            check(funktionen.isNotEmpty()) { "die mitgelieferte Registry ist leer (Geräteabzug: $grund)" }
+            Log.i(TAG, "Geraeteabzug nicht moeglich ($grund) — Registry traegt die Liste (${funktionen.size} Funktionen)")
+            AppFunctionsCore.ListDocument(
+                entries = funktionen.filter { it.status != "aus" }.map { AppFunctionsRegistry.alsEintrag(it) },
+                types = emptyMap(),
+            )
+        }
+    }
+
+    /** Der Abzug vom Gerät, sofern es den Befehl gibt. */
+    private fun dumpListDocument(): AppFunctionsCore.ListDocument {
+        check(ShizukuManager.isReady()) { "Dump braucht Shizuku (Zustand ${ShizukuManager.snapshot.value.state})" }
         val r = ShizukuManager.runProcess(arrayOf("cmd", "app_function", "list-app-functions"), timeoutMs = LIST_TIMEOUT_MS)
         check(r.exitCode == 0) { "list-app-functions rc ${r.exitCode}: ${r.stderr.take(300)}" }
-        AppFunctionsCore.parseListDocument(r.stdout)
+        return AppFunctionsCore.parseListDocument(r.stdout)
     }
 
     /**
@@ -116,12 +139,53 @@ object AppFunctionsManager {
         Log.i(TAG, "execute $packageName/${functionId.substringAfter('#')} via ${decision.path} (${decision.reason})")
         return when (decision.path) {
             Path.DIRECT -> PlatformExecutor.execute(context, packageName, functionId, parametersJson, timeoutSeconds)
-            Path.SHIZUKU -> {
-                val argv = AppFunctionsCore.executeArgv(packageName, functionId, parametersJson, timeoutSeconds)
-                val r = ShizukuManager.runProcess(argv, timeoutMs = (timeoutSeconds + 10) * 1000L)
-                AppFunctionsCore.parseExecuteOutput(r.exitCode, r.stdout, r.stderr)
-            }
+            Path.SHIZUKU -> ueberBinder(context, packageName, functionId, parametersJson, timeoutSeconds)
             Path.NONE -> AppFunctionsCore.ExecOutcome.FunctionError("NO_PATH: ${decision.reason}")
+        }
+    }
+
+    /**
+     * Der Binder-Weg: erst prüfen, dann aufrufen, dann die Antwort deuten.
+     *
+     * `cmd app_function` gibt es auf diesem Gerät nicht (gemessen: „No shell
+     * command implementation"), die Direktberechtigung ist privilegiert. Also
+     * geht der Aufruf als uid 2000 über [AppFunctionsBinder] — dieselbe Kette,
+     * die `deps/afc` auf der Kommandozeile gegen 13 Funktionen geprüft hat.
+     *
+     * Geprüft wird gegen die mitgelieferte Registry: die Plattform verwirft
+     * unbekannte Felder still und nimmt eine Zahl als Text an, ohne sich zu
+     * beschweren. Was nicht passt, fällt hier auf.
+     */
+    private fun ueberBinder(
+        context: Context,
+        packageName: String,
+        functionId: String,
+        parametersJson: String,
+        timeoutSeconds: Int,
+    ): AppFunctionsCore.ExecOutcome {
+        val funktionen = AppFunctionsRegistry.laden(context)
+        val f = AppFunctionsRegistry.finde(funktionen, packageName, functionId).getOrElse {
+            return AppFunctionsCore.ExecOutcome.FunctionError("1003: ${it.message}")
+        }
+        val args = runCatching { JSONObject(parametersJson) }.getOrElse {
+            return AppFunctionsCore.ExecOutcome.FunctionError("1001: Argumente sind kein JSON-Objekt (${it.message})")
+        }
+        val p = AppFunctionsRegistry.pruefen(f, args)
+        if (p.hatFehler) {
+            Log.i(TAG, "Pruefung nicht bestanden: ${p.befunde.count { b -> b.fehler }} Regel(n)")
+            return AppFunctionsCore.ExecOutcome.FunctionError(p.bericht())
+        }
+        val a4 = AppFunctionsRegistry.anwenden(p.a4)
+        val roh = AppFunctionsBinder.ausfuehren(
+            context,
+            AppFunctionsBinder.Aufruf(f.paket, f.id, p.a3, a4, timeoutSeconds),
+        )
+        val antwort = AppFunctionsAntwort.deute(roh.text)
+        Log.i(TAG, "Antwort: ${antwort.art} (${f.kurzname}, a3=${p.a3})")
+        return when (antwort.art) {
+            AppFunctionsAntwort.Art.ERFOLG -> AppFunctionsCore.ExecOutcome.Success(antwort.json ?: "{}")
+            AppFunctionsAntwort.Art.LEER -> AppFunctionsCore.ExecOutcome.Empty
+            else -> AppFunctionsCore.ExecOutcome.FunctionError(antwort.bericht())
         }
     }
 }

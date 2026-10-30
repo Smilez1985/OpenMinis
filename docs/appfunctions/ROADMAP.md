@@ -5,7 +5,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 ## Next
 
 - [x] **`afc` — Rust tool for registry, checking and calling** (`deps/afc`,
-      uncommitted at the time of writing, 30.10.). The measured registry is
+      30.10., commit `075abf5`). The measured registry is
       embedded (`data/registry.txt`, generated from
       `appfunctions-registry.xml`), rules P0–P7 check the arguments before a
       call, error codes are translated, and the call goes through the binder via
@@ -14,6 +14,19 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       without (as measured on 29.10.), 0 errors. One finding: `findTabs`
       answers 1001 "Invalid Argument" with `maxCount` alone — not confirmed.
       This fixes the data and rule layer that the Kotlin port takes over.
+- [x] **Binder path in the app, and the registry as a fallback source** (30.10.,
+      committed on this branch as a backup, no CI run yet). `AppFunctionsBinder.kt` ships
+      `aus.jar` as an asset, puts it on the device and calls
+      `app_process … Ausfuehren` as uid 2000 through the existing Shizuku
+      integration; `AppFunctionsRegistry.kt` carries the measured registry
+      (assets/appfunctions/registry.txt) with rules P0–P7 and doubles as the
+      list source when `cmd app_function` is missing; `AppFunctionsAntwort.kt`
+      reads the reply and names `EMPTY_RESULT`. Measured from inside the app via
+      `debug.shizuku.exec`: the chain returns real contacts — see
+      [TEST4-LOG.md](TEST4-LOG.md). Not compiled yet: this install's sandbox has
+      no working JVM, so CI and the device still have to verify it.
+- [ ] **The registry must be refreshable** — today it is a measured snapshot for
+      one device; `dumpsys app_function` and the probe can renew it.
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
       `com.openminis.app.appfn`).
@@ -78,10 +91,43 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 ## Later
 
 - [ ] **Read functions as individual tools** (D3, later stage).
-- [ ] **Shizuku binder path** instead of the shell — `ShizukuBinderWrapper` on
-      the `app_function` service.
 - [ ] **Exposure decision** (D3) — native tool or sandbox CLI
       `android-app-functions`.
 - [ ] **`scope=activity` functions** — decide whether to expose them at all.
       Measured: through Shizuku they answer `SCOPE_ACTIVITY … (code 1003)`,
       because the caller has no activity to name (TEST2-LOG.md 2.1).
+
+## Done, not yet released
+
+Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
+
+### Added
+
+- `deps/afc`: Rust tool with the measured registry, argument checks before a call and error-code translation.
+- `app_functions` executes through the binder (uid 2000 via Shizuku) when `cmd app_function` is missing.
+- The function list falls back to a registry shipped with the app when the device cannot be asked.
+- A reply that reports success without content is shown as `EMPTY_RESULT`.
+- Native agent tool `app_functions` to list, inspect and execute the AppFunctions of other installed apps (Android 16+).
+- Execution through the platform API when Minis holds `EXECUTE_APP_FUNCTIONS`, otherwise through Shizuku.
+- Parameter schemas read directly from the target app's package, in both the full and the minimal form.
+- Short function names are accepted when unique within the app.
+- Setting "Confirm actions that change something" (off by default): when on, functions that change something run only after the user approves them in the existing confirmation dialog.
+- An empty result is reported as unknown instead of as success.
+- `list` and `schema` show the parameters, descriptions and data types each app declares in the system's function registry.
+- `execute` refuses arguments with unknown or missing required fields before anything runs or is shown for confirmation.
+- Results of functions without declared parameters carry a note to read the outcome back.
+- Settings switch "App Functions" under Agent Tools, off by default, with English and German texts.
+- Manifest declares `EXECUTE_APP_FUNCTIONS` and package visibility for apps that expose AppFunctions.
+- CI workflow on the fork that builds a debug APK installable next to an existing Minis.
+- The CI build skips pushes that only change documentation.
+- Optional `applicationIdSuffix` for debug builds (`-PminisIdSuffix`).
+- Design notes, roadmap and changelog for the feature.
+- Measured note on where the parameters of Samsung apps come from, with a dated catalogue of the parameter names and types that are reachable on the device ([SAMSUNG-PARAMETERS.md](SAMSUNG-PARAMETERS.md)).
+- Field names of the predefined schema classes, recovered from a second source and checked against the installed copy by field count and type sequence (141 of 142 classes agree).
+- `docs/appfunctions/TEST-LOG.md`: field notes from the first on-device test.
+- `docs/appfunctions/TEST2-LOG.md`: field notes from the second device round.
+
+### Fixed
+
+- A write call the user approved says so in its result.
+- Reading an app's schema file no longer fails on Android.

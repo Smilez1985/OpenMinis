@@ -74,7 +74,7 @@ object AppFunctionsTool {
         when (args.optString("action", "").trim().lowercase()) {
             "list" -> {
                 if (decision.path == AppFunctionsManager.Path.NONE) return@withContext fail("unavailable: ${decision.reason}", title)
-                AppFunctionsManager.list().fold(
+                AppFunctionsManager.list(context).fold(
                     onSuccess = { ok(AppFunctionsCore.formatList(it, args.optString("query").ifBlank { null }) + "\n(path: ${decision.path.name.lowercase()})", title) },
                     onFailure = { fail("list failed: ${it.message}", title) },
                 )
@@ -83,7 +83,7 @@ object AppFunctionsTool {
                 val pkg = args.optString("package").trim()
                 if (pkg.isEmpty()) return@withContext fail("schema needs 'package'", title)
                 // Declared parameters first: the discovery dump carries them.
-                val listDoc = AppFunctionsManager.listDocument().getOrNull()
+                val listDoc = AppFunctionsManager.listDocument(context).getOrNull()
                 AppFunctionsCore.schemaFromList(listDoc ?: AppFunctionsCore.ListDocument(emptyList(), emptyMap()),
                     pkg, args.optString("function").trim().ifEmpty { null })?.let {
                     return@withContext ok(AppFunctionsCore.schemaToJson(it).toString(1), title)
@@ -131,7 +131,7 @@ object AppFunctionsTool {
 
         // The list resolves short names AND carries the declared parameters to
         // validate against, so it is read for every execute.
-        val doc = AppFunctionsManager.listDocument().getOrElse { return fail("cannot read the function list: ${it.message}", title) }
+        val doc = AppFunctionsManager.listDocument(context).getOrElse { return fail("cannot read the function list: ${it.message}", title) }
         val fid = try { AppFunctionsCore.resolve(doc.entries, pkg, fn) } catch (e: AppFunctionsCore.ResolveException) {
             return fail(e.message ?: "unresolved", title)
         }
