@@ -46,16 +46,48 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 - [x] **Plain skill `appfunktionen` 0.1.2** (31.10.) — appends `--package` only
       when `help` names it, filters itself otherwise, and says so when the
       command does not exist. 21 tests, 20 mutations all red.
-- [ ] **Device test: "package not installed" as its own class** — a device
-      without the Samsung apps turns red today (1003).
-- [ ] **The registry must be refreshable** — today it is a measured snapshot for
-      one device; `dumpsys app_function` and the probe can renew it.
+- [x] **Device test: "package not installed" as its own class** (31.10.) —
+      `deps/afc/werkzeuge/geraetetest.sh` counts 1003 as "not present", not as an
+      error; if every call is 1003 it exits 4 ("says nothing"). Test:
+      `deps/afc/tests/test_geraetetest.sh` with a fake `afc`; counter-check:
+      removing the 1003 branch turns two of three checks red. Device B:
+      8 / 2 / 0 / 0 (content / empty / not present / error) as before.
+- [x] **The registry is refreshable** (31.10.) — `afc refresh` reads
+      `dumpsys app_function` (or `--dump FILE`) and writes a registry for this
+      device (`/var/minis/shared/afc/registry.txt`, atomic); `afc` prefers it
+      over the embedded one (`--registry`, `$AFC_REGISTRY`). What the embedded
+      registry knows (fields, examples) is kept, status comes from the dump,
+      `geprueft` is reset, functions only the dump knows carry the dump's
+      parameter name and type with unknown fields. Checked against the dump of
+      device B (61 of 61 identical) and a reduced dump (19 functions, 42 named as
+      missing). Not done: the Kotlin port does not refresh yet; fields of new
+      functions stay unknown (need the probe).
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
       `com.openminis.app.appfn`).
 - [x] **Device test, Shizuku path** (D8) — done, see
       [TEST2-LOG.md](TEST2-LOG.md): `list`, `schema`, a read `execute`, a write
       with and without the confirmation switch, and the refusals.
+- [ ] **`afc` as the shipped core (D9)** — NDK build `aarch64-linux-android`,
+      `libafc.so` in the APK, Kotlin reduced to starting it; replaces about 600
+      lines of Kotlin. Needs a maintainer build; the start from `lib/arm64` is
+      unmeasured. Shizuku-only identity measured (uid 2000, context shell): 11
+      calls, 0 errors; a device with no root at all is not.
+- [x] **Device test from the device's own registry** (31.10.) — `afc proben`
+      derives the calls from the registry of this device (read-only, switched on,
+      only `query`/`maxCount` as required fields; unknown fields only with a
+      confirmed empty call); `geraetetest.sh` runs them. No fixed Samsung list. A
+      form that never ran on the test device counts as "deviation", not red.
+      44 Rust tests, 5 device-test checks, 5 mutations all red. Measured:
+      embedded registry 11 calls (9 content, 2 empty, 0 errors); a registry of
+      only Google functions 2 calls, 2 with content. New facts from it:
+      `findTabs`, `getHistories` and the dialer's `findPersons` answer with
+      `query` + `maxCount`; `findMediaItems` is empty with `query:"a"` (it had
+      content with `maxCount` alone).
+- [x] **Slim tool definition** (31.10.) — strings of `definition()` 1737 B (~482
+      tokens) down to 730 B (~203); the how-to text moved into the answer of
+      `list`. **Not compiled**, not run; the effect on how well models use the
+      tool is not measured.
 - [ ] **Shizuku permission level** (D2 step 3) — consult the existing
       `OffloadPermissionManager` level for Shizuku before choosing the path.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
@@ -125,6 +157,12 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Added
+
+- `app_functions`: the tool definition shrinks to about 40 percent; the usage text comes with the answer to `list`.
+- `afc refresh`: renew the registry from `dumpsys app_function`; `afc --registry` / `$AFC_REGISTRY` use it.
+- Device test counts "package not installed" (1003) as its own class and derives its calls from the device's registry (`afc proben`).
+- `afc` runs directly as uid 0 or 2000 on the device (`su 2000` only under root); `afc refresh` works there too.
+- `docs/appfunctions/TEST5-LOG.md` section 5: standing cost of the tool definition against the skill entry.
 
 - `deps/afc/aus/`: source and build of `aus.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
 - `docs/appfunctions/COMPATIBILITY.md`: what runs on which device and ROM, what is missing, whether it can be brought along.

@@ -37,7 +37,11 @@ target/release/afc show findBookmarks
 target/release/afc check com.sec.android.app.sbrowser findBookmarks --args '{"query":"a","maxCount":3}'
 target/release/afc call  com.sec.android.app.sbrowser findBookmarks --args '{"query":"a","maxCount":3}'
 target/release/afc codes
+target/release/afc proben   # lesende Proben dieses Geraets (TSV: Paket, Name, Args, bestaetigt)
+target/release/afc refresh [--dump DATEI] [--nach DATEI]   # Registry dieses Geraets aus dumpsys
 ```
+
+`afc` nimmt `/var/minis/shared/afc/registry.txt`, wenn sie existiert (oder `--registry` / `$AFC_REGISTRY`), sonst die eingebettete Registry. `refresh` behaelt, was die eingebettete Registry ueber eine Funktion weiss (Felder, Beispiele), nimmt Status und Funktionsliste aus dem Dump und setzt `geprueft` zurueck.
 
 * `--args` sind die Felder, wie ein Mensch sie schreiben würde. Ob sie auf der
   obersten Ebene liegen oder in einem Sammelparameter, entscheidet die Registry

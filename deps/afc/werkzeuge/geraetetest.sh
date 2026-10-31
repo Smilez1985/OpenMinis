@@ -1,7 +1,8 @@
 #!/bin/sh
-# Geraetetest fuer afc: ruft die in der Registry bestaetigten (geprueft="ja")
-# LESENDEN Funktionen auf und vergleicht die Antwort mit dem, was am 29./30.10.
-# gemessen wurde.
+# Geraetetest fuer afc: ruft die LESENDEN Funktionen auf, die die Registry
+# DIESES Geraets hergibt (`afc proben`; mit `afc refresh` aufgefrischt, sonst
+# die eingebettete). Keine feste Liste: welche Apps es gibt, bestimmt das Geraet.
+# Samsung-Apps sind kein Massstab; ein Geraet ohne sie hat eben weniger Proben.
 #
 #   werkzeuge/geraetetest.sh [--alles]
 #
@@ -9,43 +10,45 @@
 # Der Test ruft nichts Schreibendes auf. Serial, weil parallele Aufrufe auf
 # diesem Geraet 5 s statt 1 s brauchen (MESSUNGEN.md).
 HIER=$(cd "$(dirname "$0")/.." && pwd)
-AFC="$HIER/target/release/afc"
+AFC="${AFC:-$HIER/target/release/afc}"
 [ -x "$AFC" ] || { echo "afc fehlt: erst bauen (cargo build --release)" >&2; exit 3; }
 TMPDIR=/tmp
 export TMPDIR
 AUSGABE=$(mktemp)
-ANZAHL=0; GRUEN=0; LEER=0; ROT=0
+ANZAHL=0; GRUEN=0; LEER=0; ROT=0; FEHLT=0; ABW=0
 
 lauf() {
-  name=$1; paket=$2; args=$3; soll=$4
-  printf '%-26s ' "$name"
+  paket=$1; name=$2; args=$3; best=$4
+  printf '%-30s ' "$name"
   antwort=$("$AFC" call "$paket" "$name" --args "$args" 2>&1)
   ANZAHL=$((ANZAHL+1))
   printf '%s' "$antwort" >> "$AUSGABE"
   case "$antwort" in
-    *"EMPTY_RESULT"*) KLASSE=LEER;  LEER=$((LEER+1));  echo "LEER   (kein Treffer nachgewiesen)" ;;
-    *"ERFOLG:"*)      KLASSE=INHALT; GRUEN=$((GRUEN+1)); echo "ERFOLG" ;;
-    *)                KLASSE=FEHLER; ROT=$((ROT+1)); echo "FEHLER  $(printf '%s' "$antwort" | tail -1)" ;;
-  esac
-  case "$soll" in
-    leer)   [ "$KLASSE" = LEER ]   || echo "   ^ Abweichung: am 29.10. kam hier eine leere Liste" ;;
-    inhalt) [ "$KLASSE" = INHALT ] || echo "   ^ Abweichung: am 29.10. kam hier Inhalt" ;;
+    *"FEHLER 1003"*)  FEHLT=$((FEHLT+1)); echo "FEHLT   (nicht auf diesem Geraet, 1003)" ;;
+    *"EMPTY_RESULT"*) LEER=$((LEER+1));   echo "LEER    (kein Treffer nachgewiesen)" ;;
+    *"ERFOLG:"*)      GRUEN=$((GRUEN+1)); echo "ERFOLG" ;;
+    *)
+      if [ "$best" = ja ]; then
+        ROT=$((ROT+1)); echo "FEHLER  $(printf '%s' "$antwort" | tail -1)"
+      else
+        ABW=$((ABW+1)); echo "ABWEICHUNG (Form nie bestaetigt)  $(printf '%s' "$antwort" | tail -1)"
+      fi ;;
   esac
 }
 
-# Die 12 bestaetigten lesenden Funktionen (die 13. ist rejectCall, schreibend).
-lauf getDeviceStateMetadata com.google.android.gms '{}'
-lauf getUncategorizedDeviceState com.google.android.gms '{}'
-lauf findPersons com.samsung.android.app.contacts '{"query":"e","maxCount":3}'
-lauf findMediaItems com.sec.android.gallery3d '{"maxCount":2}'
-lauf findAlbums com.sec.android.gallery3d '{"query":"a","maxCount":5}'
-lauf findBookmarks com.sec.android.app.sbrowser '{"query":"a","maxCount":3}'
-lauf findCallRecords com.samsung.android.dialer '{"query":"a","maxCount":3}' leer
-lauf findFiles com.sec.android.app.myfiles '{"query":"pdf","maxCount":5}' leer
-lauf getPersons com.samsung.android.app.contacts '{"personIds":["73"]}'
-lauf getPersons com.samsung.android.dialer '{"personIds":["73"]}'
+PROBEN=$("$AFC" proben) || { echo "afc proben schlug fehl" >&2; exit 3; }
+[ -n "$PROBEN" ] || { echo "Die Registry liefert keine Proben: nichts zu testen." >&2; exit 4; }
+TAB=$(printf '\t')
+while IFS="$TAB" read -r paket name args best; do
+  lauf "$paket" "$name" "$args" "$best"
+done <<EOF2
+$PROBEN
+EOF2
 
 echo
-echo "Bilanz: $ANZAHL Aufrufe — $GRUEN mit Inhalt, $LEER ohne Inhalt, $ROT Fehler."
+echo "Bilanz: $ANZAHL Aufrufe — $GRUEN mit Inhalt, $LEER ohne Inhalt, $FEHLT nicht vorhanden (1003), $ABW Abweichungen unbestaetigter Form, $ROT Fehler."
+[ "$FEHLT" -eq 0 ] || echo "Hinweis: 1003 ist kein Fehler des Weges, sondern die richtige Antwort fuer eine App, die hier nicht installiert ist."
+[ "$ABW" -eq 0 ] || echo "Hinweis: Abweichungen betreffen Formen, die nie auf dem Messgeraet liefen; sie zaehlen nicht als rot."
 echo "Vollstaendige Antworten: $AUSGABE"
+[ "$ANZAHL" -gt "$FEHLT" ] || { echo "Nichts gelaufen: alle $ANZAHL Aufrufe 1003 - der Test sagt hier nichts." >&2; exit 4; }
 [ "$ROT" -eq 0 ]

@@ -38,6 +38,9 @@ pub struct Funktion {
     pub geprueft: bool,
     pub parameter: Vec<Parameter>,
     pub beispiel: Option<String>,
+    /// Aus der B-Zeile: die Argumente und die Herkunft, getrennt (fuer `proben`).
+    pub beispiel_args: String,
+    pub beispiel_quelle: String,
 }
 
 impl Funktion {
@@ -101,6 +104,8 @@ impl Registry {
                     geprueft: feld(&t, 6) == "ja",
                     parameter: Vec::new(),
                     beispiel: None,
+                    beispiel_args: String::new(),
+                    beispiel_quelle: String::new(),
                 }),
                 "P" => {
                     if let Some(f) = funktionen.last_mut() {
@@ -129,6 +134,8 @@ impl Registry {
                 }
                 "B" => {
                     if let Some(f) = funktionen.last_mut() {
+                        f.beispiel_args = feld(&t, 2);
+                        f.beispiel_quelle = feld(&t, 3);
                         f.beispiel = Some(format!(
                             "{} (args: {}, quelle: {})",
                             feld(&t, 4),

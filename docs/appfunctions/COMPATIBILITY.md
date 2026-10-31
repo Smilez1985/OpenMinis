@@ -9,6 +9,16 @@ builds. This page records what was **measured per device**; empty cells say
 The device names, ROM names and models below are given on purpose here, by the
 maintainer's decision, because the matrix is useless without them.
 
+## 0. Samsung apps are not the yardstick
+
+The Samsung apps (contacts, dialer, gallery, files, browser) appear in the
+tables because the test lab only has Samsung devices, by chance. Devices from
+Google, Xiaomi, Sony and others never carry them. What is portable is the
+platform service and the Google Play services functions; Samsung's functions
+are a bonus where present. A result such as "not installed (1003)" on another
+make is the correct answer, not a defect, and a build is judged by the
+portable part.
+
 ## 1. Devices
 
 | | Device A | Device B | Device C |
@@ -47,7 +57,7 @@ the request class also gained a constructor with `AppFunctionAttribution`.
 | Missing | Where | Can it be brought? | Status |
 |---|---|---|---|
 | Shell command `cmd app_function` | B | **Yes, without the ROM:** call the service through the binder (`aus.jar`, `app_process` as uid 2000). This is the path of the native tool. | measured on B |
-| `--package` on `list-app-functions` | C | Yes: do not pass it, filter the full list ourselves. For the skill this is a small change. | proposed, not built |
+| `--package` on `list-app-functions` | C | Yes: do not pass it, filter the full list ourselves. | built in skill 0.1.2, not run on C |
 | The 4-argument constructor of `ExecuteAppFunctionAidlRequest` | C | **Yes, measured.** Device C declares `(ExecuteAppFunctionRequest, UserHandle, String, long, long)`. `aus.jar` now picks the constructor by reflection (types, then only `long`) and prints the declared signatures when none fits; with it the calls on C succeed. | measured on C |
 | Samsung's own AppFunctions (contacts, gallery, dialer, files, browser) | C | **No.** They come with Samsung's apps, which this ROM does not register. | measured on C |
 | `EXECUTE_APP_FUNCTIONS` for a normal app | A, B | **No.** It is `privileged`; only the shell identity (uid 2000, via Shizuku) holds it. A device without Shizuku cannot call. | measured on A, B |
@@ -82,10 +92,12 @@ same `aus.jar`. A failed test on a locked device says nothing about the build.
   `elapsedRealtime`, second wall clock, guessed from the method name
   `getRequestWallTime`). The service accepts them; whether it rejects the
   swapped order was not tested (read-only).
-- The device test counts "package not installed" (1003) as an error; it should
-  be its own class so a device without the Samsung apps does not turn red.
-- The plain skill still passes `--package` and fails on device C; not changed.
+- The device test now counts "package not installed" (1003) as its own class
+  (31.10.); not yet run on device C.
+- The plain skill 0.1.2 no longer passes `--package` unless `help` names it
+  (31.10.); not yet run on device C, which is the check that matters.
 - Build and build number of device A are not recorded.
-- Whether the binder path works on device A (stock, no root) is not measured;
-  without root `aus.jar` could be started directly as uid 2000.
+- The binder path under a pure Shizuku identity (uid 2000, context `shell`) was
+  measured on device B: 11 calls, 0 errors. Device A (stock, no root) itself is
+  not measured.
 - The ROM version of EvolutionX on device C is not recorded.

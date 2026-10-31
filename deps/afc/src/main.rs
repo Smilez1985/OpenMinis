@@ -9,14 +9,18 @@
 //!   show  <name|id>                          eine Funktion mit Parametern
 //!   check <paket|-> <name> [--args JSON]     nur pruefen, nichts aufrufen
 //!   call  <paket|-> <name> [--args JSON] [--schreiben] [--trocken] [--zeit N]
+//!   proben                                   Proben fuer den Geraetetest (TSV: Paket, Name, Args, bestaetigt)
 //!   codes                                    Fehlercodes erklaeren
+//!   refresh [--dump DATEI] [--nach DATEI]    Registry dieses Geraets aus dumpsys erneuern
 //!
 //! Schreibende Funktionen laufen nur mit `--schreiben`. Die Pruefung ist die
 //! Zusage, nicht der Dialog: was die Registry nicht hergibt, wird als offen
 //! gemeldet statt geraten.
 
+mod auffrischen;
 mod fehler;
 mod json;
+mod proben;
 mod pruefen;
 mod registry;
 mod weg;
@@ -33,16 +37,21 @@ afc 0.1.0 — AppFunctions aufrufen (Binder-Weg, Aufrufer uid 2000)
   afc check <paket|-> <name> [--args JSON]    pruefen, nicht aufrufen
   afc call  <paket|-> <name> [--args JSON] [--schreiben] [--trocken] [--zeit N]
   afc codes                                   Fehlercodes und ihre Bedeutung
+  afc proben                                  Proben des Geraetetests (aus der Registry)
+  afc refresh [--dump DATEI] [--nach DATEI]   Registry aus dumpsys app_function erneuern
 
   --alles      auch Funktionen, die aus sind
   --schreiben  schreibende Funktion wirklich aufrufen (sonst nur Pruefung)
   --trocken    Aufruf vorbereiten, aber nicht ausfuehren
+  --registry DATEI  Registry statt der eingebetteten ($AFC_REGISTRY; sonst
+               /var/minis/shared/afc/registry.txt, wenn vorhanden)
   --jar PFAD   aus.jar (Vorrang vor $AFC_JAR; Vorgabe /var/minis/shared/afc/aus.jar)
 ";
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    let r = Registry::eigene();
+    let r = registry_waehlen(&args);
+    let args = ohne_option(args, "--registry");
     let ergebnis = match args.first().map(|s| s.as_str()) {
         None | Some("--hilfe") | Some("-h") | Some("help") => {
             println!("{}", HILFE);
@@ -52,6 +61,13 @@ fn main() {
         Some("show") => zeige(&r, &args[1..]),
         Some("check") => pruefe(&r, &args[1..], false),
         Some("call") => pruefe(&r, &args[1..], true),
+        Some("refresh") => frische(&args[1..]),
+        Some("proben") => {
+            for p in proben::proben(&r) {
+                println!("{}\t{}\t{}\t{}", p.paket, p.name, p.args, if p.bestaetigt { "ja" } else { "nein" });
+            }
+            Ok(())
+        }
         Some("codes") => {
             for (c, t) in fehler::CODES {
                 println!("{:18} {}", c, t);
@@ -275,5 +291,81 @@ mod tests_jar {
         assert_eq!(jar_waehlen(None, None), JAR_VORGABE);
         assert_eq!(jar_waehlen(Some(String::new()), None), JAR_VORGABE);
         assert_eq!(jar_waehlen(a, Some(String::new())), "/var/minis/a.jar");
+    }
+}
+
+/// Reihenfolge: `--registry`, `$AFC_REGISTRY`, `/var/minis/shared/afc/registry.txt`
+/// (nur wenn vorhanden), sonst die eingebettete. Eine genannte, aber
+/// unlesbare Datei ist ein Fehler, kein stiller Rueckfall.
+fn registry_waehlen(args: &[String]) -> Registry {
+    let genannt = arg_wert(args, "--registry")
+        .filter(|s| !s.is_empty())
+        .or_else(|| std::env::var("AFC_REGISTRY").ok().filter(|s| !s.is_empty()));
+    let pfad = match &genannt {
+        Some(p) => Some(p.clone()),
+        None if std::path::Path::new(REGISTRY_VORGABE).exists() => Some(REGISTRY_VORGABE.to_string()),
+        None => None,
+    };
+    match pfad {
+        Some(p) => match std::fs::read_to_string(&p) {
+            Ok(t) => Registry::aus_text(&t),
+            Err(e) => {
+                eprintln!("afc: Registry {} nicht lesbar: {}", p, e);
+                std::process::exit(2);
+            }
+        },
+        None => Registry::eigene(),
+    }
+}
+
+const REGISTRY_VORGABE: &str = "/var/minis/shared/afc/registry.txt";
+
+fn frische(args: &[String]) -> Result<(), String> {
+    let dump = match arg_wert(args, "--dump") {
+        Some(p) => std::fs::read_to_string(&p).map_err(|e| format!("{}: {}", p, e))?,
+        None => weg::shell("dumpsys app_function")?,
+    };
+    if !dump.contains("AppFunctionMetadata for:") {
+        return Err("der Dump enthaelt keine AppFunctionMetadata - nichts geschrieben".to_string());
+    }
+    let nach = arg_wert(args, "--nach").unwrap_or_else(|| REGISTRY_VORGABE.to_string());
+    let e = auffrischen::auffrischen(&dump, registry::REGISTRY, "aufgefrischt");
+    // Sidecar + atomares mv, damit nie eine halbe Datei liegt.
+    let tmp = format!("{}.neu", nach);
+    std::fs::write(&tmp, &e.text).map_err(|x| format!("{}: {}", tmp, x))?;
+    std::fs::rename(&tmp, &nach).map_err(|x| format!("{}: {}", nach, x))?;
+    let r = Registry::aus_text(&e.text);
+    println!("Registry geschrieben: {}", nach);
+    println!("  {} Funktionen im Dump, davon {} mit Wissen aus der eingebetteten Registry, {} neu (nur Dump-Angaben, Felder unbekannt).", r.funktionen.len(), e.behalten, e.neu.len());
+    if !e.fehlen.is_empty() {
+        println!("  {} eingebettete Funktionen fehlen auf diesem Geraet (nicht uebernommen).", e.fehlen.len());
+    }
+    println!("  geprueft: 0 (bestaetigt wurde nur auf dem Messgeraet).");
+    Ok(())
+}
+
+/// Entfernt `name WERT` aus den Argumenten, damit der Wert nicht als
+/// Suchmuster oder Unterkommando gelesen wird.
+fn ohne_option(args: Vec<String>, name: &str) -> Vec<String> {
+    let mut aus = Vec::new();
+    let mut i = 0;
+    while i < args.len() {
+        if args[i] == name {
+            i += 2;
+        } else {
+            aus.push(args[i].clone());
+            i += 1;
+        }
+    }
+    aus
+}
+
+#[cfg(test)]
+mod tests_option {
+    use super::ohne_option;
+    #[test]
+    fn option_samt_wert_faellt_weg() {
+        let a: Vec<String> = ["--registry", "/x", "list", "kontakt"].iter().map(|s| s.to_string()).collect();
+        assert_eq!(ohne_option(a, "--registry"), vec!["list", "kontakt"]);
     }
 }

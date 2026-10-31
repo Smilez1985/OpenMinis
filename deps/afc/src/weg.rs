@@ -12,6 +12,45 @@
 use crate::json::Wert;
 use std::process::Command;
 
+/// Wer bin ich? Liest die uid aus `/proc/self/status` (Zeile `Uid:`).
+pub fn eigene_uid() -> Option<u32> {
+    let t = std::fs::read_to_string("/proc/self/status").ok()?;
+    let z = t.lines().find(|l| l.starts_with("Uid:"))?;
+    z.split_whitespace().nth(1)?.parse().ok()
+}
+
+/// Der Weg, den die Identitaet vorgibt.
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Identitaet {
+    /// uid 0: Root-Weg, `su 2000` setzt die Aufrufer-Identitaet.
+    Root,
+    /// uid 2000: Shizuku ohne Root, schon die richtige Identitaet.
+    Shell,
+    /// Alles andere (Sandkasten, App): nur ueber `android-shizuku-cli`.
+    Fremd,
+}
+
+pub fn identitaet_von(uid: Option<u32>) -> Identitaet {
+    match uid {
+        Some(0) => Identitaet::Root,
+        Some(2000) => Identitaet::Shell,
+        _ => Identitaet::Fremd,
+    }
+}
+
+/// Die Zeile, die `app_process` startet. Unter Root mit `su 2000`, unter
+/// Shell direkt.
+pub fn startzeile(i: Identitaet, jar: &str, paket: &str, fkt: &str, aufrufer: &str, a3: &str, doc: &str) -> String {
+    let kern = format!(
+        "CLASSPATH={} app_process / Ausfuehren '{}' '{}' {} '{}' b64:{}",
+        jar, paket, fkt, aufrufer, a3, doc
+    );
+    match i {
+        Identitaet::Root => format!("su 2000 -c \"{}\" 2>&1", kern),
+        _ => format!("{} 2>&1", kern),
+    }
+}
+
 /// Wie `Ausfuehren` den Aufrufer nennt, wenn nichts anderes gesagt wird.
 pub const AUFRUFER: &str = "com.android.shell";
 
@@ -77,6 +116,10 @@ pub fn skript(a: &Aufruf) -> Result<String, String> {
 /// Fuehrt das Skript ueber `android-shizuku-cli` aus und gibt die Ausgabe
 /// zurueck, die `Ausfuehren` gemacht hat.
 pub fn ausfuehren(a: &Aufruf) -> Result<String, String> {
+    let id = identitaet_von(eigene_uid());
+    if id != Identitaet::Fremd && !a.trocken {
+        return lokal(a, id);
+    }
     let skript = skript(a)?;
     if a.trocken {
         return Ok(format!("(Trockenlauf) Skript:\n{}", skript));
@@ -116,6 +159,52 @@ pub fn ausfuehren(a: &Aufruf) -> Result<String, String> {
     Ok(combined)
 }
 
+/// Lauf auf dem Geraet selbst (uid 0 oder 2000): kein Shizuku-Umweg.
+/// `aus.jar` muss lesbar liegen; unter uid 2000 ist der App-Ordner zu, darum
+/// zuerst /data/local/tmp/af/aus.jar (weltlesbar).
+fn lokal(a: &Aufruf, id: Identitaet) -> Result<String, String> {
+    let jar = "/data/local/tmp/af/aus.jar";
+    if !std::path::Path::new(jar).exists() {
+        return Err(format!("{} fehlt: aus.jar einmal als root dorthin legen", jar));
+    }
+    let doc = b64(a.nutzlast_json.as_bytes());
+    let zeile = startzeile(id, jar, a.paket, a.funktion, a.aufrufer, &a.parameter, &doc);
+    let aus = Command::new("sh")
+        .arg("-c")
+        .arg(&zeile)
+        .output()
+        .map_err(|e| format!("sh liess sich nicht starten: {}", e))?;
+    Ok(String::from_utf8_lossy(&aus.stdout).to_string())
+}
+
+/// Ein einzelner Befehl ueber Shizuku; gibt stdout zurueck.
+pub fn shell(befehl: &str) -> Result<String, String> {
+    // Auf dem Geraet selbst (uid 0 oder 2000) laeuft der Befehl direkt.
+    if identitaet_von(eigene_uid()) != Identitaet::Fremd {
+        let aus = Command::new("sh")
+            .arg("-c")
+            .arg(befehl)
+            .output()
+            .map_err(|e| format!("sh liess sich nicht starten: {}", e))?;
+        return Ok(String::from_utf8_lossy(&aus.stdout).to_string());
+    }
+    let aus = Command::new("android-shizuku-cli")
+        .arg("exec")
+        .arg(befehl)
+        .output()
+        .map_err(|e| format!("android-shizuku-cli liess sich nicht starten: {}", e))?;
+    let roh = String::from_utf8_lossy(&aus.stdout).to_string();
+    let wert = Wert::lesen(&roh).map_err(|e| format!("Antwort nicht lesbar: {}", e))?;
+    if let Wert::Objekt(m) = &wert {
+        if let Some(Wert::Objekt(d)) = m.get("data") {
+            if let Some(t) = d.get("stdout").and_then(|c| c.als_text()) {
+                return Ok(t.to_string());
+            }
+        }
+    }
+    Err(format!("Shizuku-Weg fehlgeschlagen: {}", roh.chars().take(300).collect::<String>()))
+}
+
 /// Die Ursache fuer die Meldung: `error` von Shizuku, wenn es etwas sagt, sonst die
 /// letzte nicht leere Zeile der Ausgabe (dort steht z. B. die Ausnahme von aus.jar).
 /// Nie leer: ohne beides steht "keine Meldung".
@@ -133,6 +222,23 @@ fn ursache(fehler: &str, ausgabe: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn weiche_waehlt_nach_uid() {
+        assert_eq!(identitaet_von(Some(0)), Identitaet::Root);
+        assert_eq!(identitaet_von(Some(2000)), Identitaet::Shell);
+        assert_eq!(identitaet_von(Some(10278)), Identitaet::Fremd);
+        assert_eq!(identitaet_von(None), Identitaet::Fremd);
+    }
+
+    #[test]
+    fn root_nimmt_su_shell_nimmt_direkt() {
+        let r = startzeile(Identitaet::Root, "/j.jar", "p", "f", "com.android.shell", "@", "e30=");
+        let d = startzeile(Identitaet::Shell, "/j.jar", "p", "f", "com.android.shell", "@", "e30=");
+        assert!(r.starts_with("su 2000 -c"), "{}", r);
+        assert!(!d.contains("su 2000"), "{}", d);
+        assert!(d.starts_with("CLASSPATH=/j.jar app_process"), "{}", d);
+    }
 
     #[test]
     fn ursache_nimmt_die_letzte_zeile_wenn_error_leer_ist() {

@@ -81,3 +81,41 @@ to start; the README is optional.
   the call (task 2) saves a failed round trip; how often that happens in
   practice is not known from three runs.
 - One run per cell. Timings (0.0–1.0 s) are too small to rank.
+
+## 5. Standing cost of the tool definition (31.10.)
+
+Section 3 counted what is read once. The **current build** of the app sends the
+definition of every enabled tool with each request (`AgentTools.kt` rebuilds
+the list every turn). Counted from the sources with the same estimate
+(bytes / 3.6):
+
+| | Bytes | ~Tokens | When paid |
+|---|---:|---:|---|
+| native tool: all strings of the definition | 1737 | 482 | every request while the switch is on |
+| of which `description` | 1046 | 291 | same |
+| skill: entry in the skills list | 668 | 186 | every request |
+| skill: `SKILL.md` | 5573 | 1548 | once per session, when the skill is loaded |
+
+Reading it:
+
+- This is a property of **how the app passes tools today**, not of a native
+  tool. A provider API is stateless, so a tool that is absent from the request
+  cannot be called; but a tool may be sent as name and one line, with the
+  description and parameters fetched on demand. That is a decision for the
+  whole app (see DESIGN), not for this feature alone.
+- For this tool alone the definition can shrink: `list` and `schema` already
+  return what the long `description` repeats.
+- The 482 are the strings only; the schema around them was not counted.
+  Provider prompt caching, which lowers repeated cost, was not measured.
+- What argues for the native tool is section 1 (the skill does not run without
+  `cmd app_function`) and the per-call result of task 3 (212 against 434).
+- **Not measured:** the Kotlin path (not compiled yet).
+
+## 6. After shortening (31.10.)
+
+The definition of `app_functions` was cut to name, one line and short parameter
+texts; the how-to moved into the answer of `list` (sent once per use, not per
+request). Strings of `definition()`: **730 B, ~203 tokens**, against 1737 B,
+~482 before (same estimate). Saved per request: ~279 tokens. The `list` answer
+grows by about 800 B once per use. **Not measured:** whether models still use
+the tool correctly with the short text; that needs a run in the app.

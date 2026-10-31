@@ -29,28 +29,33 @@ object AppFunctionsTool {
     private const val DEFAULT_TIMEOUT_S = 30
     private const val MAX_OUTPUT = 12_000
 
+    /**
+     * What used to sit in the tool description, which is sent with every
+     * request. It now travels once, with the answer to `list`, which every
+     * run needs before its first call.
+     */
+    private const val USAGE = "\n\nHow to use: 'schema' with 'package' (and optionally 'function') shows " +
+        "the parameters; 'execute' with 'package', 'function' and 'arguments' calls one. A short name " +
+        "after '#' (e.g. 'findAlarms') works when unique. Anything other than a read " +
+        "(find/get/search/list/is/query/read/lookup/fetch) changes something; with confirmation " +
+        "enabled in settings the user is asked first, otherwise it runs directly, so get the " +
+        "arguments right first. The classification is by name only. If an app publishes no " +
+        "parameter schema, call once with '{}' and read the error: it names the missing field. " +
+        "A result with no content is reported as empty, not as success."
+
     fun definition(): AgentToolDefinition = AgentToolDefinition(
         name = NAME,
-        description = "Call functions that other installed Android apps expose through Android AppFunctions " +
-            "(on-device 'Android MCP'): e.g. alarms, timers and stopwatch in the clock app, reminders, " +
-            "calendar events, contacts, call log, gallery, browser bookmarks, device settings state. " +
-            "Prefer this over UI automation for these apps. Requires Android 16+.\n\n" +
-            "Steps: 'list' to discover (optionally filter with 'query'), 'schema' with 'package' (and " +
-            "optionally 'function') to read parameters, then 'execute' with 'package', 'function' and " +
-            "'arguments'. 'function' may be the short name after '#' (e.g. 'findAlarms') when unique.\n\n" +
-            "Functions other than reads (find/get/search/list/is/query/read/lookup/fetch) change " +
-            "something; if the user enabled confirmation in settings they ask first, otherwise they run " +
-            "directly — so get the arguments right before calling. The classification is by name only. " +
-            "Some apps publish no parameter schema: then call once with '{}' and read the error, " +
-            "it names the missing field. A result with no content is reported as empty, not as success.",
+        description = "Call functions that other installed Android apps expose (alarms, timers, " +
+            "calendar, contacts, call log, gallery, bookmarks, device settings). Android 16+. " +
+            "Start with action=list: its answer explains the next steps.",
         parameters = mapOf(
             "tool_title" to AgentToolParam("string", "A concise 5-10 word summary of this call, shown to the user. Use the same language as the user."),
             "action" to AgentToolParam("string", "list | schema | execute", enumValues = listOf("list", "schema", "execute")),
-            "package" to AgentToolParam("string", "Target app package name (schema, execute)."),
-            "function" to AgentToolParam("string", "Function id, or its unique short name (schema: optional filter; execute: required)."),
-            "arguments" to AgentToolParam("string", "execute: the function's parameters as a JSON object string, e.g. {\"findAlarmsParams\":{}}. Default {}."),
-            "query" to AgentToolParam("string", "list: optional filter on package, function name or category (e.g. 'clock', 'calendar', 'find')."),
-            "timeout_s" to AgentToolParam("integer", "execute: seconds to wait for the target app (default 30, max 120)."),
+            "package" to AgentToolParam("string", "Target app package (schema, execute)."),
+            "function" to AgentToolParam("string", "Function id or unique short name (execute: required)."),
+            "arguments" to AgentToolParam("string", "execute: parameters as a JSON object string. Default {}."),
+            "query" to AgentToolParam("string", "list: optional filter."),
+            "timeout_s" to AgentToolParam("integer", "execute: seconds to wait (default 30, max 120)."),
         ),
         required = listOf("tool_title", "action"),
         propertyOrdering = listOf("tool_title", "action", "package", "function", "arguments", "query", "timeout_s"),
@@ -75,7 +80,7 @@ object AppFunctionsTool {
             "list" -> {
                 if (decision.path == AppFunctionsManager.Path.NONE) return@withContext fail("unavailable: ${decision.reason}", title)
                 AppFunctionsManager.list(context).fold(
-                    onSuccess = { ok(AppFunctionsCore.formatList(it, args.optString("query").ifBlank { null }) + "\n(path: ${decision.path.name.lowercase()})", title) },
+                    onSuccess = { ok(AppFunctionsCore.formatList(it, args.optString("query").ifBlank { null }) + USAGE + "\n(path: ${decision.path.name.lowercase()})", title) },
                     onFailure = { fail("list failed: ${it.message}", title) },
                 )
             }
