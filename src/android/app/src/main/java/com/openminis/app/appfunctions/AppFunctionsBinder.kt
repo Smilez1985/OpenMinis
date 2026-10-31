@@ -16,6 +16,12 @@ import java.security.MessageDigest
  * scheitert (kein Paket zur uid 0), die App selbst scheitert mit 1000, uid 2000
  * geht.
  *
+ * Die Zwischenschicht wählt den Konstruktor von `ExecuteAppFunctionAidlRequest` selbst
+ * (nach Typen, per Reflection), weil er je Build verschieden ist: vier Argumente
+ * auf BP2A, fünf auf BP4A. Findet sie keinen, meldet sie `NO_CONSTRUCTOR` samt den
+ * deklarierten Signaturen; der Aufrufer reicht diese Zeile unverändert weiter.
+ * Dieselbe Jar läuft bei `deps/afc`.
+ *
  * Der Binder selbst wird nicht nachgebaut. `aus.jar` (6,9 KB, dex) baut die
  * Anfrage per Reflection und ruft `IAppFunctionManager.executeAppFunction`. Das
  * ist auf dem Gerät gegen 13 Funktionen gemessen; das Parcel-Format selbst

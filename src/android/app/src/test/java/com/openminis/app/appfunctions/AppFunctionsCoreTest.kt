@@ -307,4 +307,19 @@ class AppFunctionsCoreTest {
         assertFalse(AppFunctionsCore.needsConfirmation("pkg#getDeviceStateItem", confirmWrites = true))
         assertTrue(AppFunctionsCore.successNotes("pkg", confirmed = false, parametersDeclared = true).isEmpty())
     }
+
+    @Test fun noConstructor_isReportedAsErrorWithTheSignatures() {
+        val roh = "FEHLER: code=NO_CONSTRUCTOR kat=0 msg=kein passender Konstruktor von X; deklariert: public X(A,B)\n"
+        val a = AppFunctionsAntwort.deute(roh)
+        assertEquals(AppFunctionsAntwort.Art.FEHLER, a.art)
+        assertEquals("NO_CONSTRUCTOR", a.code)
+        val b = a.bericht()
+        assertTrue(b, b.contains("deklariert: public X(A,B)"))
+        assertTrue(b, b.contains("BP2A"))
+    }
+
+    @Test fun lockedDevice_codesTellTheUserToUnlock() {
+        assertTrue(AppFunctionsAntwort.erklaerung("1002")!!.contains("entsperren"))
+        assertTrue(AppFunctionsAntwort.erklaerung("3501")!!.contains("entsperren"))
+    }
 }

@@ -31,6 +31,23 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       without `cmd app_function`; where both answer (parameters of a function)
       `afc` needs about half the tokens. Open: repeat on a device where the
       skill runs.
+- [x] **Compatibility matrix per device and ROM** (31.10.) — see
+      [COMPATIBILITY.md](COMPATIBILITY.md): what runs where, what is missing and
+      whether it can be brought along.
+- [x] **Binder call hardened against class signatures that differ between
+      builds** (31.10.) — `aus.jar` picks the `ExecuteAppFunctionAidlRequest`
+      constructor by reflection and reports `NO_CONSTRUCTOR` with the declared
+      signatures. Measured: 4 arguments on one Android 16 build, 5 on another;
+      both run. The source lives in `deps/afc/aus/`, its build is bit-identical
+      to the asset. The Kotlin port carries the new code and the same message.
+      Not measured: the swapped order of the two `long` values.
+- [x] **`afc` shows why a Shizuku call failed** (31.10.) — last output line when
+      the error field is empty.
+- [x] **Plain skill `appfunktionen` 0.1.2** (31.10.) — appends `--package` only
+      when `help` names it, filters itself otherwise, and says so when the
+      command does not exist. 21 tests, 20 mutations all red.
+- [ ] **Device test: "package not installed" as its own class** — a device
+      without the Samsung apps turns red today (1003).
 - [ ] **The registry must be refreshable** — today it is a measured snapshot for
       one device; `dumpsys app_function` and the probe can renew it.
 - [x] **Green CI build of the branch** — debug APK as artifact (run
@@ -109,6 +126,10 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Added
 
+- `deps/afc/aus/`: source and build of `aus.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
+- `docs/appfunctions/COMPATIBILITY.md`: what runs on which device and ROM, what is missing, whether it can be brought along.
+- `docs/appfunctions/TEST5-LOG.md`: token cost of `afc` against the plain skill.
+- `afc` shows the reason of a failed Shizuku call; the codes 1002 and 3501 mention the lock screen.
 - `deps/afc`: Rust tool with the measured registry, argument checks before a call and error-code translation.
 - `afc --jar` and `$AFC_JAR` choose the location of `aus.jar`.
 - `app_functions` executes through the binder (uid 2000 via Shizuku) when `cmd app_function` is missing.

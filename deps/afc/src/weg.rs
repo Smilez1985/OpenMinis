@@ -111,14 +111,37 @@ pub fn ausfuehren(a: &Aufruf) -> Result<String, String> {
             Some(Wert::Objekt(m)) => m.get("error").map(|e| e.schreiben()).unwrap_or_default(),
             _ => roh.chars().take(400).collect(),
         };
-        return Err(format!("Shizuku-Weg fehlgeschlagen: {}", fehler));
+        return Err(format!("Shizuku-Weg fehlgeschlagen: {}", ursache(&fehler, &combined)));
     }
     Ok(combined)
+}
+
+/// Die Ursache fuer die Meldung: `error` von Shizuku, wenn es etwas sagt, sonst die
+/// letzte nicht leere Zeile der Ausgabe (dort steht z. B. die Ausnahme von aus.jar).
+/// Nie leer: ohne beides steht "keine Meldung".
+fn ursache(fehler: &str, ausgabe: &str) -> String {
+    let f = fehler.trim().trim_matches('"').trim();
+    if !f.is_empty() && f != "null" {
+        return f.to_string();
+    }
+    match ausgabe.lines().map(str::trim).filter(|z| !z.is_empty()).last() {
+        Some(z) => z.chars().take(300).collect(),
+        None => "keine Meldung (Ausgabe leer)".to_string(),
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ursache_nimmt_die_letzte_zeile_wenn_error_leer_ist() {
+        let aus = "irgendwas\njava.lang.NoSuchMethodException: x\n\n";
+        assert_eq!(ursache("", aus), "java.lang.NoSuchMethodException: x");
+        assert_eq!(ursache("null", aus), "java.lang.NoSuchMethodException: x");
+        assert_eq!(ursache("\"Boom\"", aus), "Boom");
+        assert_eq!(ursache("", ""), "keine Meldung (Ausgabe leer)");
+    }
 
     #[test]
     fn b64_stimmt_mit_bekannten_werten() {

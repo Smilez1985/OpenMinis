@@ -1,0 +1,2 @@
+package android.app.appfunctions; public interface IExecuteAppFunctionCallback extends android.os.IInterface { void onSuccess(ExecuteAppFunctionResponse r) throws android.os.RemoteException; void onError(AppFunctionException e) throws android.os.RemoteException;
+ abstract class Stub extends android.os.Binder implements IExecuteAppFunctionCallback { public android.os.IBinder asBinder(){return this;} } }

@@ -93,14 +93,15 @@ impl Antwort {
 pub const CODES: &[(&str, &str)] = &[
     ("1000", "Aufrufer passt nicht: falsche uid, Paketname passt nicht zur uid, oder keine Berechtigung. Gemessen: Minis (uid 10278) bekommt 1000; uid 0 hat kein Paket; uid 2000 mit Paket com.android.shell geht."),
     ("1001", "Parameter falsch oder fehlt. Die Meldung ist oft nur 'null'. Gemessen: fehlendes/maxCount=-1 bei Fotos; leerer query bei findPersons."),
-    ("1002", "Funktion ist deaktiviert (enabled=2 in den Laufzeit-Metadaten)."),
+    ("1002", "Funktion ist deaktiviert (enabled=2 in den Laufzeit-Metadaten). Auch bei gesperrtem Geraet (\"Device is locked\"): erst entsperren, dann erneut versuchen."),
     ("1003", "Funktion nicht gefunden: falsche ID oder falsches Paket. Auch scope=activity-Funktionen antworten so."),
     ("1500", "Gemessen bei rejectCall ohne laufenden Anruf (vermutet, nicht belegt)."),
     ("2000", "Systemfehler der Ziel-App."),
     ("2001", "Aufruf abgebrochen."),
     ("2002", "Unternehmensrichtlinie (enterprise policy)."),
     ("3000", "Fehler in der Ziel-App selbst. Gemessen: getHistories ohne timeZone im DateTime."),
-    ("3501", "Feature nicht verfuegbar. Gemessen an eingeschalteten gms-Funktionen, die die Plattform trotzdem ablehnt."),
+    ("3501", "Feature nicht verfuegbar. Gemessen an eingeschalteten gms-Funktionen, die die Plattform trotzdem ablehnt. Auch bei gesperrtem Bildschirm (\"called while screen is locked\"): erst entsperren, dann erneut versuchen."),
+    ("NO_CONSTRUCTOR", "Die Plattform dieses Geraets deklariert fuer ExecuteAppFunctionAidlRequest keinen Konstruktor, den aus.jar kennt (Request, UserHandle, String, danach nur long). Die Meldung nennt die deklarierten Signaturen; die Wahl in Ausfuehren muss erweitert werden. Gemessen: 4 Argumente auf BP2A, 5 auf BP4A."),
     ("NO_PATH", "afc: kein Weg traegt (kein Binder zur Hand)."),
     ("NEEDS_CONFIRMATION", "afc: schreibende Funktion ohne --schreiben."),
     ("EMPTY_RESULT", "afc: ERFOLG, aber kein Inhalt - das Ergebnis ist unbekannt, nicht leer."),
@@ -190,5 +191,22 @@ mod tests {
         }
         assert!(erklaerung("3501").is_some());
         assert!(erklaerung("9999").is_none());
+    }
+
+    #[test]
+    fn kein_konstruktor_wird_als_fehler_mit_erklaerung_gemeldet() {
+        let roh = "FEHLER: code=NO_CONSTRUCTOR kat=0 msg=kein passender Konstruktor von X; deklariert: public X(A,B)\n";
+        let a = Antwort::deute(roh);
+        assert_eq!(a.art, Art::Fehler);
+        assert_eq!(a.code.as_deref(), Some("NO_CONSTRUCTOR"));
+        let b = bericht(&a);
+        assert!(b.contains("deklariert: public X(A,B)"), "{}", b);
+        assert!(b.contains("BP2A"), "{}", b);
+    }
+
+    #[test]
+    fn sperre_wird_im_text_der_codes_genannt() {
+        assert!(erklaerung("1002").unwrap().contains("entsperren"));
+        assert!(erklaerung("3501").unwrap().contains("entsperren"));
     }
 }

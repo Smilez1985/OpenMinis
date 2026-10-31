@@ -1,0 +1,1 @@
+package android.app.appfunctions; public class AppFunctionException extends Exception { public int getErrorCode(){return 0;} public int getErrorCategory(){return 0;} public String getErrorMessage(){return null;} }
