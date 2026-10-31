@@ -1,0 +1,13 @@
+$ /tmp/afc-target/release/afc show com.samsung.android.contacts.person#PersonFunctions_findPersons
+rc=0
+com.samsung.android.contacts.person#PersonFunctions_findPersons
+  Paket:      com.samsung.android.app.contacts
+  Kurzname:   PersonFunctions_findPersons
+  Status:     standard-an  (auf diesem Geraet gemessen)
+  Kategorie:  persons
+  Art:        liest (ohne Rueckfrage aufrufbar)
+  Parameter:
+    findPersonsParams (com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams, , ebene=im Sammelparameter, quelle=konvention)
+      maxCount           long       Pflicht quelle=schema
+      query              string     -      quelle=schema
+  Beispiel:   ERFOLG 29.10.; query ist Pflicht (leer -> 1001) (args: query=e maxCount:long=3, quelle: aufruf-ok)

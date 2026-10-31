@@ -1,0 +1,7 @@
+$ /tmp/afc-target/release/afc call com.samsung.android.app.contacts findPersons --args '{"query":"amazon"}' --trocken
+rc=2
+PersonFunctions_findPersons (com.samsung.android.contacts.person#PersonFunctions_findPersons)
+  FEHLER P1: Pflichtfeld 'maxCount' (long) fehlt. Herkunft der Angabe: schema
+
+Kein Aufruf: 1 Regelverstoesse.
+afc: Pruefung nicht bestanden

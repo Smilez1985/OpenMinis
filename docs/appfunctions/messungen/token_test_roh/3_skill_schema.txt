@@ -1,0 +1,65 @@
+$ python3 /var/minis/skills/appfunktionen/scripts/appfunktionen.py schema com.samsung.android.app.contacts
+rc=0
+{
+ "paket": "com.samsung.android.app.contacts",
+ "dateien": [
+  "assets/app_function.xml"
+ ],
+ "funktionen": [
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_findPersons",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "findPersons",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  },
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_getPersons",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "getPersons",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  },
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_createPerson",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "createPerson",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  },
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_deletePersons",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "deletePersons",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  },
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_showPerson",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "showPerson",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  },
+  {
+   "id": "com.samsung.android.contacts.person#PersonFunctions_updatePerson",
+   "beschreibung": "",
+   "scope": null,
+   "schema": "updatePerson",
+   "kategorie": "persons",
+   "parameter": [],
+   "rueckgabe": "?"
+  }
+ ],
+ "typen": {}
+}

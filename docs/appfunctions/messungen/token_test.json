@@ -1,0 +1,91 @@
+{
+ "ergebnisse": [
+  {
+   "aufgabe": "1 Kontakt finden",
+   "weg": "afc",
+   "aufrufe": 1,
+   "befehl_bytes": 119,
+   "ausgabe_bytes": 920,
+   "tok": 289,
+   "sek": 0.4,
+   "ergebnis": "Treffer",
+   "rc": [
+    0
+   ]
+  },
+  {
+   "aufgabe": "1 Kontakt finden",
+   "weg": "skill",
+   "aufrufe": 2,
+   "befehl_bytes": 283,
+   "ausgabe_bytes": 86,
+   "tok": 102,
+   "sek": 0.6,
+   "ergebnis": "kein Ergebnis",
+   "rc": [
+    2,
+    2
+   ]
+  },
+  {
+   "aufgabe": "2 Pflichtfeld fehlt",
+   "weg": "afc",
+   "aufrufe": 1,
+   "befehl_bytes": 115,
+   "ausgabe_bytes": 235,
+   "tok": 97,
+   "sek": 0.0,
+   "ergebnis": "Pruefung lokal",
+   "rc": [
+    2
+   ]
+  },
+  {
+   "aufgabe": "2 Pflichtfeld fehlt",
+   "weg": "skill",
+   "aufrufe": 1,
+   "befehl_bytes": 158,
+   "ausgabe_bytes": 43,
+   "tok": 56,
+   "sek": 0.3,
+   "ergebnis": "kein Ergebnis",
+   "rc": [
+    2
+   ]
+  },
+  {
+   "aufgabe": "3 Funktionen der App",
+   "weg": "afc",
+   "aufrufe": 1,
+   "befehl_bytes": 96,
+   "ausgabe_bytes": 666,
+   "tok": 212,
+   "sek": 0.0,
+   "ergebnis": "Treffer",
+   "rc": [
+    0
+   ]
+  },
+  {
+   "aufgabe": "3 Funktionen der App",
+   "weg": "skill",
+   "aufrufe": 1,
+   "befehl_bytes": 104,
+   "ausgabe_bytes": 1459,
+   "tok": 434,
+   "sek": 0.4,
+   "ergebnis": "Treffer",
+   "rc": [
+    0
+   ]
+  }
+ ],
+ "anleitung_bytes": {
+  "afc": 4328,
+  "skill": 5140
+ },
+ "hilfe_bytes": {
+  "afc": 750,
+  "skill": 995
+ }
+}

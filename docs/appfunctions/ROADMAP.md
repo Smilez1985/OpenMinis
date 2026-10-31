@@ -26,6 +26,11 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       [TEST4-LOG.md](TEST4-LOG.md). Not compiled yet: this install's sandbox has
       no working JVM, so CI and the device still have to verify it.
 - [x] **`afc` takes the location of `aus.jar` from `--jar` or `$AFC_JAR`** instead of a fixed private path.
+- [x] **Token cost of `afc` against the plain skill** (30.10.) — measured, see
+      [TEST5-LOG.md](TEST5-LOG.md): the plain skill does not run on a device
+      without `cmd app_function`; where both answer (parameters of a function)
+      `afc` needs about half the tokens. Open: repeat on a device where the
+      skill runs.
 - [ ] **The registry must be refreshable** — today it is a measured snapshot for
       one device; `dumpsys app_function` and the probe can renew it.
 - [x] **Green CI build of the branch** — debug APK as artifact (run

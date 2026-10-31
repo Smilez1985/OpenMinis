@@ -1,0 +1,7 @@
+$ /tmp/afc-target/release/afc call com.samsung.android.app.contacts findPersons --args '{"query":"amazon","maxCount":10}'
+rc=0
+PersonFunctions_findPersons (com.samsung.android.contacts.person#PersonFunctions_findPersons)
+  Dokument:  {"findPersonsParams":{"_typ":"com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams","maxCount":10,"query":"amazon"}}
+  Aufruf:    a3=findPersonsParams a4={"_typ":"com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams","maxCount":10,"query":"amazon"}
+
+ERFOLG: {"androidAppfunctionsReturnValue":[{"_typ":"com.google.android.appfunctions.schema.common.v1.persons.Person","_id":"XX","displayName":["XXXXXX"],"emailAddresses":[],"externalUri":[{"_typ":"com.google.android.appfunctions.schema.common.v1.types.Uri","uri":["content://com.android.contacts/contacts/lookup/XXXXXXXXXXXXXXXXXXXXX/53"]}],"givenName":["XXXXXX"],"phoneNumbers":[{"_typ":"com.google.android.appfunctions.schema.common.v1.persons.PersonPhoneNumber","phoneNumber":["XXXXXXXXXXXX"],"type":["MOBILE"]}]}]}
