@@ -51,7 +51,7 @@ export RUSTFLAGS="${RUSTFLAGS:-} -C panic=abort -C link-arg=-Wl,-z,max-page-size
 
 (cd "$AFC_DIR" && cargo build --release --target "$TARGET")
 
-BIN="$AFC_DIR/target/$TARGET/release/afc"
+BIN="${CARGO_TARGET_DIR:-$AFC_DIR/target}/$TARGET/release/afc"
 test -s "$BIN" || { echo "build produced nothing" >&2; exit 1; }
 mkdir -p "$OUT_DIR"
 cp "$BIN" "$OUT_DIR/libafc.so"
