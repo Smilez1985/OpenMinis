@@ -264,7 +264,8 @@ a text reply. Rules and tables then exist once, with tests, not twice.
 | Registry | `--registry` / `$AFC_REGISTRY` / `/var/minis/shared/afc/registry.txt`, else embedded |
 
 **Open, said plainly:** no APK with the binary has been built; the Shizuku-only
-identity was measured on a rooted device with uid 2000 and SELinux context
+identity was measured, from an empty state and with nothing as root after the
+staging, on a rooted device with uid 2000 and SELinux context
 `u:r:shell:s0` (see below), not yet on a device that has no root at all; the packaging through Gradle and the CI step for
 `deps/build_afc_android.sh` were not done; `android-shizuku-cli` does not exist inside
 the app, so the Shizuku call stays in Kotlin.

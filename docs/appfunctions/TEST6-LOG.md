@@ -96,3 +96,29 @@ that needs an APK containing both. The line itself was run by hand as the
 shell with the same binary and succeeded. `--schreiben` is passed by the
 manager because the confirmation already happened in `AppFunctionsTool`; that
 hand-off is read, not exercised.
+
+## From an empty state, as the shell only (31.10.)
+
+The earlier "Shizuku only" runs left the directory `/data/local/tmp/af` behind
+as root. Repeated from scratch: `/data/local/tmp/af` and `afw` removed, then
+**only** `su -Z u:r:shell:s0 2000` (uid 2000, context `shell`, groups `shell`)
+for everything after the binary and the jar were put where the shell can read
+them:
+
+1. `mkdir -p /data/local/tmp/af`, write `aus.jar` through base64 and `chmod`
+   (what `AppFunctionsBinder.dexBereitstellen` does through Shizuku): the
+   checksum equals the asset's (`3e6f7b74637d1361…`); on a second run the
+   check matches, so the write is skipped.
+2. A real call with and without `AFC_JAR`: answers with content.
+3. `afc refresh` as the shell: 61 of 61 functions.
+4. The device test as the shell: 11 calls, 9 with content, 2 empty, 0 errors.
+
+A bug showed up on the way and is fixed: in the local mode `afc` ignored
+`--jar`/`$AFC_JAR` and read a fixed path. It now takes the chosen path first and
+the device path `/data/local/tmp/af/aus.jar` second (`jar_lokal`, one test).
+
+What this still is not: the shell here is entered through `su -Z`, on a
+device that also has root. The parent is the root-owned Shizuku server, not a
+Shizuku service started by `adb`. And the binary came from the staging
+directory, not from `nativeLibraryDir` (that start was measured separately, as
+the app and as the shell).

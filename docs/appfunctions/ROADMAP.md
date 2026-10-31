@@ -196,6 +196,7 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 - Field names of the predefined schema classes, recovered from a second source and checked against the installed copy by field count and type sequence (141 of 142 classes agree).
 - `docs/appfunctions/TEST-LOG.md`: field notes from the first on-device test.
 - `docs/appfunctions/TEST2-LOG.md`: field notes from the second device round.
+- `docs/appfunctions/TEST6-LOG.md`: measurement from an empty state, as the shell user only (jar written by base64, checksum equal to the asset, `refresh` 61/61, device test 11 calls, 0 errors).
 
 ### Fixed
 
@@ -203,3 +204,4 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 - The Kotlin reply reader treats `ERFOLG: null` after a JSON line as empty, as `afc` does.
 - A write call the user approved says so in its result.
 - Reading an app's schema file no longer fails on Android.
+- `afc` in local mode takes `--jar` / `$AFC_JAR` before the device path instead of always reading a fixed path.

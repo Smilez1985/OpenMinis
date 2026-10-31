@@ -159,14 +159,24 @@ pub fn ausfuehren(a: &Aufruf) -> Result<String, String> {
     Ok(combined)
 }
 
+/// Wo `aus.jar` auf dem Geraet liegt, wenn die App sie ablegt.
+pub const JAR_GERAET: &str = "/data/local/tmp/af/aus.jar";
+
+/// Der gewaehlte Pfad (`--jar`, `$AFC_JAR`), wenn es ihn gibt, sonst der
+/// Geraetepfad. `None`, wenn keiner da ist.
+pub fn jar_lokal(gewaehlt: &str, existiert: impl Fn(&str) -> bool) -> Option<String> {
+    [gewaehlt, JAR_GERAET].into_iter().find(|p| !p.is_empty() && existiert(p)).map(|p| p.to_string())
+}
+
 /// Lauf auf dem Geraet selbst (uid 0 oder 2000): kein Shizuku-Umweg.
 /// `aus.jar` muss lesbar liegen; unter uid 2000 ist der App-Ordner zu, darum
 /// zuerst /data/local/tmp/af/aus.jar (weltlesbar).
 fn lokal(a: &Aufruf, id: Identitaet) -> Result<String, String> {
-    let jar = "/data/local/tmp/af/aus.jar";
-    if !std::path::Path::new(jar).exists() {
-        return Err(format!("{} fehlt: aus.jar einmal als root dorthin legen", jar));
-    }
+    let jar = match jar_lokal(a.jar, |p| std::path::Path::new(p).exists()) {
+        Some(j) => j,
+        None => return Err(format!("aus.jar fehlt: weder {} noch {} (die App legt sie ab)", a.jar, JAR_GERAET)),
+    };
+    let jar = jar.as_str();
     let doc = b64(a.nutzlast_json.as_bytes());
     let zeile = startzeile(id, jar, a.paket, a.funktion, a.aufrufer, &a.parameter, &doc);
     let aus = Command::new("sh")
@@ -222,6 +232,14 @@ fn ursache(fehler: &str, ausgabe: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn jar_lokal_nimmt_den_gewaehlten_pfad_zuerst_dann_den_geraetepfad() {
+        assert_eq!(jar_lokal("/x/aus.jar", |p| p == "/x/aus.jar"), Some("/x/aus.jar".to_string()));
+        assert_eq!(jar_lokal("/x/aus.jar", |p| p == JAR_GERAET), Some(JAR_GERAET.to_string()));
+        assert_eq!(jar_lokal("/x/aus.jar", |_| false), None);
+        assert_eq!(jar_lokal("", |p| p == JAR_GERAET), Some(JAR_GERAET.to_string()));
+    }
 
     #[test]
     fn weiche_waehlt_nach_uid() {

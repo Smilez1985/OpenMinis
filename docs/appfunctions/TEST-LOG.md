@@ -1,7 +1,7 @@
 # AppFunctions on-device test log
 
-Field notes from testing the `app_functions` tool against real apps on a Samsung
-S25 Ultra (Android 17 / SDK 37, "Cinnamon Bun"). Every line here was observed on
+Field notes from testing the `app_functions` tool against real apps on a test
+device (Android 17 / SDK 37, "Cinnamon Bun"). Every line here was observed on
 the device; nothing is inferred unless it says so.
 
 - **Build under test:** fork `Smilez1985/OpenMinis`, branch `feature/appfunctions-caller`,
