@@ -76,7 +76,9 @@ object AppFunctionsAntwort {
                 z.startsWith("ZEITUEBERSCHREITUNG") -> art = Art.ZEITUEBERSCHREITUNG
                 z.startsWith("ERFOLG:") -> {
                     val rest = z.removePrefix("ERFOLG:").trim()
-                    if ((rest == "null" || rest.isEmpty()) && art != Art.ERFOLG) art = Art.LEER
+                    // Wie `deps/afc/src/fehler.rs`: "ERFOLG: null" oder leer ist LEER,
+                    // egal was vorher kam; sonst ERFOLG, wenn noch nichts feststeht.
+                    if (rest == "null" || rest.isEmpty()) art = Art.LEER
                     else if (art == Art.UNKLAR) art = Art.ERFOLG
                 }
             }

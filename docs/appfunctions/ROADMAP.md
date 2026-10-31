@@ -86,8 +86,8 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       content with `maxCount` alone).
 - [x] **Slim tool definition** (31.10.) — strings of `definition()` 1737 B (~482
       tokens) down to 730 B (~203); the how-to text moved into the answer of
-      `list`. **Not compiled**, not run; the effect on how well models use the
-      tool is not measured.
+      `list`. Compiled and checked (see TEST6-LOG.md); the effect on how well
+      models use the tool is not measured.
 - [ ] **Shizuku permission level** (D2 step 3) — consult the existing
       `OffloadPermissionManager` level for Shizuku before choosing the path.
 - [ ] **Probe call for the direct path** (D2 step 2) — a granted permission
@@ -158,6 +158,7 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Added
 
+- JVM test `AppFunctionsParitaetTest`: Kotlin and `deps/afc` must give the same verdict on the same cases.
 - `app_functions`: the tool definition shrinks to about 40 percent; the usage text comes with the answer to `list`.
 - `afc refresh`: renew the registry from `dumpsys app_function`; `afc --registry` / `$AFC_REGISTRY` use it.
 - Device test counts "package not installed" (1003) as its own class and derives its calls from the device's registry (`afc proben`).
@@ -195,5 +196,7 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Fixed
 
+- The Kotlin argument check reports a missing parameter that a call once succeeded with as a hint (P1), as `afc` does.
+- The Kotlin reply reader treats `ERFOLG: null` after a JSON line as empty, as `afc` does.
 - A write call the user approved says so in its result.
 - Reading an app's schema file no longer fails on Android.

@@ -115,7 +115,15 @@ Reading it:
 
 The definition of `app_functions` was cut to name, one line and short parameter
 texts; the how-to moved into the answer of `list` (sent once per use, not per
-request). Strings of `definition()`: **730 B, ~203 tokens**, against 1737 B,
-~482 before (same estimate). Saved per request: ~279 tokens. The `list` answer
-grows by about 800 B once per use. **Not measured:** whether models still use
-the tool correctly with the short text; that needs a run in the app.
+request). Measured on the compiled objects (old and new `definition()`: name,
+types, descriptions, enum values, required):
+
+| | Bytes | ~Tokens |
+|---|---:|---:|
+| before | 1690 | ~469 |
+| after | 689 | ~191 |
+| saved per request | 1001 | ~278 |
+
+The `description` alone went from 1042 to 213 bytes. The `list` answer grows by
+about 800 bytes once per use. **Not measured:** whether models still use the
+tool correctly with the short text; that needs a run in the app.

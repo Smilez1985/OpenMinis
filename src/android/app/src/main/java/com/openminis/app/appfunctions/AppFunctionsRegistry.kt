@@ -85,8 +85,11 @@ object AppFunctionsRegistry {
     // ------------------------------------------------------------------ laden
 
     /** Liest die mitgelieferte Registry. Einmal je Prozess aufrufen und behalten. */
-    fun laden(context: Context): List<Funktion> {
-        val text = context.assets.open(ASSET).use { it.readBytes().toString(Charsets.UTF_8) }
+    fun laden(context: Context): List<Funktion> =
+        ausText(context.assets.open(ASSET).use { it.readBytes().toString(Charsets.UTF_8) })
+
+    /** Dasselbe aus einem Text; getrennt, damit die JVM-Tests ohne Context laufen. */
+    fun ausText(text: String): List<Funktion> {
         val funktionen = ArrayList<Funktion>()
         for (zeile in text.lineSequence()) {
             if (zeile.isBlank() || zeile.startsWith("#")) continue
@@ -228,6 +231,15 @@ object AppFunctionsRegistry {
                         "'${f.kurzname}' kennt '$name' nicht. Die Plattform würde es still verwerfen. " +
                             "Möglich sind: ${if (moeglich.isEmpty()) "nichts Bekanntes" else moeglich.joinToString(", ")}")
                 }
+            }
+        }
+
+        // Parameter der obersten Ebene, mit dem schon ein Aufruf gelang: fehlt er, ist das
+        // ein Hinweis (wie P1 in `deps/afc/src/pruefen.rs`), kein Fehler.
+        for (p in flach) {
+            if (!aussen.containsKey(p.name) && p.quelle == "aufruf-ok") {
+                befunde += Befund("P1", false,
+                    "Parameter '${p.name}' fehlt; gemessen wurde diese Funktion mit ihm aufgerufen.")
             }
         }
 

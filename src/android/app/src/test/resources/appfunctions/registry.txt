@@ -1,0 +1,207 @@
+# AppFunctions-Registry fuer afc. Erzeugt aus der gemessenen Registry (appfunctions-registry.xml).
+# F=Funktion P=Parameter D=Feld B=Beispiel. quelle= woher die Angabe stammt.
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadata	device_state	an	ja
+P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadataParams	com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateMetadataParams		dump
+B	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	-	aufruf-ok	ERFOLG 29.10.; leeres Params-Dokument genuegt
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getUncategorizedDeviceState	getUncategorizedDeviceState	device_state	an	ja
+P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getUncategorizedDeviceState	getUncategorizedDeviceStateParams	com.google.android.appfunctions.schema.devicestate.v1.GetUncategorizedDeviceStateParams		dump
+B	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getUncategorizedDeviceState	-	aufruf-ok	ERFOLG 29.10.; 17 Eintraege
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItem	getDeviceStateItem	device_state	an	nein
+P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItem	getDeviceStateItemParams	com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateItemParams		dump
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItems	getDeviceStateItems	device_state	an	nein
+P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateItems	getDeviceStateItemsParams	com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateItemParams		fehlermeldung
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchFitDataScreen	launchFitDataScreen		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchBarcodeScannerWithResult	launchBarcodeScannerWithResult		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#castMyScreen	castMyScreen		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#isSystemUpToDate	isSystemUpToDate		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchBackupSettings	launchBackupSettings		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#openDeviceSetupTips	openDeviceSetupTips		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#updatePreviewImage	updatePreviewImage		standard-aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#extendScreenTime	extendScreenTime		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getPLinkUrl	getPLinkUrl		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#setDeviceStateItem	setDeviceStateItem	device_state	an	nein
+P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#setDeviceStateItem	setDeviceStateItemParams	com.google.android.appfunctions.schema.devicestate.v1.SetDeviceStateItemParams		dump
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#launchDocumentScannerWithResult	launchDocumentScannerWithResult		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getPlayerStatus	getPlayerStatus		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#openHelpService	openHelpService		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#setAncState	setAncState		aus	nein
+F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#addCardToWallet	addCardToWallet		aus	nein
+F	com.google.android.googlequicksearchbox	com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeTextQueryIntelligentAssist	invokeTextQueryIntelligentAssist	intelligent_assist	standard-aus	nein
+P	com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeTextQueryIntelligentAssist	textQueryIntelligentAssistParams	com.android.personalcontext.appfunctions.schemas.TextQueryIntelligentAssistParams		dump
+F	com.google.android.googlequicksearchbox	com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeRememberThis	invokeRememberThis	remember_this	standard-aus	nein
+P	com.google.android.apps.search.assistant.surfaces.voice.robin.robinkit.appfunctions.BaseRobinKitAppFunctionService#invokeRememberThis	rememberThisParams	com.android.personalcontext.appfunctions.schemas.RememberThisParams		dump
+F	com.google.android.permissioncontroller	getPermissionsDeviceState	getPermissionsDeviceState	device_state	standard-an	nein
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_findPersons	findPersons	persons	standard-an	ja
+P	com.samsung.android.contacts.person#PersonFunctions_findPersons	findPersonsParams	com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams		konvention
+D	com.samsung.android.contacts.person#PersonFunctions_findPersons	findPersonsParams	maxCount	long	ja	schema
+D	com.samsung.android.contacts.person#PersonFunctions_findPersons	findPersonsParams	query	string	nein	schema
+B	com.samsung.android.contacts.person#PersonFunctions_findPersons	query=e maxCount:long=3	aufruf-ok	ERFOLG 29.10.; query ist Pflicht (leer -> 1001)
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPerson	persons	standard-an	nein
+P	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	com.google.android.appfunctions.schema.common.v1.persons.CreatePersonParams		konvention
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	displayName	string	ja	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	emailAddresses	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	externalUri	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	familyName	string	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	givenName	string	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	middleName	string	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_createPerson	createPersonParams	phoneNumbers	document	nein	schema
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_showPerson	showPerson	persons	standard-an	nein
+P	com.samsung.android.contacts.person#PersonFunctions_showPerson	personId	text	oberste-ebene	vermutet
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_deletePersons	deletePersons	persons	standard-an	nein
+P	com.samsung.android.contacts.person#PersonFunctions_deletePersons	personIds	liste-von-text	oberste-ebene	vermutet
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_getPersons	getPersons	persons	standard-an	ja
+P	com.samsung.android.contacts.person#PersonFunctions_getPersons	personIds	liste-von-text	oberste-ebene	aufruf-ok
+B	com.samsung.android.contacts.person#PersonFunctions_getPersons	callj @ {"personIds":["73"]}	aufruf-ok	ERFOLG 30.10.; Parameter liegen auf OBERSTER Ebene (Modus @), ID = _id des findPersons-Treffers (Zahl, NICHT die Lookup-URI -> leere Liste)
+F	com.samsung.android.app.contacts	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePerson	persons	standard-an	nein
+P	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	com.google.android.appfunctions.schema.common.v1.persons.UpdatePersonParams		konvention
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	displayName	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	emailAddresses	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	externalUri	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	familyName	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	givenName	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	middleName	document	nein	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	personId	string	ja	schema
+D	com.samsung.android.contacts.person#PersonFunctions_updatePerson	updatePersonParams	phoneNumbers	document	nein	schema
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_deleteCallRecords	deleteCallRecords	phone	standard-an	nein
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_deleteCallRecords	callRecordIds	liste-von-text	oberste-ebene	vermutet
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findPersons	findPersons	persons	standard-an	nein
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findPersons	findPersonsParams	com.google.android.appfunctions.schema.common.v1.persons.FindPersonsParams		konvention
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findPersons	findPersonsParams	maxCount	long	ja	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findPersons	findPersonsParams	query	string	nein	schema
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_showCallRecord	showCallRecord	phone	standard-an	nein
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_showCallRecord	callRecordId	text	oberste-ebene	vermutet
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCall	phone	standard-an	nein
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	com.google.android.appfunctions.schema.common.v1.phone.MakeCallParams		konvention
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	contactId	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	isSpeakerOn	boolean	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	isVideoCall	boolean	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	phoneNumber	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	shouldRecord	boolean	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_makeCall	makeCallParams	type	string	ja	schema
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_getPersons	getPersons	persons	standard-an	ja
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_getPersons	personIds	liste-von-text	oberste-ebene	aufruf-ok
+B	com.samsung.android.dialer.phonefunctions#PhoneFunctions_getPersons	callj @ {"personIds":["73"]}	aufruf-ok	ERFOLG 30.10.; gleiche ID wie Kontakte
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecords	phone	standard-an	ja
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	com.google.android.appfunctions.schema.common.v1.phone.FindCallRecordsParams		konvention
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	callType	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	contactId	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	endTime	document	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	maxCount	long	ja	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	query	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	findCallRecordsParams	startTime	document	nein	schema
+B	com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords	query=a maxCount:long=3	aufruf-ok	ERFOLG 29.10., Liste leer (keine Treffer oder keine Anrufe)
+F	com.samsung.android.dialer	com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist	addToBlocklist	phone	standard-an	nein
+P	com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist	addToBlocklistParams	com.google.android.appfunctions.schema.common.v1.phone.AddToBlocklistParams		konvention
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist	addToBlocklistParams	contactId	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist	addToBlocklistParams	phoneNumber	string	nein	schema
+D	com.samsung.android.dialer.phonefunctions#PhoneFunctions_addToBlocklist	addToBlocklistParams	type	string	ja	schema
+F	com.samsung.android.incallui	com.android.incallui.call.appfunctions#CallAppFunctions_rejectCall	rejectCall	phone	standard-an	nein
+F	com.samsung.android.incallui	com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall	acceptCall	phone	standard-an	nein
+P	com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall	acceptCallParams	com.google.android.appfunctions.schema.common.v1.phone.AcceptCallParams		konvention
+D	com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall	acceptCallParams	isSpeakerOn	boolean	nein	schema
+D	com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall	acceptCallParams	isVideoCall	boolean	nein	schema
+D	com.android.incallui.call.appfunctions#CallAppFunctions_acceptCall	acceptCallParams	shouldRecord	boolean	nein	schema
+F	com.samsung.android.incallui	com.android.incallui.call.appfunctions#CallAppFunctions_getPersons	getPersons	persons	standard-an	nein
+P	com.android.incallui.call.appfunctions#CallAppFunctions_getPersons	personIds	liste-von-text	oberste-ebene	vermutet
+F	com.sec.android.app.myfiles	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_getFileContentUris	getFileContentUris	files	standard-an	ja
+P	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_getFileContentUris	fileIds	liste-von-text	oberste-ebene	aufruf-ok
+B	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_getFileContentUris	callj @ {"fileIds":["<_id aus findFiles>"]}	aufruf-ok	ERFOLG 30.10.; _id ist Base64 des Pfads (ohne Padding)
+F	com.sec.android.app.myfiles	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_showFile	showFile	files	standard-an	nein
+P	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_showFile	fileId	text	oberste-ebene	vermutet
+F	com.sec.android.app.myfiles	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	findFiles	files	standard-an	ja
+P	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	findFilesParams	com.google.android.appfunctions.schema.common.v1.files.FindFilesParams		konvention
+D	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	findFilesParams	fileType	string	nein	schema
+D	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	findFilesParams	maxCount	long	ja	schema
+D	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	findFilesParams	query	string	nein	schema
+B	com.sec.android.app.myfiles.presenter.module.crossapp#FilesFunctions_findFiles	query=pdf maxCount:long=5	aufruf-ok	ERFOLG 29.10., Liste leer (Treffer nicht belegt)
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_deleteBookmarks	deleteBookmarks	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_deleteBookmarks	bookmarkIds	liste-von-text	oberste-ebene	vermutet
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showTab	showTab	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showTab	tabId	text	oberste-ebene	vermutet
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarks	browser	standard-an	ja
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarksParams	com.google.android.appfunctions.schema.common.v1.browser.FindBookmarksParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarksParams	endDate	document	nein	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarksParams	maxCount	long	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarksParams	query	string	nein	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	findBookmarksParams	startDate	document	nein	schema
+B	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks	query=a maxCount:long=3	aufruf-ok	ERFOLG 29.10.
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_createBookmark	createBookmark	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_createBookmark	createBookmarkParams	com.google.android.appfunctions.schema.common.v1.browser.CreateBookmarkParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_createBookmark	createBookmarkParams	name	string	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_createBookmark	createBookmarkParams	url	document	ja	schema
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark	updateBookmark	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark	updateBookmarkParams	com.google.android.appfunctions.schema.common.v1.browser.UpdateBookmarkParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark	updateBookmarkParams	bookmarkId	string	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark	updateBookmarkParams	name	document	nein	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_updateBookmark	updateBookmarkParams	url	document	nein	schema
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistories	browser	standard-an	ja
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistoriesParams	com.google.android.appfunctions.schema.common.v1.browser.GetHistoriesParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistoriesParams	endTime	document	nein	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistoriesParams	maxCount	long	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistoriesParams	query	string	nein	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	getHistoriesParams	startTime	document	nein	schema
+B	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_getHistories	callj: {"_typ":"<S>.browser.GetHistoriesParams","maxCount":5,"startTime":{"_typ":"<S>.types.DateTime","timeZone":"Europe/Berlin","date":{...Date year/month/day},"timeOfDay":{...}}}	aufruf-ok	ERFOLG 29.10.; 5 Eintraege; DateTime braucht timeZone (sonst 3000)
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showBookmark	showBookmark	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showBookmark	bookmarkId	text	oberste-ebene	vermutet
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showSite	showSite	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showSite	showSiteParams	com.google.android.appfunctions.schema.common.v1.browser.ShowSiteParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showSite	showSiteParams	shouldShowInNewTab	boolean	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_showSite	showSiteParams	url	document	ja	schema
+F	com.sec.android.app.sbrowser	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findTabs	findTabs	browser	standard-an	nein
+P	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findTabs	findTabsParams	com.google.android.appfunctions.schema.common.v1.browser.FindTabsParams		konvention
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findTabs	findTabsParams	maxCount	long	ja	schema
+D	com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findTabs	findTabsParams	query	string	nein	schema
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#AlbumFunctions_createAlbum	createAlbum	photos	standard-an	nein
+P	com.samsung.android.gallery.crossapp.function#AlbumFunctions_createAlbum	createAlbumParams	com.google.android.appfunctions.schema.common.v1.photos.CreateAlbumParams		konvention
+D	com.samsung.android.gallery.crossapp.function#AlbumFunctions_createAlbum	createAlbumParams	title	string	ja	schema
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItem	photos	standard-an	nein
+P	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItemParams	com.google.android.appfunctions.schema.common.v1.photos.UpdateMediaItemParams		konvention
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItemParams	albumId	document	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItemParams	mediaItemId	string	ja	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItemParams	starred	document	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_updateMediaItem	updateMediaItemParams	title	document	nein	schema
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#PhotoFunctions_getMediaItemContentUris	getMediaItemContentUris	photos	standard-an	ja
+P	com.samsung.android.gallery.crossapp.function#PhotoFunctions_getMediaItemContentUris	mediaItemIds	liste-von-text	oberste-ebene	aufruf-ok
+B	com.samsung.android.gallery.crossapp.function#PhotoFunctions_getMediaItemContentUris	callj @ {"mediaItemIds":["content://media/external/images/media/134"]}	aufruf-ok	ERFOLG 30.10.; ID = _id des findMediaItems-Treffers (content://media/...). Beliebige Texte werden unbesehen zurueckgegeben -> Gegenprobe mit echter ID noetig
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItems	photos	standard-an	ja
+P	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	com.google.android.appfunctions.schema.common.v1.photos.FindMediaItemsParams		konvention
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	albumId	string	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	endTime	document	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	location	string	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	maxCount	long	ja	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	query	string	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	starred	boolean	nein	schema
+D	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	findMediaItemsParams	startTime	document	nein	schema
+B	com.samsung.android.gallery.crossapp.function#PhotoFunctions_findMediaItems	maxCount:long=2	aufruf-ok	ERFOLG 29.10.
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#PhotoFunctions_showMediaItem	showMediaItem	photos	standard-an	nein
+P	com.samsung.android.gallery.crossapp.function#PhotoFunctions_showMediaItem	mediaItemId	text	oberste-ebene	vermutet
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#AlbumFunctions_showAlbum	showAlbum	photos	standard-an	nein
+P	com.samsung.android.gallery.crossapp.function#AlbumFunctions_showAlbum	albumId	text	oberste-ebene	vermutet
+F	com.sec.android.gallery3d	com.samsung.android.gallery.crossapp.function#AlbumFunctions_findAlbums	findAlbums	photos	standard-an	ja
+P	com.samsung.android.gallery.crossapp.function#AlbumFunctions_findAlbums	findAlbumsParams	com.google.android.appfunctions.schema.common.v1.photos.FindAlbumsParams		konvention
+D	com.samsung.android.gallery.crossapp.function#AlbumFunctions_findAlbums	findAlbumsParams	maxCount	long	ja	schema
+D	com.samsung.android.gallery.crossapp.function#AlbumFunctions_findAlbums	findAlbumsParams	query	string	nein	schema
+B	com.samsung.android.gallery.crossapp.function#AlbumFunctions_findAlbums	query=a maxCount:long=5	aufruf-ok	ERFOLG 29.10.
+F	com.sec.android.mimage.photoretouching	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor	showMediaItemFilterEditor	photos	standard-an	nein
+P	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor	setMediaItemFilterParams	com.google.android.appfunctions.schema.common.v1.photos.SetMediaItemFilterParams		konvention
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor	setMediaItemFilterParams	filter	string	ja	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor	setMediaItemFilterParams	mediaItemId	string	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemFilterEditorImpl_showMediaItemFilterEditor	setMediaItemFilterParams	mediaItemUri	document	nein	schema
+F	com.sec.android.mimage.photoretouching	com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter	setMediaItemFilter	photos	standard-an	nein
+P	com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter	setMediaItemFilterParams	com.google.android.appfunctions.schema.common.v1.photos.SetMediaItemFilterParams		konvention
+D	com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter	setMediaItemFilterParams	filter	string	ja	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter	setMediaItemFilterParams	mediaItemId	string	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#SetMediaItemFilterImpl_setMediaItemFilter	setMediaItemFilterParams	mediaItemUri	document	nein	schema
+F	com.sec.android.mimage.photoretouching	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItem	photos	standard-an	nein
+P	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItemParams	com.google.android.appfunctions.schema.common.v1.photos.StraightenMediaItemParams		konvention
+D	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItemParams	autoStraighten	boolean	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItemParams	mediaItemId	string	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItemParams	mediaItemUri	document	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#StraightenMediaItemImpl_straightenMediaItem	straightenMediaItemParams	straightenDegrees	double	nein	schema
+F	com.sec.android.mimage.photoretouching	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	showMediaItemStraightenEditor	photos	standard-an	nein
+P	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	com.google.android.appfunctions.schema.common.v1.photos.StraightenMediaItemParams		konvention
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	autoStraighten	boolean	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	mediaItemId	string	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	mediaItemUri	document	nein	schema
+D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	straightenDegrees	double	nein	schema
+E	geraet	testgeraet-android16	registry	1	
