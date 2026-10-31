@@ -212,7 +212,7 @@ mod tests {
     #[test]
     fn registry_laedt_und_ist_vollstaendig() {
         let r = Registry::eigene();
-        assert_eq!(r.geraet, "s20fe-un1ca-android16");
+        assert_eq!(r.geraet, "testgeraet-android16");
         assert_eq!(r.funktionen.len(), 61, "61 Funktionen erwartet");
         let geprueft = r.funktionen.iter().filter(|f| f.geprueft).count();
         assert_eq!(geprueft, 13, "13 bestaetigte Aufrufe erwartet");

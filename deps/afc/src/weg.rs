@@ -136,7 +136,7 @@ mod tests {
             funktion: "com.samsung.android.contacts.person#PersonFunctions_findPersons",
             parameter: "findPersonsParams".to_string(),
             nutzlast_json: "{\"query\":\"e\"}".to_string(),
-            jar: "/var/minis/shared/appfunktionen-bau/aus.jar",
+            jar: "/var/minis/shared/afc/aus.jar",
             aufrufer: AUFRUFER,
             zeit_s: 30,
             trocken: false,
@@ -144,7 +144,7 @@ mod tests {
         let s = skript(&a).unwrap();
         assert!(s.contains("su 2000 -c"));
         assert!(s.contains("com.android.shell"));
-        assert!(s.contains("shared/appfunktionen-bau/aus.jar"));
+        assert!(s.contains("shared/afc/aus.jar"));
         assert!(s.contains("b64:"));
         assert!(s.contains("'findPersonsParams'"));
     }

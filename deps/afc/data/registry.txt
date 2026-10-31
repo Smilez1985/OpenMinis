@@ -1,4 +1,4 @@
-# AppFunctions-Registry fuer afc. Erzeugt aus /var/minis/shared/appfunktionen-bau/appfunctions-registry.xml.
+# AppFunctions-Registry fuer afc. Erzeugt aus der gemessenen Registry (appfunctions-registry.xml).
 # F=Funktion P=Parameter D=Feld B=Beispiel. quelle= woher die Angabe stammt.
 F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadata	device_state	an	ja
 P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadataParams	com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateMetadataParams		dump
@@ -204,4 +204,4 @@ D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraight
 D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	mediaItemId	string	nein	schema
 D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	mediaItemUri	document	nein	schema
 D	com.sec.android.mimage.photoretouching.crossapp.function#ShowMediaItemStraightenEditorImpl_showMediaItemStraightenEditor	straightenMediaItemParams	straightenDegrees	double	nein	schema
-E	geraet	s20fe-un1ca-android16	registry	1	
+E	geraet	testgeraet-android16	registry	1	

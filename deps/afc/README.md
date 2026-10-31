@@ -2,13 +2,19 @@
 
 Kommandozeilenwerkzeug und Bibliothek für die AppFunctions des Geräts:
 Registry, Prüfung **vor** dem Aufruf, Fehlerübersetzung, Binder-Weg. Gebaut aus
-den Messungen vom 29./30.10.2026 auf s20fe (UN1CA 3.2.1, Android 16).
+den Messungen vom 29./30.10.2026 auf einem Testgeraet (Android 16).
 
 Dies ist die Vorstufe des Kotlin-Kerns aus
 [`docs/appfunctions/DESIGN.md`](../../../docs/appfunctions/DESIGN.md): die
 Regeln stehen hier zuerst in einer Form, die sich auf dem Gerät und in der CI
 ohne Android-Stack prüfen lässt. Der Kotlin-Port übernimmt danach Daten und
 Regeln unverändert.
+
+## Ort der aus.jar
+
+Reihenfolge: `--jar PFAD`, dann Umgebungsvariable `AFC_JAR`, dann
+`/var/minis/shared/afc/aus.jar`. Der Pfad muss unter `/var/minis/` liegen,
+weil das Geraet die Datei ueber den Datenordner der App findet.
 
 ## Warum Rust und Java getrennt
 
@@ -75,9 +81,9 @@ bestätigt und wird im Gerätetest nicht mehr geführt.
 
 ## Grenzen
 
-* Die Registry ist ein Stand vom **29./30.10.2026 für s20fe**. Sie ist keine
+* Die Registry ist ein Stand vom **29./30.10.2026 für ein Testgeraet**. Sie ist keine
   Geräteabfrage; `dumpsys app_function` und die Sonde liefern den frischen Stand
-  (`../../..` → `shared/appfunktionen-bau/`).
+  (Werkzeuge liegen beim Maintainer der Messungen).
 * Feldnamen **innerhalb** der Parameterobjekte sind nur dort bekannt, wo sie aus
   dem Schema der Ziel-APK stammen (`quelle=schema`). Bei `konvention` oder
   `vermutet` prüft `afc` den Typ, aber nicht die inneren Felder.

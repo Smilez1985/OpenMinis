@@ -25,6 +25,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       `debug.shizuku.exec`: the chain returns real contacts — see
       [TEST4-LOG.md](TEST4-LOG.md). Not compiled yet: this install's sandbox has
       no working JVM, so CI and the device still have to verify it.
+- [x] **`afc` takes the location of `aus.jar` from `--jar` or `$AFC_JAR`** instead of a fixed private path.
 - [ ] **The registry must be refreshable** — today it is a measured snapshot for
       one device; `dumpsys app_function` and the probe can renew it.
 - [x] **Green CI build of the branch** — debug APK as artifact (run
@@ -104,6 +105,7 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 ### Added
 
 - `deps/afc`: Rust tool with the measured registry, argument checks before a call and error-code translation.
+- `afc --jar` and `$AFC_JAR` choose the location of `aus.jar`.
 - `app_functions` executes through the binder (uid 2000 via Shizuku) when `cmd app_function` is missing.
 - The function list falls back to a registry shipped with the app when the device cannot be asked.
 - A reply that reports success without content is shown as `EMPTY_RESULT`.

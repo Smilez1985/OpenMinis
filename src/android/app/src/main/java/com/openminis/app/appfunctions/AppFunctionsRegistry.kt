@@ -21,7 +21,7 @@ import java.util.Locale
  * wie ein Treffer ohne Ergebnis; das soll er nicht.
  *
  * Quelle der Daten ist `assets/appfunctions/registry.txt`, erzeugt aus
- * `shared/appfunktionen-bau/appfunctions-registry.xml`. Dieselben Daten und
+ * der gemessenen Registry (`appfunctions-registry.xml`). Dieselben Daten und
  * dieselben Regeln stehen in `deps/afc` (Rust) mit Tests und Gerätetest.
  */
 object AppFunctionsRegistry {

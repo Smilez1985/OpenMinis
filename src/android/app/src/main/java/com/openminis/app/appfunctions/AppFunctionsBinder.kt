@@ -9,7 +9,7 @@ import java.security.MessageDigest
  * Der Binder-Weg für AppFunctions.
  *
  * Warum nicht `cmd app_function`: den Befehl gibt es auf diesem Gerät nicht
- * (UN1CA/Android 16 antwortet „No shell command implementation"), und die
+ * (manche Android-16-Geraete antworten „No shell command implementation"), und die
  * Direktberechtigung `EXECUTE_APP_FUNCTIONS` ist `internal|privileged`, also für
  * eine installierte App nicht zu bekommen. Bleibt der Binder, aufgerufen als
  * **uid 2000 mit Paket `com.android.shell`** — gemessen am 29./30.10.: uid 0

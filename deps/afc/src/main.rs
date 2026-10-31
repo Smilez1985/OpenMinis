@@ -1,6 +1,6 @@
 //! afc — AppFunctions aufrufen: Registry, Pruefung, Fehleruebersetzung, Binder.
 //!
-//! Gebaut aus den Messungen vom 29./30.10.2026 auf s20fe (UN1CA, Android 16).
+//! Gebaut aus den Messungen vom 29./30.10.2026 auf einem Testgeraet (Android 16).
 //! Die Registry liegt in `data/registry.txt` und ist eingebettet; jede Angabe
 //! traegt ihre Herkunft.
 //!
@@ -37,7 +37,7 @@ afc 0.1.0 — AppFunctions aufrufen (Binder-Weg, Aufrufer uid 2000)
   --alles      auch Funktionen, die aus sind
   --schreiben  schreibende Funktion wirklich aufrufen (sonst nur Pruefung)
   --trocken    Aufruf vorbereiten, aber nicht ausfuehren
-  --jar PFAD   aus.jar (Vorgabe /var/minis/shared/appfunktionen-bau/aus.jar)
+  --jar PFAD   aus.jar (Vorrang vor $AFC_JAR; Vorgabe /var/minis/shared/afc/aus.jar)
 ";
 
 fn main() {
@@ -184,8 +184,7 @@ fn pruefe(r: &Registry, args: &[String], aufrufen: bool) -> Result<(), String> {
     let args_json = arg_wert(args, "--args").unwrap_or_default();
     let schreiben_erlaubt = args.iter().any(|a| a == "--schreiben");
     let trocken = args.iter().any(|a| a == "--trocken");
-    let jar = arg_wert(args, "--jar")
-        .unwrap_or_else(|| "/var/minis/shared/appfunktionen-bau/aus.jar".to_string());
+    let jar = jar_waehlen(arg_wert(args, "--jar"), std::env::var("AFC_JAR").ok());
 
     let p = pruefen::pruefen_fuer(r, paket, name, &args_json)?;
     println!("{} ({})", f.kurzname(), f.id);
@@ -251,4 +250,30 @@ fn pruefe(r: &Registry, args: &[String], aufrufen: bool) -> Result<(), String> {
 #[allow(dead_code)]
 fn als_objekt(m: BTreeMap<String, Wert>) -> Wert {
     Wert::Objekt(m)
+}
+
+/// Vorgabe fuer den Ort der `aus.jar`, wenn weder `--jar` noch `AFC_JAR` gesetzt ist.
+const JAR_VORGABE: &str = "/var/minis/shared/afc/aus.jar";
+
+/// Reihenfolge: `--jar`, dann `AFC_JAR`, dann die Vorgabe. Leere Werte zaehlen nicht.
+fn jar_waehlen(arg: Option<String>, umgebung: Option<String>) -> String {
+    arg.filter(|s| !s.is_empty())
+        .or_else(|| umgebung.filter(|s| !s.is_empty()))
+        .unwrap_or_else(|| JAR_VORGABE.to_string())
+}
+
+#[cfg(test)]
+mod tests_jar {
+    use super::*;
+
+    #[test]
+    fn argument_schlaegt_umgebung_schlaegt_vorgabe() {
+        let a = Some("/var/minis/a.jar".to_string());
+        let u = Some("/var/minis/u.jar".to_string());
+        assert_eq!(jar_waehlen(a.clone(), u.clone()), "/var/minis/a.jar");
+        assert_eq!(jar_waehlen(None, u), "/var/minis/u.jar");
+        assert_eq!(jar_waehlen(None, None), JAR_VORGABE);
+        assert_eq!(jar_waehlen(Some(String::new()), None), JAR_VORGABE);
+        assert_eq!(jar_waehlen(a, Some(String::new())), "/var/minis/a.jar");
+    }
 }

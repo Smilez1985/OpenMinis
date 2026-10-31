@@ -1,6 +1,6 @@
 # Test log 4 — the binder path, tested from inside the app (30.10.2026)
 
-Where: the Samsung Galaxy S20 FE (UN1CA 3.2.1, Android 16) that runs
+Where: the test device (Android 16) that runs
 `com.openminis.app.appfn` — the branch's debug APK installed next to the signed
 Minis (`com.openminis.app`, uid 10278). Shizuku runs; its context measured as
 `u:r:magisk:s0`, i.e. the calls reach root.
@@ -33,7 +33,7 @@ The second command is the chain the middleware uses:
 
 ```sh
 mkdir -p /data/local/tmp/af
-cp <minis-global>/shared/appfunktionen-bau/aus.jar /data/local/tmp/af/aus.jar
+cp <minis-global>/shared/afc/aus.jar /data/local/tmp/af/aus.jar
 su 2000 -c "CLASSPATH=/data/local/tmp/af/aus.jar app_process / Ausfuehren \
   'com.samsung.android.app.contacts' \
   'com.samsung.android.contacts.person#PersonFunctions_findPersons' \
