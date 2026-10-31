@@ -243,8 +243,9 @@ call line. This is by design and not a gap.
   musl is a test build, not the shipped one.
 - Measured on the test device: a static binary of 592 KB runs as uid 2000, and
   the directory `lib/arm64` of the installed app is world-readable and
-  executable (mode 755). **Not measured:** starting `libafc.so` from there; that
-  needs an APK that contains it.
+  executable (mode 755). Measured (TEST6-LOG.md): the Android build of `afc`
+  started from there as the app, and as the shell, works. Not measured: a
+  Gradle build that packs it into the APK.
 - `aus.jar` stays an asset. Without root the app directory is closed to uid
   2000, so the jar is placed once in `/data/local/tmp/af` (world-readable).
 
@@ -264,8 +265,8 @@ a text reply. Rules and tables then exist once, with tests, not twice.
 
 **Open, said plainly:** no APK with the binary has been built; the Shizuku-only
 identity was measured on a rooted device with uid 2000 and SELinux context
-`u:r:shell:s0` (see below), not yet on a device that has no root at all; the NDK build of
-`afc` was not made (no NDK here); `android-shizuku-cli` does not exist inside
+`u:r:shell:s0` (see below), not yet on a device that has no root at all; the packaging through Gradle and the CI step for
+`deps/build_afc_android.sh` were not done; `android-shizuku-cli` does not exist inside
 the app, so the Shizuku call stays in Kotlin.
 
 **Shizuku-only, measured (31.10.).** Run as `su -Z u:r:shell:s0 2000`, i.e.

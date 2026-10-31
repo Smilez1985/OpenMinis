@@ -1,0 +1,6 @@
+AlbumFunctions_createAlbum (com.samsung.android.gallery.crossapp.function#AlbumFunctions_createAlbum)
+  Dokument:  {"createAlbumParams":{"_typ":"com.google.android.appfunctions.schema.common.v1.photos.CreateAlbumParams","title":"x"}}
+  Aufruf:    a3=createAlbumParams a4={"_typ":"com.google.android.appfunctions.schema.common.v1.photos.CreateAlbumParams","title":"x"}
+
+NEEDS_CONFIRMATION: 'AlbumFunctions_createAlbum' aendert etwas. Erst nach Rueckfrage aufrufen, dann mit --schreiben wiederholen.
+exit=0

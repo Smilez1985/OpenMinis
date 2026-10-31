@@ -1,0 +1,2 @@
+afc: keine Funktion passt auf 'foo'
+exit=2

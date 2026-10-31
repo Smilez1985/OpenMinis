@@ -70,8 +70,9 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       with and without the confirmation switch, and the refusals.
 - [ ] **`afc` as the shipped core (D9)** — NDK build `aarch64-linux-android`,
       `libafc.so` in the APK, Kotlin reduced to starting it; replaces about 600
-      lines of Kotlin. Needs a maintainer build; the start from `lib/arm64` is
-      unmeasured. Shizuku-only identity measured (uid 2000, context shell): 11
+      lines of Kotlin. `deps/build_afc_android.sh` builds `libafc.so` (untested as
+      written); the Android build itself and its start from `lib/arm64` are
+      measured (TEST6-LOG.md). The Kotlin shell `AfcProzess.kt` exists and is tested on the JVM (TEST6-LOG.md). Still to do: the CI step that runs the build script before Gradle, Gradle itself, and the call from inside the running app. Shizuku-only identity measured (uid 2000, context shell): 11
       calls, 0 errors; a device with no root at all is not.
 - [x] **Device test from the device's own registry** (31.10.) — `afc proben`
       derives the calls from the registry of this device (read-only, switched on,
@@ -158,6 +159,8 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Added
 
+- `AfcProzess`: the app starts the Rust core `libafc.so` through Shizuku when it is present; the Kotlin rules remain as the fallback.
+- `deps/build_afc_android.sh`: builds `afc` for aarch64 Android and installs it as `libafc.so`.
 - JVM test `AppFunctionsParitaetTest`: Kotlin and `deps/afc` must give the same verdict on the same cases.
 - `app_functions`: the tool definition shrinks to about 40 percent; the usage text comes with the answer to `list`.
 - `afc refresh`: renew the registry from `dumpsys app_function`; `afc --registry` / `$AFC_REGISTRY` use it.

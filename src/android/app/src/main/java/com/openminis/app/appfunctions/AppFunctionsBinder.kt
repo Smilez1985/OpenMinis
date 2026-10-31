@@ -119,6 +119,10 @@ object AppFunctionsBinder {
      *
      * Vorher wird die Prüfsumme verglichen; stimmt sie, entfällt das Schreiben.
      */
+    /** Für [AfcProzess]: legt `aus.jar` bereit. `null` = liegt da, sonst der Grund. */
+    internal fun jarBereitstellen(context: Context): String? =
+        (dexBereitstellen(context) as? Ergebnis.Fehler)?.grund
+
     private fun dexBereitstellen(context: Context): Ergebnis {
         val dex = try {
             context.assets.open(DEX_ASSET).use { it.readBytes() }

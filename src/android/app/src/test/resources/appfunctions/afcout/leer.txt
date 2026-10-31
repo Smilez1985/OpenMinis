@@ -1,0 +1,7 @@
+PhoneFunctions_findCallRecords (com.samsung.android.dialer.phonefunctions#PhoneFunctions_findCallRecords)
+  Dokument:  {"findCallRecordsParams":{"_typ":"com.google.android.appfunctions.schema.common.v1.phone.FindCallRecordsParams","maxCount":3,"query":"a"}}
+  Aufruf:    a3=findCallRecordsParams a4={"_typ":"com.google.android.appfunctions.schema.common.v1.phone.FindCallRecordsParams","maxCount":3,"query":"a"}
+
+EMPTY_RESULT: ERFOLG, aber kein Inhalt. Das heisst nicht 'nichts da', sondern 'nicht nachgewiesen' - Parameter gegen die Registry pruefen.
+afc: Aufruf ohne Erfolg
+exit=2

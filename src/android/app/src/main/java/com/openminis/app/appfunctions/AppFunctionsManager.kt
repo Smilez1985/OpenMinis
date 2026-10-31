@@ -163,6 +163,7 @@ object AppFunctionsManager {
         parametersJson: String,
         timeoutSeconds: Int,
     ): AppFunctionsCore.ExecOutcome {
+        if (AfcProzess.verfuegbar(context)) return ueberAfc(context, packageName, functionId, parametersJson, timeoutSeconds)
         val funktionen = AppFunctionsRegistry.laden(context)
         val f = AppFunctionsRegistry.finde(funktionen, packageName, functionId).getOrElse {
             return AppFunctionsCore.ExecOutcome.FunctionError("1003: ${it.message}")
@@ -186,6 +187,35 @@ object AppFunctionsManager {
             AppFunctionsAntwort.Art.ERFOLG -> AppFunctionsCore.ExecOutcome.Success(antwort.json ?: "{}")
             AppFunctionsAntwort.Art.LEER -> AppFunctionsCore.ExecOutcome.Empty
             else -> AppFunctionsCore.ExecOutcome.FunctionError(antwort.bericht())
+        }
+    }
+
+    /**
+     * Der Weg über den Rust-Kern (DESIGN D9). `afc` prüft, ruft auf und deutet;
+     * Kotlin liest nur das erste Wort der Ergebniszeile. Schreibende Funktionen
+     * haben hier ihre Zustimmung schon bekommen (Aufrufer in AppFunctionsTool),
+     * deshalb wird `--schreiben` gesetzt.
+     */
+    private fun ueberAfc(
+        context: Context,
+        packageName: String,
+        functionId: String,
+        parametersJson: String,
+        timeoutSeconds: Int,
+    ): AppFunctionsCore.ExecOutcome {
+        val lauf = AfcProzess.ausfuehren(
+            context,
+            AfcProzess.callArgumente(packageName, functionId, parametersJson, timeoutSeconds, schreibenErlaubt = true),
+            timeoutSeconds,
+        )
+        val e = AfcProzess.deute(lauf.text, lauf.exitCode)
+        Log.i(TAG, "afc: ${e::class.simpleName} (exit ${lauf.exitCode})")
+        return when (e) {
+            is AfcProzess.Ergebnis.Erfolg -> AppFunctionsCore.ExecOutcome.Success(e.json)
+            AfcProzess.Ergebnis.Leer -> AppFunctionsCore.ExecOutcome.Empty
+            AfcProzess.Ergebnis.BrauchtZustimmung ->
+                AppFunctionsCore.ExecOutcome.FunctionError("NEEDS_CONFIRMATION: die Funktion aendert etwas; Zustimmung fehlt")
+            is AfcProzess.Ergebnis.Fehler -> AppFunctionsCore.ExecOutcome.FunctionError(e.text)
         }
     }
 }
