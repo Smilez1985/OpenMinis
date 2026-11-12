@@ -1,4 +1,6 @@
-# Test log 4 — the binder path, tested from inside the app (30.10.2026)
+# Test log 4 — the binder path, tested from inside the app (2026-10-30)
+
+Command names in transcripts are the names used at the time (see [GLOSSARY.md](GLOSSARY.md)).
 
 Where: the test device (Android 16) that runs
 `com.openminis.app.appfn` — the branch's debug APK installed next to the signed
@@ -63,8 +65,8 @@ for uid 0), this app fails with 1000 (`EXECUTE_APP_FUNCTIONS` is
 
 ## 4. What is built but NOT yet verified
 
-`AppFunctionsBinder.kt`, `AppFunctionsRegistry.kt` and `AppFunctionsAntwort.kt`
-(Kotlin, plus `assets/appfunctions/{aus.jar,registry.txt}`) are written and wire
+`AppFunctionsBinder.kt`, `AppFunctionsRegistry.kt` and `AppFunctionsReply.kt`
+(Kotlin, plus `assets/appfunctions/{shim.jar,registry.txt}`) are written and wire
 `AppFunctionsManager.execute` to the binder, with the registry as the fallback
 list source. **They have not been compiled**: the sandbox of this install has no
 working JVM (`java -version` → "Failed to mark memory page as executable"), so
@@ -72,4 +74,4 @@ there is no Kotlin/Gradle here. Verification has to come from CI and the device.
 
 `deps/afc` (Rust) is the same logic, compiled and tested locally: 27 tests,
 three counter-checks, and a device run over the confirmed functions (10 calls, 8
-with content, 2 without as measured on 29.10., 0 errors).
+with content, 2 without as measured on 2026-10-29, 0 errors).

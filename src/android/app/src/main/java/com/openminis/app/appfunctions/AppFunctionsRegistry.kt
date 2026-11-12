@@ -5,321 +5,323 @@ import org.json.JSONObject
 import java.util.Locale
 
 /**
- * Die gemessene Registry — als Teil der App.
+ * The measured registry, shipped as part of the app.
  *
- * Auf diesem Gerät gibt es kein `cmd app_function`: die Auflistung und die
- * Parameterangaben, die die Plattform sonst liefert, fehlen. Genau die bringt
- * diese Registry mit: welche Apps welche Funktionen anbieten, welcher
- * Parameter sie erwarten, welche Felder darin Pflicht sind und woher jede
- * Angabe stammt (`dump`, `schema`, `aufruf-ok`, `fehlermeldung`, `konvention`,
- * `vermutet`).
+ * On this device there is no `cmd app_function`: the listing and the
+ * parameter information the platform would otherwise provide are missing.
+ * This registry brings exactly that: which apps offer which functions, which
+ * parameters they expect, which fields in them are required, and where each
+ * piece of information comes from (`dump`, `schema`, `call-ok`,
+ * `error-message`, `convention`, `assumed`).
  *
- * Die Regeln P0–P7 prüfen die Argumente **vor** dem Aufruf. Grund: die
- * Plattform ist nachsichtig — unbekannte Felder werden still verworfen,
- * fehlende Pflichtfelder durch Vorgaben ersetzt, und eine Zahl als Text (`"3"`)
- * liefert eine leere Liste ohne Fehler. Ein geratener Aufruf sieht danach aus
- * wie ein Treffer ohne Ergebnis; das soll er nicht.
+ * Rules P0–P7 check the arguments **before** the call. Reason: the platform is
+ * lenient. Unknown fields are dropped silently, missing required fields are
+ * replaced by defaults, and a number passed as text (`"3"`) returns an empty
+ * list without an error. A guessed call then looks like a hit without a
+ * result; it must not.
  *
- * Quelle der Daten ist `assets/appfunctions/registry.txt`, erzeugt aus
- * der gemessenen Registry (`appfunctions-registry.xml`). Dieselben Daten und
- * dieselben Regeln stehen in `deps/afc` (Rust) mit Tests und Gerätetest.
+ * The data comes from `assets/appfunctions/registry.txt`, generated from the
+ * measured registry (`appfunctions-registry.xml`). The same data and the same
+ * rules live in `deps/afc` (Rust), with tests and a device test.
  */
 object AppFunctionsRegistry {
 
     const val ASSET = "appfunctions/registry.txt"
 
-    /** Obergrenze der Ziel-Apps: 50, 500, 100000 lieferten höchstens 30 Treffer (gemessen 29.10.). */
-    const val MAXCOUNT_OBERGRENZE = 30L
+    /** Upper bound of the target apps: 50, 500, 100000 returned at most 30 hits (measured 29 Oct 2026). */
+    const val MAXCOUNT_LIMIT = 30L
 
-    data class Feld(val name: String, val datentyp: String, val pflicht: Boolean, val quelle: String)
+    data class Field(val name: String, val dataType: String, val required: Boolean, val source: String)
 
     data class Parameter(
         val name: String,
-        val typ: String,
-        val ebene: String,
-        val quelle: String,
-        val felder: List<Feld> = emptyList(),
+        val type: String,
+        val level: String,
+        val source: String,
+        val fields: List<Field> = emptyList(),
     )
 
-    data class Funktion(
-        val paket: String,
+    data class Function(
+        val packageName: String,
         val id: String,
         val name: String,
-        val kategorie: String,
+        val category: String,
         val status: String,
-        val geprueft: Boolean,
-        val parameter: List<Parameter> = emptyList(),
-        val beispiel: String? = null,
+        val verified: Boolean,
+        val parameters: List<Parameter> = emptyList(),
+        val example: String? = null,
     ) {
-        val kurzname: String get() = id.substringAfterLast('#')
+        val shortName: String get() = id.substringAfterLast('#')
 
-        /** Der Sammelparameter: sein Name steht als `-a3-`, seine Felder als Nutzlast. */
+        /** The composite parameter: its name is passed as `-a3-`, its fields as the payload. */
         val composite: Parameter?
-            get() = parameter.firstOrNull {
-                it.ebene != "oberste-ebene" && !it.typ.contains("text") && it.typ.contains('.')
+            get() = parameters.firstOrNull {
+                it.level != TOP_LEVEL && !it.type.contains("text") && it.type.contains('.')
             }
 
-        val flach: List<Parameter>
-            get() = parameter.filter { it.ebene == "oberste-ebene" || it.typ == "text" || it.typ == "liste-von-text" }
+        val flat: List<Parameter>
+            get() = parameters.filter { it.level == TOP_LEVEL || it.type == "text" || it.type == LIST_OF_TEXT }
     }
 
-    data class Befund(val regel: String, val fehler: Boolean, val text: String)
+    data class Finding(val rule: String, val isError: Boolean, val text: String)
 
     /**
-     * Ergebnis der Prüfung. `a3`/`a4` sind die beiden Argumente, die
-     * `Ausfuehren` über den Binder erwartet: Parametername (oder `@`) und
-     * Nutzlast.
+     * Result of the check. `a3`/`a4` are the two arguments `Execute` expects
+     * over the binder: parameter name (or `@`) and payload.
      */
-    data class Pruefung(
-        val befunde: List<Befund>,
+    data class Check(
+        val findings: List<Finding>,
         val a3: String,
         val a4: String,
-        val quelle: String,
+        val source: String,
     ) {
-        val hatFehler: Boolean get() = befunde.any { it.fehler }
-        fun bericht(): String = befunde.joinToString("\n") {
-            (if (it.fehler) "FEHLER " else "Hinweis ") + it.regel + ": " + it.text
+        val hasErrors: Boolean get() = findings.any { it.isError }
+        fun report(): String = findings.joinToString("\n") {
+            (if (it.isError) "ERROR " else "WARNING ") + it.rule + ": " + it.text
         }
     }
 
-    // ------------------------------------------------------------------ laden
+    private const val TOP_LEVEL = "top-level"
+    private const val LIST_OF_TEXT = "list-of-text"
 
-    /** Liest die mitgelieferte Registry. Einmal je Prozess aufrufen und behalten. */
-    fun laden(context: Context): List<Funktion> =
-        ausText(context.assets.open(ASSET).use { it.readBytes().toString(Charsets.UTF_8) })
+    // ------------------------------------------------------------------- load
 
-    /** Dasselbe aus einem Text; getrennt, damit die JVM-Tests ohne Context laufen. */
-    fun ausText(text: String): List<Funktion> {
-        val funktionen = ArrayList<Funktion>()
-        for (zeile in text.lineSequence()) {
-            if (zeile.isBlank() || zeile.startsWith("#")) continue
-            val t = zeile.split('\t')
+    /** Reads the shipped registry. Call once per process and keep the result. */
+    fun load(context: Context): List<Function> =
+        fromText(context.assets.open(ASSET).use { it.readBytes().toString(Charsets.UTF_8) })
+
+    /** The same from a string; separate so the JVM tests run without a Context. */
+    fun fromText(text: String): List<Function> {
+        val functions = ArrayList<Function>()
+        for (line in text.lineSequence()) {
+            if (line.isBlank() || line.startsWith("#")) continue
+            val t = line.split('\t')
             when (t.getOrNull(0)) {
-                "F" -> funktionen += Funktion(
-                    paket = t.getOrElse(1) { "" },
+                "F" -> functions += Function(
+                    packageName = t.getOrElse(1) { "" },
                     id = t.getOrElse(2) { "" },
                     name = t.getOrElse(3) { "" },
-                    kategorie = t.getOrElse(4) { "" },
+                    category = t.getOrElse(4) { "" },
                     status = t.getOrElse(5) { "" },
-                    geprueft = t.getOrElse(6) { "" } == "ja",
+                    verified = t.getOrElse(6) { "" } == "yes",
                 )
-                "P" -> funktionen.lastOrNull()?.let { f ->
+                "P" -> functions.lastOrNull()?.let { f ->
                     val p = Parameter(
                         name = t.getOrElse(2) { "" },
-                        typ = t.getOrElse(3) { "" },
-                        ebene = t.getOrElse(4) { "" },
-                        quelle = t.getOrElse(5) { "" },
+                        type = t.getOrElse(3) { "" },
+                        level = t.getOrElse(4) { "" },
+                        source = t.getOrElse(5) { "" },
                     )
-                    ersetze(funktionen, f.copy(parameter = f.parameter + p))
+                    replaceLast(functions, f.copy(parameters = f.parameters + p))
                 }
-                "D" -> funktionen.lastOrNull()?.let { f ->
-                    val pname = t.getOrElse(2) { "" }
-                    val neue = f.parameter.map { p ->
-                        if (p.name == pname) p.copy(
-                            felder = p.felder + Feld(
+                "D" -> functions.lastOrNull()?.let { f ->
+                    val parameterName = t.getOrElse(2) { "" }
+                    val updated = f.parameters.map { p ->
+                        if (p.name == parameterName) p.copy(
+                            fields = p.fields + Field(
                                 name = t.getOrElse(3) { "" },
-                                datentyp = t.getOrElse(4) { "" },
-                                pflicht = t.getOrElse(5) { "" } == "ja",
-                                quelle = t.getOrElse(6) { "" },
+                                dataType = t.getOrElse(4) { "" },
+                                required = t.getOrElse(5) { "" } == "yes",
+                                source = t.getOrElse(6) { "" },
                             )
                         ) else p
                     }
-                    ersetze(funktionen, f.copy(parameter = neue))
+                    replaceLast(functions, f.copy(parameters = updated))
                 }
-                "B" -> funktionen.lastOrNull()?.let { f ->
-                    ersetze(funktionen, f.copy(beispiel = "${t.getOrElse(4) { "" }} (args: ${t.getOrElse(2) { "" }}, quelle: ${t.getOrElse(3) { "" }})"))
+                "B" -> functions.lastOrNull()?.let { f ->
+                    replaceLast(functions, f.copy(example = "${t.getOrElse(4) { "" }} (args: ${t.getOrElse(2) { "" }}, source: ${t.getOrElse(3) { "" }})"))
                 }
             }
         }
-        return funktionen
+        return functions
     }
 
-    private fun ersetze(liste: MutableList<Funktion>, neu: Funktion) {
-        if (liste.isNotEmpty()) liste[liste.size - 1] = neu
+    private fun replaceLast(list: MutableList<Function>, replacement: Function) {
+        if (list.isNotEmpty()) list[list.size - 1] = replacement
     }
 
     /**
-     * Sucht eine Funktion über vollen Pfad, Teil davon oder Kurznamen.
-     * Mehrdeutigkeit ist ein Fehler mit Vorschlägen — geraten wird nicht.
+     * Finds a function by full path, part of it, or short name.
+     * Ambiguity is an error with suggestions; nothing is guessed.
      */
-    fun finde(funktionen: List<Funktion>, paket: String?, schluessel: String): Result<Funktion> {
-        val k = schluessel.lowercase(Locale.ROOT)
-        val kandidaten = funktionen.filter { f ->
-            (paket == null || f.paket == paket) && (
+    fun find(functions: List<Function>, packageName: String?, key: String): Result<Function> {
+        val k = key.lowercase(Locale.ROOT)
+        val candidates = functions.filter { f ->
+            (packageName == null || f.packageName == packageName) && (
                 f.id.lowercase(Locale.ROOT) == k ||
-                    f.id.lowercase(Locale.ROOT).endsWith(schluessel) ||
-                    f.kurzname.lowercase(Locale.ROOT) == k ||
+                    f.id.lowercase(Locale.ROOT).endsWith(key) ||
+                    f.shortName.lowercase(Locale.ROOT) == k ||
                     f.id.lowercase(Locale.ROOT).contains(k)
                 )
         }
         return when {
-            kandidaten.isEmpty() -> Result.failure(NoSuchElementException("keine Funktion passt auf '$schluessel'"))
-            kandidaten.size == 1 -> Result.success(kandidaten[0])
+            candidates.isEmpty() -> Result.failure(NoSuchElementException("no function matches '$key'"))
+            candidates.size == 1 -> Result.success(candidates[0])
             else -> {
-                val genau = kandidaten.filter { it.kurzname.lowercase(Locale.ROOT) == k }
-                if (genau.size == 1) Result.success(genau[0])
+                val exact = candidates.filter { it.shortName.lowercase(Locale.ROOT) == k }
+                if (exact.size == 1) Result.success(exact[0])
                 else Result.failure(IllegalArgumentException(
-                    "'$schluessel' ist mehrdeutig:\n" + kandidaten.joinToString("\n") { "  ${it.id} (${it.paket})" }
+                    "'$key' is ambiguous:\n" + candidates.joinToString("\n") { "  ${it.id} (${it.packageName})" }
                 ))
             }
         }
     }
 
-    // ----------------------------------------------------------------- prüfen
+    // ------------------------------------------------------------------ check
 
     /**
-     * Prüft die Argumente und baut die Nutzlast.
+     * Checks the arguments and builds the payload.
      *
-     * `args` sind die Felder, wie ein Mensch sie schreiben würde — ohne zu
-     * wissen, ob sie auf der obersten Ebene liegen oder in einem
-     * Sammelparameter. Das entscheidet die Registry, nicht der Aufrufer.
+     * `args` are the fields as a human would write them, without knowing
+     * whether they sit at top level or inside a composite parameter. The
+     * registry decides that, not the caller.
      */
-    fun pruefen(f: Funktion, args: JSONObject): Pruefung {
-        val befunde = ArrayList<Befund>()
-        val aussen = LinkedHashMap<String, Any?>()
-        val innen = LinkedHashMap<String, Any?>()
+    fun check(f: Function, args: JSONObject): Check {
+        val findings = ArrayList<Finding>()
+        val outer = LinkedHashMap<String, Any?>()
+        val inner = LinkedHashMap<String, Any?>()
 
-        if (f.parameter.isEmpty()) {
-            val namen = args.keys().asSequence().toList()
-            if (namen.isEmpty()) {
-                befunde += Befund("P0", false,
-                    "'${f.kurzname}' gibt keine Parameter an — es wird nichts geprüft. " +
-                        "Nach dem Aufruf den Ist-Zustand gegenlesen.")
+        if (f.parameters.isEmpty()) {
+            val names = args.keys().asSequence().toList()
+            if (names.isEmpty()) {
+                findings += Finding("P0", false,
+                    "'${f.shortName}' declares no parameters, so nothing is checked. " +
+                        "Read the actual state back after the call.")
             } else {
-                befunde += Befund("P0", true,
-                    "'${f.kurzname}' gibt keine Parameter an; angegebene Felder können nicht zugeordnet werden: " +
-                        namen.joinToString(", "))
+                findings += Finding("P0", true,
+                    "'${f.shortName}' declares no parameters; the given fields cannot be assigned: " +
+                        names.joinToString(", "))
             }
-            return Pruefung(befunde, "@", "{}", "keine Angabe")
+            return Check(findings, "@", "{}", "not stated")
         }
 
         val composite = f.composite
-        val flach = f.flach
+        val flat = f.flat
         for (name in args.keys()) {
-            val wert = args.get(name)
-            val passtAussen = flach.any { it.name == name }
-            val feld = composite?.felder?.firstOrNull { it.name == name }
+            val value = args.get(name)
+            val fitsOuter = flat.any { it.name == name }
+            val field = composite?.fields?.firstOrNull { it.name == name }
             when {
-                passtAussen && feld != null -> befunde += Befund("P2", true,
-                    "'$name' gibt es als Parameter auf der obersten Ebene UND als Feld in " +
-                        "'${composite?.name}'. Das ist in der Registry doppelt; der Aufruf wird nicht geraten.")
-                passtAussen -> {
-                    val p = flach.first { it.name == name }
-                    if (p.typ.isNotEmpty() && !passt(wert, p.typ)) {
-                        befunde += Befund("P3", true,
-                            "'$name' ist als ${p.typ} angegeben, angegeben wurde ${art(wert)} ($wert). " +
-                                "Die Ziel-App nimmt den falschen Typ stillschweigend an und liefert dann eine leere Liste.")
+                fitsOuter && field != null -> findings += Finding("P2", true,
+                    "'$name' exists as a top-level parameter AND as a field in " +
+                        "'${composite?.name}'. The registry lists it twice; the call is not guessed.")
+                fitsOuter -> {
+                    val p = flat.first { it.name == name }
+                    if (p.type.isNotEmpty() && !matches(value, p.type)) {
+                        findings += Finding("P3", true,
+                            "'$name' is declared as ${p.type}, but ${kindOf(value)} was given ($value). " +
+                                "The target app silently accepts the wrong type and then returns an empty list.")
                     }
-                    aussen[name] = wert
+                    outer[name] = value
                 }
-                feld != null -> {
-                    if (feld.datentyp.isNotEmpty() && !passt(wert, feld.datentyp)) {
-                        befunde += Befund("P3", true,
-                            "'$name' ist als ${feld.datentyp} angegeben, angegeben wurde ${art(wert)} ($wert). " +
-                                "Die Ziel-App nimmt den falschen Typ stillschweigend an und liefert dann eine leere Liste.")
+                field != null -> {
+                    if (field.dataType.isNotEmpty() && !matches(value, field.dataType)) {
+                        findings += Finding("P3", true,
+                            "'$name' is declared as ${field.dataType}, but ${kindOf(value)} was given ($value). " +
+                                "The target app silently accepts the wrong type and then returns an empty list.")
                     }
-                    if (wert is String && wert.isEmpty() && f.name.equals("findPersons", true)) {
-                        befunde += Befund("P5", true,
-                            "'$name' ist leer; gemessen an dieser Stelle: Fehler 1001 \"is null or empty\"")
+                    if (value is String && value.isEmpty() && f.name.equals("findPersons", true)) {
+                        findings += Finding("P5", true,
+                            "'$name' is empty; measured at this place: error 1001 \"is null or empty\"")
                     }
-                    if (name == "maxCount") befunde += maxcount(wert)
-                    innen[name] = wert
+                    if (name == "maxCount") findings += maxCount(value)
+                    inner[name] = value
                 }
                 else -> {
-                    val moeglich = (flach.map { it.name } + (composite?.felder?.map { it.name } ?: emptyList())).sorted()
-                    befunde += Befund("P2", true,
-                        "'${f.kurzname}' kennt '$name' nicht. Die Plattform würde es still verwerfen. " +
-                            "Möglich sind: ${if (moeglich.isEmpty()) "nichts Bekanntes" else moeglich.joinToString(", ")}")
+                    val possible = (flat.map { it.name } + (composite?.fields?.map { it.name } ?: emptyList())).sorted()
+                    findings += Finding("P2", true,
+                        "'${f.shortName}' does not know '$name'. The platform would drop it silently. " +
+                            "Possible: ${if (possible.isEmpty()) "nothing known" else possible.joinToString(", ")}")
                 }
             }
         }
 
-        // Parameter der obersten Ebene, mit dem schon ein Aufruf gelang: fehlt er, ist das
-        // ein Hinweis (wie P1 in `deps/afc/src/pruefen.rs`), kein Fehler.
-        for (p in flach) {
-            if (!aussen.containsKey(p.name) && p.quelle == "aufruf-ok") {
-                befunde += Befund("P1", false,
-                    "Parameter '${p.name}' fehlt; gemessen wurde diese Funktion mit ihm aufgerufen.")
+        // A top-level parameter with which a call already succeeded: if it is missing,
+        // that is a warning (like P1 in `deps/afc/src/validate.rs`), not an error.
+        for (p in flat) {
+            if (!outer.containsKey(p.name) && p.source == "call-ok") {
+                findings += Finding("P1", false,
+                    "Parameter '${p.name}' is missing; this function was measured being called with it.")
             }
         }
 
-        for (feld in composite?.felder.orEmpty().filter { it.pflicht }) {
-            if (!innen.containsKey(feld.name)) {
-                befunde += Befund("P1", true, "Pflichtfeld '${feld.name}' (${feld.datentyp}) fehlt. Herkunft der Angabe: ${feld.quelle}")
+        for (field in composite?.fields.orEmpty().filter { it.required }) {
+            if (!inner.containsKey(field.name)) {
+                findings += Finding("P1", true, "Required field '${field.name}' (${field.dataType}) is missing. Origin of the information: ${field.source}")
             }
         }
 
         val (a3, a4) = if (composite != null) {
-            val objekt = JSONObject()
-            objekt.put("_typ", composite.typ)
-            for ((k, v) in innen) objekt.put(k, v)
-            composite.name to objekt.toString()
+            val obj = JSONObject()
+            obj.put("_type", composite.type)
+            for ((k, v) in inner) obj.put(k, v)
+            composite.name to obj.toString()
         } else {
-            val objekt = JSONObject()
-            for ((k, v) in aussen) objekt.put(k, v)
-            "@" to objekt.toString()
+            val obj = JSONObject()
+            for ((k, v) in outer) obj.put(k, v)
+            "@" to obj.toString()
         }
-        return Pruefung(befunde, a3, a4, if (composite != null) composite.quelle else "oberste-ebene")
+        return Check(findings, a3, a4, if (composite != null) composite.source else TOP_LEVEL)
     }
 
-    private fun maxcount(wert: Any?): List<Befund> {
-        val n = (wert as? Number)?.toLong() ?: return emptyList()
+    private fun maxCount(value: Any?): List<Finding> {
+        val n = (value as? Number)?.toLong() ?: return emptyList()
         return when {
-            n > MAXCOUNT_OBERGRENZE -> listOf(Befund("P4", false,
-                "maxCount=$n liegt über der Obergrenze $MAXCOUNT_OBERGRENZE; die Ziel-Apps liefern höchstens " +
-                    "$MAXCOUNT_OBERGRENZE. Der Wert wird auf $MAXCOUNT_OBERGRENZE gesetzt."))
-            n == 0L -> listOf(Befund("P4", false,
-                "maxCount=0 liefert eine leere Liste — ein Treffer ist so nicht nachweisbar."))
-            n < 0 -> listOf(Befund("P4", false,
-                "maxCount=-1 heisst bei Kontakten 'alle', bei Fotos, Lesezeichen und Dateien aber Fehler 1001."))
+            n > MAXCOUNT_LIMIT -> listOf(Finding("P4", false,
+                "maxCount=$n is above the limit $MAXCOUNT_LIMIT; the target apps return at most " +
+                    "$MAXCOUNT_LIMIT. The value is set to $MAXCOUNT_LIMIT."))
+            n == 0L -> listOf(Finding("P4", false,
+                "maxCount=0 returns an empty list, so a hit cannot be proven this way."))
+            n < 0 -> listOf(Finding("P4", false,
+                "maxCount=-1 means 'all' for contacts, but is error 1001 for photos, bookmarks and files."))
             else -> emptyList()
         }
     }
 
-    /** Kappt `maxCount` in der fertigen Nutzlast auf die gemessene Obergrenze. */
-    fun anwenden(a4: String): String = runCatching {
+    /** Clamps `maxCount` in the finished payload to the measured limit. */
+    fun apply(a4: String): String = runCatching {
         val o = JSONObject(a4)
         val n = o.optLong("maxCount", Long.MIN_VALUE)
-        if (n != Long.MIN_VALUE && n > MAXCOUNT_OBERGRENZE) {
-            o.put("maxCount", MAXCOUNT_OBERGRENZE)
+        if (n != Long.MIN_VALUE && n > MAXCOUNT_LIMIT) {
+            o.put("maxCount", MAXCOUNT_LIMIT)
             o.toString()
         } else a4
     }.getOrDefault(a4)
 
-    private fun passt(wert: Any?, datentyp: String): Boolean = when (datentyp) {
-        "long" -> wert is Long || wert is Int
-        "double" -> wert is Double || wert is Float || wert is Long || wert is Int
-        "boolean" -> wert is Boolean
-        "string" -> wert is String
-        "liste-von-text" -> wert is org.json.JSONArray && (0 until wert.length()).all { wert.get(it) is String }
-        "document" -> wert is JSONObject
-        else -> true // unbekannter Typ der Registry: nicht dagegen prüfen
+    private fun matches(value: Any?, dataType: String): Boolean = when (dataType) {
+        "long" -> value is Long || value is Int
+        "double" -> value is Double || value is Float || value is Long || value is Int
+        "boolean" -> value is Boolean
+        "string" -> value is String
+        LIST_OF_TEXT -> value is org.json.JSONArray && (0 until value.length()).all { value.get(it) is String }
+        "document" -> value is JSONObject
+        else -> true // type unknown to the registry: do not check against it
     }
 
-    private fun art(wert: Any?): String = when (wert) {
+    private fun kindOf(value: Any?): String = when (value) {
         null -> "null"
         is Boolean -> "boolean"
-        is Long, is Int -> "ganze Zahl"
-        is Double, is Float -> "Kommazahl"
-        is String -> "Text"
-        is org.json.JSONArray -> "Liste"
-        is JSONObject -> "Objekt"
-        else -> wert.javaClass.simpleName
+        is Long, is Int -> "integer"
+        is Double, is Float -> "decimal number"
+        is String -> "text"
+        is org.json.JSONArray -> "list"
+        is JSONObject -> "object"
+        else -> value.javaClass.simpleName
     }
 
-    // ------------------------------------------------- aufbereitet für den Kern
+    // ---------------------------------------------------- prepared for the core
 
-    /** Als Eintrag für `list`, ohne das Gerät zu fragen. */
-    fun alsEintrag(f: Funktion): AppFunctionsCore.FunctionEntry = AppFunctionsCore.FunctionEntry(
-        packageName = f.paket,
+    /** As an entry for `list`, without asking the device. */
+    fun asEntry(f: Function): AppFunctionsCore.FunctionEntry = AppFunctionsCore.FunctionEntry(
+        packageName = f.packageName,
         id = f.id,
-        schemaName = f.kurzname,
-        category = f.kategorie.ifEmpty { null },
+        schemaName = f.shortName,
+        category = f.category.ifEmpty { null },
         scope = null,
-        enabledByDefault = f.status != "aus",
-        description = f.beispiel ?: "",
-        parameters = f.parameter.map { p ->
-            AppFunctionsCore.Param(p.name, p.typ, p.felder.any { it.pflicht }, p.quelle)
+        enabledByDefault = f.status != "off",
+        description = f.example ?: "",
+        parameters = f.parameters.map { p ->
+            AppFunctionsCore.Param(p.name, p.type, p.fields.any { it.required }, p.source)
         },
         returns = null,
     )

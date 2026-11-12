@@ -6,170 +6,217 @@ import com.openminis.app.offload.ShizukuManager
 import java.security.MessageDigest
 
 /**
- * Der Binder-Weg für AppFunctions.
+ * The binder path for AppFunctions.
  *
- * Warum nicht `cmd app_function`: den Befehl gibt es auf diesem Gerät nicht
- * (manche Android-16-Geraete antworten „No shell command implementation"), und die
- * Direktberechtigung `EXECUTE_APP_FUNCTIONS` ist `internal|privileged`, also für
- * eine installierte App nicht zu bekommen. Bleibt der Binder, aufgerufen als
- * **uid 2000 mit Paket `com.android.shell`** — gemessen am 29./30.10.: uid 0
- * scheitert (kein Paket zur uid 0), die App selbst scheitert mit 1000, uid 2000
- * geht.
+ * Why not `cmd app_function`: the command does not exist on this device
+ * (some Android 16 devices answer "No shell command implementation"), and the
+ * direct permission `EXECUTE_APP_FUNCTIONS` is `internal|privileged`, so an
+ * installed app cannot get it. What remains is the binder, called as
+ * **uid 2000 with package `com.android.shell`**. Measured on 29/30 Oct 2026:
+ * uid 0 fails (no package for uid 0), the app itself fails with 1000, uid 2000
+ * works.
  *
- * Die Zwischenschicht wählt den Konstruktor von `ExecuteAppFunctionAidlRequest` selbst
- * (nach Typen, per Reflection), weil er je Build verschieden ist: vier Argumente
- * auf BP2A, fünf auf BP4A. Findet sie keinen, meldet sie `NO_CONSTRUCTOR` samt den
- * deklarierten Signaturen; der Aufrufer reicht diese Zeile unverändert weiter.
- * Dieselbe Jar läuft bei `deps/afc`.
+ * The shim picks the constructor of `ExecuteAppFunctionAidlRequest` itself
+ * (by types, via reflection) because it differs per build: four arguments on
+ * BP2A, five on BP4A. If it finds none it reports `NO_CONSTRUCTOR` together
+ * with the declared signatures; the caller passes that line on unchanged.
+ * The same jar is used by `deps/afc`.
  *
- * Der Binder selbst wird nicht nachgebaut. `aus.jar` (6,9 KB, dex) baut die
- * Anfrage per Reflection und ruft `IAppFunctionManager.executeAppFunction`. Das
- * ist auf dem Gerät gegen 13 Funktionen gemessen; das Parcel-Format selbst
- * nachzubauen wäre ungeprüft. Dieselbe Kette fährt `deps/afc` (Rust) auf der
- * Kommandozeile — dort sind die Regeln und Fehlercodes mit Tests belegt.
+ * The binder itself is not re-implemented. `shim.jar` (6.9 KB, dex) builds
+ * the request via reflection and calls `IAppFunctionManager.executeAppFunction`.
+ * That is measured on the device against 13 functions; rebuilding the Parcel
+ * format by hand would be unverified. `deps/afc` (Rust) drives the same chain
+ * on the command line, where the rules and error codes are backed by tests.
  *
- * Diese Klasse macht nur den Transport: dex bereitlegen, Befehl absetzen,
- * Antwort einsammeln. Was geprüft wird, entscheidet [AppFunctionsRegistry];
- * wie die Antwort zu lesen ist, [AppFunctionsAntwort].
+ * This class only does the transport: stage the dex, send the command,
+ * collect the reply. What gets checked is decided by [AppFunctionsRegistry];
+ * how the reply is read, by [AppFunctionsReply].
  *
- * Gemessen am 30.10. über den Debug-Server der laufenden App
- * (`debug.shizuku.exec`): die Kette läuft aus der App heraus und liefert echte
- * Daten (Kontakte, drei Treffer zu „e").
+ * Measured on 30 Oct 2026 through the debug server of the running app
+ * (`debug.shizuku.exec`): the chain runs from inside the app and returns real
+ * data (contacts, three hits for "e").
  */
 object AppFunctionsBinder {
 
     private const val TAG = "AppFunctionsBinder"
 
-    /** Wohin das dex auf dem Gerät gelegt wird. Weltweit lesbar, wie in `af.sh`. */
-    private const val FERN_VERZEICHNIS = "/data/local/tmp/af"
-    private const val FERN_DEX = "$FERN_VERZEICHNIS/aus.jar"
+    /** Where the dex is placed on the device. World-readable, as in `af.sh`. */
+    private const val REMOTE_DIR = "/data/local/tmp/af"
+    private const val REMOTE_SHIM = "$REMOTE_DIR/shim.jar"
 
-    /** Aufrufer, den die Plattform prüft: uid 2000 und dieses Paket. */
-    const val AUFRUFER = "com.android.shell"
+    /** The caller the platform checks: uid 2000 and this package. */
+    const val CALLER = "com.android.shell"
 
-    const val DEX_ASSET = "appfunctions/aus.jar"
+    const val SHIM_ASSET = "appfunctions/shim.jar"
+
+    /** Characters per command when staging; far below the 8192 limit of the Shizuku path. */
+    internal const val CHUNK_SIZE = 4000
 
     /**
-     * Ein Aufruf. `parameter` ist `-a3-` für `Ausfuehren`: der Name des
-     * Sammelparameters oder `@`, wenn die Werte auf der obersten Ebene liegen.
-     * `nutzlastJson` ist `-a4-`: das Parameterobjekt selbst, mit `_typ`.
+     * Longest command line the Shizuku path passes through intact. Measured:
+     * 8168 characters intact, 8198 truncated, and a truncated command ends
+     * silently with exit 0. Calculated with a safety margin.
      */
-    data class Aufruf(
-        val paket: String,
-        val funktionId: String,
+    internal const val COMMAND_LIMIT = 8000
+
+    /**
+     * Arguments for `ShizukuManager.runProcess`: a free-form command line goes
+     * through `sh -c`. `exec` is a subcommand of the CLI, not a program; as the
+     * first argument Shizuku then starts no process at all.
+     */
+    internal fun shell(command: String): Array<String> = arrayOf("sh", "-c", command)
+
+    /** `null` = fits through the Shizuku path, otherwise the reason. */
+    internal fun tooLong(command: String): String? =
+        if (command.length <= COMMAND_LIMIT) null
+        else "command has ${command.length} characters, the Shizuku path silently truncates beyond $COMMAND_LIMIT"
+
+    /**
+     * The commands that write [b64] in chunks to `<file>.b64`: the first with
+     * `>`, all later ones with `>>`, each carrying at most [CHUNK_SIZE]
+     * characters of payload.
+     */
+    internal fun stageCommands(b64: String, directory: String, file: String): List<String> =
+        b64.chunked(CHUNK_SIZE).mapIndexed { i, chunk ->
+            val op = if (i == 0) ">" else ">>"
+            val prefix = if (i == 0) "mkdir -p $directory && " else ""
+            "${prefix}printf '%s' '$chunk' $op $file.b64"
+        }
+
+    /** Decode, set permissions, print the checksum; the chunk file is deleted. */
+    internal fun finishCommand(file: String): String =
+        "base64 -d $file.b64 > $file && rm -f $file.b64 && chmod 755 $file && sha256sum $file | cut -d' ' -f1"
+
+    /**
+     * One call. `parameter` is `-a3-` for `Execute`: the name of the composite
+     * parameter, or `@` when the values sit at top level. `payloadJson` is
+     * `-a4-`: the parameter object itself, with `_type`.
+     */
+    data class Call(
+        val packageName: String,
+        val functionId: String,
         val parameter: String,
-        val nutzlastJson: String,
-        val zeitSekunden: Int = 30,
+        val payloadJson: String,
+        val timeoutSeconds: Int = 30,
     )
 
-    /** Was `Ausfuehren` gedruckt hat, roh. */
-    data class Roh(val exitCode: Int, val text: String)
+    /** What `Execute` printed, raw. */
+    data class Raw(val exitCode: Int, val text: String)
 
     /**
-     * Legt das dex bereit und ruft auf. Wirft nicht: jeder Fehler kommt als
-     * [Roh] mit Text zurück, damit der Aufrufer ihn wie eine Antwort der
-     * Plattform behandeln kann.
+     * Stages the dex and calls. Does not throw: every failure comes back as a
+     * [Raw] with text, so the caller can treat it like a platform reply.
      */
-    fun ausfuehren(context: Context, aufruf: Aufruf): Roh {
-        val dex = dexBereitstellen(context)
-        if (dex is Ergebnis.Fehler) return Roh(-1, "FEHLER: afc-code=NO_SHIPPED_DEX msg=${dex.grund}")
+    fun run(context: Context, call: Call): Raw {
+        val shim = ensureShimOnDevice(context)
+        if (shim is Outcome.Failed) return Raw(-1, "ERROR: afc-code=NO_SHIPPED_DEX msg=${shim.reason}")
 
-        val skript = skript(aufruf)
-        val r = ShizukuManager.runProcess(arrayOf("exec", skript), timeoutMs = (aufruf.zeitSekunden + 20) * 1000L)
+        val script = script(call)
+        tooLong(script)?.let { return Raw(-1, "ERROR: afc-code=TOO_LONG msg=$it") }
+        val r = ShizukuManager.runProcess(shell(script), timeoutMs = (call.timeoutSeconds + 20) * 1000L)
         val text = listOfNotNull(r.stdout, r.stderr).filter { it.isNotBlank() }.joinToString("\n")
-        Log.i(TAG, "execute ${aufruf.paket}/${aufruf.funktionId.substringAfter('#')} — exit ${r.exitCode}")
-        return Roh(r.exitCode, text)
+        Log.i(TAG, "execute ${call.packageName}/${call.functionId.substringAfter('#')} — exit ${r.exitCode}")
+        return Raw(r.exitCode, text)
     }
 
     /**
-     * Das Skript, das auf dem Gerät läuft. Es entspricht dem Aufruf, den
-     * `deps/afc` (`src/weg.rs`) baut, und ist damit auf beiden Wegen derselbe:
-     * dex legen, als uid 2000 aufrufen, beide Ausgabeströme mitschicken.
+     * The script that runs on the device. It matches the call `deps/afc`
+     * (`src/route.rs`) builds, so both paths are the same: stage the dex, call
+     * as uid 2000, capture both output streams.
      */
-    fun skript(aufruf: Aufruf): String {
-        require('\'' !in aufruf.paket && '\'' !in aufruf.funktionId) {
-            "Paket oder Funktions-ID enthält ein Anführungszeichen"
+    fun script(call: Call): String {
+        require('\'' !in call.packageName && '\'' !in call.functionId) {
+            "package or function ID contains a quote character"
         }
-        val nutzlast = Base64Kodierer.encode(aufruf.nutzlastJson.toByteArray(Charsets.UTF_8))
+        val payload = Base64Encoder.encode(call.payloadJson.toByteArray(Charsets.UTF_8))
         return buildString {
-            append("mkdir -p $FERN_VERZEICHNIS\n")
-            append("su 2000 -c \"CLASSPATH=$FERN_DEX app_process / Ausfuehren")
-            append(" '").append(aufruf.paket).append("'")
-            append(" '").append(aufruf.funktionId).append("'")
-            append(" ").append(AUFRUFER)
-            append(" '").append(aufruf.parameter).append("'")
-            append(" b64:").append(nutzlast)
+            append("mkdir -p $REMOTE_DIR\n")
+            append("su 2000 -c \"CLASSPATH=$REMOTE_SHIM app_process / Execute")
+            append(" '").append(call.packageName).append("'")
+            append(" '").append(call.functionId).append("'")
+            append(" ").append(CALLER)
+            append(" '").append(call.parameter).append("'")
+            append(" b64:").append(payload)
             append("\" 2>&1\n")
         }
     }
 
-    // ------------------------------------------------------------- dex bereitstellen
+    // ------------------------------------------------------------- staging the shim
 
-    private sealed interface Ergebnis {
-        object Da : Ergebnis
-        data class Fehler(val grund: String) : Ergebnis
+    private sealed interface Outcome {
+        object Present : Outcome
+        data class Failed(val reason: String) : Outcome
     }
+
+    /** For [AfcProcess]: stages `shim.jar`. `null` = it is there, otherwise the reason. */
+    internal fun ensureShim(context: Context): String? =
+        (ensureShimOnDevice(context) as? Outcome.Failed)?.reason
 
     /**
-     * Schreibt das dex nach /data/local/tmp/af. Der kürzeste gangbare Weg: den
-     * Inhalt als base64 durch die Shell schicken. Das Umkopieren aus dem
-     * App-Verzeichnis ginge nur, wenn der Aufrufer die App-Dateien lesen darf —
-     * als uid 2000 darf er das nicht, als root schon. base64 funktioniert in
-     * beiden Fällen und braucht kein Verzeichnis, das es vielleicht nicht gibt.
+     * Writes the dex to /data/local/tmp/af. The shortest workable way: send
+     * the content through the shell as base64. Copying from the app directory
+     * would only work if the caller may read app files; as uid 2000 it may
+     * not, as root it may. base64 works in both cases and needs no directory
+     * that might not exist.
      *
-     * Vorher wird die Prüfsumme verglichen; stimmt sie, entfällt das Schreiben.
+     * The checksum is compared first; if it matches, writing is skipped.
      */
-    /** Für [AfcProzess]: legt `aus.jar` bereit. `null` = liegt da, sonst der Grund. */
-    internal fun jarBereitstellen(context: Context): String? =
-        (dexBereitstellen(context) as? Ergebnis.Fehler)?.grund
-
-    private fun dexBereitstellen(context: Context): Ergebnis {
+    private fun ensureShimOnDevice(context: Context): Outcome {
         val dex = try {
-            context.assets.open(DEX_ASSET).use { it.readBytes() }
+            context.assets.open(SHIM_ASSET).use { it.readBytes() }
         } catch (e: Exception) {
-            return Ergebnis.Fehler("Asset $DEX_ASSET nicht lesbar: ${e.message}")
+            return Outcome.Failed("asset $SHIM_ASSET not readable: ${e.message}")
         }
-        if (dex.isEmpty()) return Ergebnis.Fehler("Asset $DEX_ASSET ist leer")
-        val soll = sha256(dex)
-        val liegt = ShizukuManager.runProcess(
-            arrayOf("exec", "sha256sum $FERN_DEX 2>/dev/null | cut -d' ' -f1"),
+        if (dex.isEmpty()) return Outcome.Failed("asset $SHIM_ASSET is empty")
+        val expected = sha256(dex)
+        val present = ShizukuManager.runProcess(
+            shell("sha256sum $REMOTE_SHIM 2>/dev/null | cut -d' ' -f1"),
             timeoutMs = 15_000L,
         ).stdout.trim()
-        if (liegt == soll) return Ergebnis.Da
+        if (present == expected) return Outcome.Present
 
-        val b64 = Base64Kodierer.encode(dex)
-        Log.i(TAG, "lege dex ab ($FERN_DEX, ${dex.size} Byte, sha256 ${soll.take(12)}…)")
-        val schreiben = "mkdir -p $FERN_VERZEICHNIS && echo $b64 | base64 -d > $FERN_DEX && chmod 755 $FERN_DEX && sha256sum $FERN_DEX | cut -d' ' -f1"
-        val r = ShizukuManager.runProcess(arrayOf("exec", schreiben), timeoutMs = 60_000L)
-        val ist = r.stdout.trim().lines().lastOrNull()?.trim().orEmpty()
-        return if (ist == soll) {
-            Ergebnis.Da
+        val b64 = Base64Encoder.encode(dex)
+        Log.i(TAG, "staging dex ($REMOTE_SHIM, ${dex.size} bytes, sha256 ${expected.take(12)}…)")
+        // The Shizuku path truncates a command line at 8192 characters, and a
+        // truncated command ends silently with exit 0 (measured: 8168
+        // characters intact, 8198 truncated). So write in chunks; the checksum
+        // below stays the guard, it catches every silent abort.
+        stageCommands(b64, REMOTE_DIR, REMOTE_SHIM).forEachIndexed { i, command ->
+            val r = ShizukuManager.runProcess(shell(command), timeoutMs = 30_000L)
+            if (r.exitCode != 0) {
+                return Outcome.Failed("dex chunk ${i + 1} not written (exit ${r.exitCode})")
+            }
+        }
+        val r = ShizukuManager.runProcess(shell(finishCommand(REMOTE_SHIM)), timeoutMs = 60_000L)
+        val actual = r.stdout.trim().lines().lastOrNull()?.trim().orEmpty()
+        return if (actual == expected) {
+            Outcome.Present
         } else {
-            Ergebnis.Fehler("dex konnte nicht abgelegt werden (exit ${r.exitCode}, sha ${ist.take(12)}… statt ${soll.take(12)}…)")
+            Outcome.Failed("dex could not be staged (exit ${r.exitCode}, sha ${actual.take(12)}… instead of ${expected.take(12)}…)")
         }
     }
 
-    private fun sha256(daten: ByteArray): String =
-        MessageDigest.getInstance("SHA-256").digest(daten)
+    private fun sha256(data: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(data)
             .joinToString("") { "%02x".format(it) }
 }
 
-/** base64 ohne Fremdbibliothek — dieselbe Kodierung, die `Base64.getEncoder()` liefert. */
-internal object Base64Kodierer {
+/** base64 without a third-party library; the same encoding `Base64.getEncoder()` produces. */
+internal object Base64Encoder {
     private const val T = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-    fun encode(daten: ByteArray): String {
-        val s = StringBuilder((daten.size + 2) / 3 * 4)
+    fun encode(data: ByteArray): String {
+        val s = StringBuilder((data.size + 2) / 3 * 4)
         var i = 0
-        while (i < daten.size) {
-            val b0 = daten[i].toInt() and 0xff
-            val b1 = if (i + 1 < daten.size) daten[i + 1].toInt() and 0xff else 0
-            val b2 = if (i + 2 < daten.size) daten[i + 2].toInt() and 0xff else 0
+        while (i < data.size) {
+            val b0 = data[i].toInt() and 0xff
+            val b1 = if (i + 1 < data.size) data[i + 1].toInt() and 0xff else 0
+            val b2 = if (i + 2 < data.size) data[i + 2].toInt() and 0xff else 0
             val n = (b0 shl 16) or (b1 shl 8) or b2
             s.append(T[(n ushr 18) and 63])
             s.append(T[(n ushr 12) and 63])
-            s.append(if (i + 1 < daten.size) T[(n ushr 6) and 63] else '=')
-            s.append(if (i + 2 < daten.size) T[n and 63] else '=')
+            s.append(if (i + 1 < data.size) T[(n ushr 6) and 63] else '=')
+            s.append(if (i + 2 < data.size) T[n and 63] else '=')
             i += 3
         }
         return s.toString()

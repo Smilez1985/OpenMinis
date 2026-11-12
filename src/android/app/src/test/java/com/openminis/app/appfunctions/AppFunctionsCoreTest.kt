@@ -274,8 +274,8 @@ class AppFunctionsCoreTest {
         assertTrue(r is AppFunctionsCore.ExecOutcome.FunctionError)
     }
 
-    // [T-appfunctions-confirm-note] Gemessen am Geraet (TEST2-LOG.md 3.6): ein
-    // bestaetigter Schreibaufruf kam genau wie einer ohne Schranke zurueck.
+    // [T-appfunctions-confirm-note] Measured on the device (TEST2-LOG.md 3.6): a
+    // confirmed write call came back exactly like one without the gate.
     @Test fun successNotes_confirmOnly() {
         val n = AppFunctionsCore.successNotes("com.example.app", confirmed = true, parametersDeclared = true)
         assertEquals(1, n.size)
@@ -283,8 +283,8 @@ class AppFunctionsCoreTest {
     }
 
     @Test fun successNotes_noConfirmNoNote() {
-        // Ohne Schranke laeuft der Aufruf auf den Werkzeugschalter hin -- dann
-        // gehoert hier keine Zeile hin, sonst waere der Vermerk wertlos.
+        // Without the gate the call runs on the strength of the tool switch; then no
+        // line belongs here, or the note would be worthless.
         assertTrue(AppFunctionsCore.successNotes("com.example.app", confirmed = false, parametersDeclared = true).isEmpty())
     }
 
@@ -302,24 +302,24 @@ class AppFunctionsCoreTest {
     }
 
     @Test fun successNotes_readCallGetsNothing() {
-        // Lesefunktionen stehen nie unter der Schranke (D6) -- also auch kein
-        // Bestaetigungsvermerk. Der zweite Teil haelt die Kopplung fest.
+        // Read functions are never behind the gate (D6), so there is no
+        // confirmation note either. The second part pins that coupling down.
         assertFalse(AppFunctionsCore.needsConfirmation("pkg#getDeviceStateItem", confirmWrites = true))
         assertTrue(AppFunctionsCore.successNotes("pkg", confirmed = false, parametersDeclared = true).isEmpty())
     }
 
     @Test fun noConstructor_isReportedAsErrorWithTheSignatures() {
-        val roh = "FEHLER: code=NO_CONSTRUCTOR kat=0 msg=kein passender Konstruktor von X; deklariert: public X(A,B)\n"
-        val a = AppFunctionsAntwort.deute(roh)
-        assertEquals(AppFunctionsAntwort.Art.FEHLER, a.art)
+        val raw = "ERROR: code=NO_CONSTRUCTOR cat=0 msg=no matching constructor of X; declared: public X(A,B)\n"
+        val a = AppFunctionsReply.interpret(raw)
+        assertEquals(AppFunctionsReply.Kind.ERROR, a.kind)
         assertEquals("NO_CONSTRUCTOR", a.code)
-        val b = a.bericht()
-        assertTrue(b, b.contains("deklariert: public X(A,B)"))
+        val b = a.report()
+        assertTrue(b, b.contains("declared: public X(A,B)"))
         assertTrue(b, b.contains("BP2A"))
     }
 
     @Test fun lockedDevice_codesTellTheUserToUnlock() {
-        assertTrue(AppFunctionsAntwort.erklaerung("1002")!!.contains("entsperren"))
-        assertTrue(AppFunctionsAntwort.erklaerung("3501")!!.contains("entsperren"))
+        assertTrue(AppFunctionsReply.explanation("1002")!!.contains("unlock"))
+        assertTrue(AppFunctionsReply.explanation("3501")!!.contains("unlock"))
     }
 }

@@ -1,4 +1,6 @@
-# Test log 6 — the Kotlin side, compiled and compared with Rust (31.10.2026)
+# Test log 6 — the Kotlin side, compiled and compared with Rust (2026-10-31)
+
+Command names in transcripts are the names used at the time (see [GLOSSARY.md](GLOSSARY.md)). The code names below (`AfcProcess`, `AppFunctionsReply`, `AppFunctionsParityTest`, `Reply::interpret` …) are the current ones.
 
 Until now the Kotlin was "not compiled". There is no Gradle or SDK here, but
 `kotlinc` 2.1.20 and the platform `android.jar` (API 36) can be fetched, and
@@ -14,9 +16,9 @@ that is enough to compile and run everything that does not need a device.
   store. Result: 57 classes, **no errors**.
 - Ran the existing JVM tests `AppFunctionsCoreTest` (JUnit 4.13.2, real
   `org.json`): **34 of 34 pass**.
-- Compared Kotlin with Rust on **23 argument cases** (`AppFunctionsRegistry.pruefen`
+- Compared Kotlin with Rust on **23 argument cases** (`AppFunctionsRegistry.check`
   against `afc check`: verdict, rule ids, `a3`, `a4`) and **14 reply cases**
-  (`AppFunctionsAntwort.deute` against `Antwort::deute`: kind, code, category,
+  (`AppFunctionsReply.interpret` against `Reply::interpret`: kind, code, category,
   message, JSON).
 
 ## What the comparison found
@@ -25,13 +27,13 @@ Two real differences, both fixed on the Kotlin side:
 
 1. A missing parameter that a call once succeeded with: Rust gives hint P1,
    Kotlin gave nothing (case `getPersons {}`).
-2. `ERFOLG: null` after a JSON line: Rust says empty, Kotlin said success.
+2. `SUCCESS: null` after a JSON line: Rust says empty, Kotlin said success.
 
 After the fixes: 23 of 23 argument cases and 14 of 14 reply cases are equal.
 
 ## What stays in the repo
 
-`AppFunctionsParitaetTest` (6 tests) holds the verdicts as fixed expectations,
+`AppFunctionsParityTest` (6 tests) holds the verdicts as fixed expectations,
 so a rule changed on one side turns it red until the other side follows.
 Counter-check: with either old behaviour put back, exactly one test turns red.
 `src/test/resources/appfunctions/registry.txt` is a copy of the asset and is
@@ -45,7 +47,7 @@ settings switch. What the maintainer still has to do is `./gradlew
 testDebugUnitTest assembleDebug`; the risk left is in the parts that touch
 those two classes and in the Gradle configuration, not in the logic.
 
-## The Android build of `afc` and its start from `lib/arm64` (31.10.)
+## The Android build of `afc` and its start from `lib/arm64` (2026-10-31)
 
 Measured on the test device with an installed debuggable app (`extractNativeLibs=true`):
 
@@ -57,7 +59,7 @@ Measured on the test device with an installed debuggable app (`extractNativeLibs
   symbols to link).
 - **Started from `lib/arm64/libafc.so` in three roles:**
   1. as the app itself (context `runas_app`): `codes`, `list` and
-     `call --trocken` work; `refresh` fails as designed (the app may not run
+     `call --dry-run` work; `refresh` fails as designed (the app may not run
      `dumpsys`) with a readable message;
   2. as the shell (context `shell`): a real call answers with content;
      `refresh` reads 61 of 61 functions;
@@ -73,17 +75,17 @@ the script is untested; the target, flags and output path are the same.
 (`jniLibs/arm64-v8a`, picked up by `useLegacyPackaging`/`extractNativeLibs`),
 and the CI step that runs the script before Gradle.
 
-## The Kotlin shell around `afc` (31.10.)
+## The Kotlin shell around `afc` (2026-10-31)
 
-`AfcProzess.kt` starts `libafc.so` from `nativeLibraryDir` through Shizuku and
-reads the first word of its result line. `AppFunctionsManager.ueberBinder`
+`AfcProcess.kt` starts `libafc.so` from `nativeLibraryDir` through Shizuku and
+reads the first word of its result line. `AppFunctionsManager.viaBinder`
 uses it when the file exists and keeps the old Kotlin path otherwise.
 
 - Compiled with `kotlinc`; 49 JVM tests pass (34 core, 6 parity, 4 shell,
   5 reading real `afc` output).
-- `AfcProzess.quote` was run against a real `sh` with `'; echo PWNED #$(...)
+- `AfcProcess.quote` was run against a real `sh` with `'; echo PWNED #$(...)
   \`...\` | cat` and newline: the text arrives as text, nothing runs.
-- `AfcProzess.deute` was written against recorded `afc call` output. It found
+- `AfcProcess.interpret` was written against recorded `afc call` output. It found
   that `NEEDS_CONFIRMATION` ends with **exit 0** (the check passed, nothing was
   called), so the exit code cannot decide; the text does. Counter-check: with
   that branch removed, one test turns red.
@@ -93,11 +95,11 @@ uses it when the file exists and keeps the old Kotlin path otherwise.
 **Not measured:** the Shizuku call from inside the running app
 (`ShizukuManager.runProcess` with the `AFC_JAR=… libafc.so …` line), because
 that needs an APK containing both. The line itself was run by hand as the
-shell with the same binary and succeeded. `--schreiben` is passed by the
+shell with the same binary and succeeded. `--write` is passed by the
 manager because the confirmation already happened in `AppFunctionsTool`; that
 hand-off is read, not exercised.
 
-## From an empty state, as the shell only (31.10.)
+## From an empty state, as the shell only (2026-10-31)
 
 The earlier "Shizuku only" runs left the directory `/data/local/tmp/af` behind
 as root. Repeated from scratch: `/data/local/tmp/af` and `afw` removed, then
@@ -105,8 +107,8 @@ as root. Repeated from scratch: `/data/local/tmp/af` and `afw` removed, then
 for everything after the binary and the jar were put where the shell can read
 them:
 
-1. `mkdir -p /data/local/tmp/af`, write `aus.jar` through base64 and `chmod`
-   (what `AppFunctionsBinder.dexBereitstellen` does through Shizuku): the
+1. `mkdir -p /data/local/tmp/af`, write `shim.jar` through base64 and `chmod`
+   (what `AppFunctionsBinder.ensureShimOnDevice` does through Shizuku): the
    checksum equals the asset's (`3e6f7b74637d1361…`); on a second run the
    check matches, so the write is skipped.
 2. A real call with and without `AFC_JAR`: answers with content.
@@ -115,10 +117,34 @@ them:
 
 A bug showed up on the way and is fixed: in the local mode `afc` ignored
 `--jar`/`$AFC_JAR` and read a fixed path. It now takes the chosen path first and
-the device path `/data/local/tmp/af/aus.jar` second (`jar_lokal`, one test).
+the device path `/data/local/tmp/af/shim.jar` second (`jar_local`, one test).
 
 What this still is not: the shell here is entered through `su -Z`, on a
 device that also has root. The parent is the root-owned Shizuku server, not a
 Shizuku service started by `adb`. And the binary came from the staging
 directory, not from `nativeLibraryDir` (that start was measured separately, as
 the app and as the shell).
+
+## From inside the running app
+
+The patched test app (our six files in front of the original dex, `libafc.so` in
+`nativeLibraryDir`) called `execute` on `com.google.android.gms`
+`getUncategorizedDeviceState` and `getDeviceStateMetadata`: real device data
+came back, 17 settings. Log lines: `AfcProcess: afc call - exit 0`,
+`AppFunctions: afc: Erfolg (exit 0)` (log text as it was at the time), and in the target process
+`Successfully executed AppFunction`.
+
+Two defects only showed up here, both fixed:
+
+1. The Shizuku path cuts a command line at 8192 characters and still exits 0
+   (8168 characters intact, 8198 cut). The dex as base64 is 10100 characters, the
+   command was 10279. The file never arrived (`NO_SHIPPED_DEX`). Now written in
+   pieces of 4000 characters; the checksum stays the guard.
+2. `arrayOf("exec", x)` started no process: `exec` is a subcommand of the CLI.
+   Five places, now `sh -c`.
+
+Measured again with `/data/local/tmp/af` deleted: the app laid the dex itself,
+about one second, checksum equal to the asset.
+
+Not measured: a changing call (`--write`) from the app, other devices.
+

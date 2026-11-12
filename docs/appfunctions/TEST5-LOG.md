@@ -1,4 +1,6 @@
-# Test log 5 — what the model has to read and send: `afc` against the plain skill (30.10.2026)
+# Test log 5 — what the model has to read and send: `afc` against the plain skill (2026-10-30)
+
+Command names in transcripts are the names used at the time (see [GLOSSARY.md](GLOSSARY.md)).
 
 Question: does the `afc` path cost the model fewer tokens than the plain
 `appfunktionen` skill without `afc`?
@@ -16,7 +18,7 @@ Script and raw outputs: [messungen/token_test.py](messungen/token_test.py),
 The skill calls `cmd app_function`. On this device that command does not exist
 (`No shell command implementation.`, with Shizuku as root and as uid 2000). The
 skill therefore fails at its first step, `list-app-functions lieferte nichts`
-(rc 2), for `liste` **and** for `rufen`. So the plain skill returns no contact
+(German for "list-app-functions returned nothing"; rc 2), for `liste` **and** for `rufen` (the skill's German subcommands, "list" and "call"). So the plain skill returns no contact
 here, at any token price. `afc` goes through the binder and does.
 
 This is a difference in **whether it works**, not only in what it costs.
@@ -45,7 +47,8 @@ Reading it honestly:
   quickly is not cheaper in any useful sense. No fair token comparison exists
   for this task on this device.
 - **Task 2:** `afc` costs more (97 against 56) and gives the useful answer:
-  `FEHLER P1: Pflichtfeld 'maxCount' (long) fehlt`, without calling the device.
+  `FEHLER P1: Pflichtfeld 'maxCount' (long) fehlt` (as printed at the time; today
+  `ERROR P1: …`), without calling the device.
   The skill's 56 tokens are the same dead-end message as in task 1.
 - **Task 3:** the only like-for-like row. Both return the parameters;
   `afc` needs **212** tokens, the skill **434** — about half. `afc` states
@@ -82,7 +85,7 @@ to start; the README is optional.
   practice is not known from three runs.
 - One run per cell. Timings (0.0–1.0 s) are too small to rank.
 
-## 5. Standing cost of the tool definition (31.10.)
+## 5. Standing cost of the tool definition (2026-10-31)
 
 Section 3 counted what is read once. The **current build** of the app sends the
 definition of every enabled tool with each request (`AgentTools.kt` rebuilds
@@ -111,7 +114,7 @@ Reading it:
   `cmd app_function`) and the per-call result of task 3 (212 against 434).
 - **Not measured:** the Kotlin path (not compiled yet).
 
-## 6. After shortening (31.10.)
+## 6. After shortening (2026-10-31)
 
 The definition of `app_functions` was cut to name, one line and short parameter
 texts; the how-to moved into the answer of `list` (sent once per use, not per

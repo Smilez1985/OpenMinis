@@ -1,2 +1,2 @@
-afc: keine Funktion passt auf 'foo'
+afc: no function matches 'foo'
 exit=2

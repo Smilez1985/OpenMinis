@@ -3,36 +3,36 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * Ausfuehren <paket> <fkt-id> [aufrufer] [pname] [params]
- * params: (a) "b64:<base64 von JSON>" oder JSON "{...}" : verschachtelt, jedes Objekt mit "_typ"
- *         (b) alt: <schema-typ> feld=wert feld:long=n feld:bool=true ...
- * Ausgabe: "ERFOLG: <toString>", "JSON: <json>" bzw. "FEHLER: code=.. kat=.. msg=..", zuletzt "FERTIG".
+ * Execute <package> <function-id> [caller] [param-name] [params]
+ * params: (a) "b64:<base64 of JSON>" or JSON "{...}": nested, every object carries "_type"
+ *         (b) legacy: <schema-type> field=value field:long=n field:bool=true ...
+ * Output: "SUCCESS: <toString>", "JSON: <json>" or "ERROR: code=.. cat=.. msg=..", finally "DONE".
  */
 @SuppressWarnings({"unchecked","rawtypes"})
-public class Ausfuehren {
+public class Execute {
     static Class<?> k(String n) throws Exception { return Class.forName(n); }
     static final String GD = "android.app.appsearch.GenericDocument";
 
-    // ---------- kleiner JSON-Leser (keine Abhaengigkeit)
+    // ---------- small JSON reader (no dependency)
     static class P {
         final String s; int i;
         P(String s) { this.s = s; }
         void ws() { while (i < s.length() && Character.isWhitespace(s.charAt(i))) i++; }
-        Object wert() {
+        Object value() {
             ws(); char c = s.charAt(i);
             if (c == '{') {
                 Map<String, Object> m = new LinkedHashMap<>(); i++; ws();
                 if (s.charAt(i) == '}') { i++; return m; }
                 while (true) {
                     ws(); String key = str(); ws(); i++; // ':'
-                    m.put(key, wert()); ws();
+                    m.put(key, value()); ws();
                     if (s.charAt(i++) == '}') return m;
                 }
             }
             if (c == '[') {
                 List<Object> l = new ArrayList<>(); i++; ws();
                 if (s.charAt(i) == ']') { i++; return l; }
-                while (true) { l.add(wert()); ws(); if (s.charAt(i++) == ']') return l; }
+                while (true) { l.add(value()); ws(); if (s.charAt(i++) == ']') return l; }
             }
             if (c == '"') return str();
             if (s.startsWith("true", i)) { i += 4; return Boolean.TRUE; }
@@ -58,11 +58,11 @@ public class Ausfuehren {
 
     // ---------- JSON -> GenericDocument
     @SuppressWarnings("unchecked")
-    static Object zuDok(Map<String, Object> m) throws Exception {
+    static Object toDocument(Map<String, Object> m) throws Exception {
         Class<?> gdb = k(GD + "$Builder"), gd = k(GD);
-        Object b = gdb.getConstructor(String.class, String.class, String.class).newInstance("", "p", String.valueOf(m.getOrDefault("_typ", "")));
+        Object b = gdb.getConstructor(String.class, String.class, String.class).newInstance("", "p", String.valueOf(m.getOrDefault("_type", "")));
         for (Map.Entry<String, Object> e : m.entrySet()) {
-            if (e.getKey().equals("_typ")) continue;
+            if (e.getKey().equals("_type")) continue;
             Object v = e.getValue();
             List<Object> l = v instanceof List ? (List<Object>) v : Collections.singletonList(v);
             String n = e.getKey();
@@ -70,7 +70,7 @@ public class Ausfuehren {
             Object f = l.get(0);
             if (f instanceof Map) {
                 Object arr = Array.newInstance(gd, l.size());
-                for (int i = 0; i < l.size(); i++) Array.set(arr, i, zuDok((Map<String, Object>) l.get(i)));
+                for (int i = 0; i < l.size(); i++) Array.set(arr, i, toDocument((Map<String, Object>) l.get(i)));
                 b = gdb.getMethod("setPropertyDocument", String.class, arr.getClass()).invoke(b, n, arr);
             } else if (f instanceof Long) {
                 long[] a = new long[l.size()]; for (int i = 0; i < a.length; i++) a[i] = (Long) l.get(i);
@@ -104,16 +104,16 @@ public class Ausfuehren {
         try {
             Class<?> gd = k(GD);
             StringBuilder b = new StringBuilder("{");
-            String typ = (String) gd.getMethod("getSchemaType").invoke(doc);
-            boolean erst = true;
-            if (typ != null && !typ.isEmpty()) { b.append("\"_typ\":").append(q(typ)); erst = false; }
+            String type = (String) gd.getMethod("getSchemaType").invoke(doc);
+            boolean first = true;
+            if (type != null && !type.isEmpty()) { b.append("\"_type\":").append(q(type)); first = false; }
             String did = (String) gd.getMethod("getId").invoke(doc);
-            if (did != null && !did.isEmpty()) { if (!erst) b.append(','); b.append("\"_id\":").append(q(did)); erst = false; }
-            List<String> namen = new ArrayList<>((Set<String>) gd.getMethod("getPropertyNames").invoke(doc));
-            Collections.sort(namen);
-            for (String n : namen) {
+            if (did != null && !did.isEmpty()) { if (!first) b.append(','); b.append("\"_id\":").append(q(did)); first = false; }
+            List<String> names = new ArrayList<>((Set<String>) gd.getMethod("getPropertyNames").invoke(doc));
+            Collections.sort(names);
+            for (String n : names) {
                 Object v = gd.getMethod("getProperty", String.class).invoke(doc, n);
-                if (!erst) b.append(','); erst = false;
+                if (!first) b.append(','); first = false;
                 b.append(q(n)).append(':').append('[');
                 int len = Array.getLength(v);
                 for (int i = 0; i < len; i++) {
@@ -123,18 +123,18 @@ public class Ausfuehren {
                     else if (x instanceof String) b.append(q((String) x));
                     else if (x instanceof Number || x instanceof Boolean) b.append(x);
                     else if (gd.isInstance(x)) b.append(json(x));
-                    else if (x instanceof byte[]) b.append(q("<" + ((byte[]) x).length + " Byte>"));
+                    else if (x instanceof byte[]) b.append(q("<" + ((byte[]) x).length + " bytes>"));
                     else b.append(q(String.valueOf(x)));
                 }
                 b.append(']');
             }
             return b.append('}').toString();
-        } catch (Throwable t) { return "{\"_fehler\":" + q(String.valueOf(t)) + "}"; }
+        } catch (Throwable t) { return "{\"_error\":" + q(String.valueOf(t)) + "}"; }
     }
 
     public static void main(String[] a) throws Exception {
-        String paket = a[0], fid = a[1];
-        String aufrufer = a.length > 2 ? a[2] : "com.android.shell";
+        String pkg = a[0], fid = a[1];
+        String caller = a.length > 2 ? a[2] : "com.android.shell";
 
         Object binder = k("android.os.ServiceManager").getMethod("getService", String.class).invoke(null, "app_function");
         Object mgr = k("android.app.appfunctions.IAppFunctionManager$Stub")
@@ -148,7 +148,7 @@ public class Ausfuehren {
             String p4 = a[4];
             if (p4.startsWith("b64:")) p4 = new String(Base64.getDecoder().decode(p4.substring(4)), "UTF-8");
             if (p4.startsWith("{")) {
-                inner = zuDok((Map<String, Object>) new P(p4).wert());
+                inner = toDocument((Map<String, Object>) new P(p4).value());
             } else {
                 Object ib = gdb.getConstructor(String.class, String.class, String.class).newInstance("", "p", p4);
                 for (int i = 5; i < a.length; i++) {
@@ -172,51 +172,51 @@ public class Ausfuehren {
         Object doc = doc0 != null ? doc0 : gdb.getMethod("build").invoke(b);
 
         Class<?> rb = k("android.app.appfunctions.ExecuteAppFunctionRequest$Builder");
-        Object rbo = rb.getConstructor(String.class, String.class).newInstance(paket, fid);
+        Object rbo = rb.getConstructor(String.class, String.class).newInstance(pkg, fid);
         rb.getMethod("setParameters", k(GD)).invoke(rbo, doc);
         Object req = rb.getMethod("build").invoke(rbo);
 
         Class<?> uh = k("android.os.UserHandle");
         Object user = uh.getMethod("of", int.class).invoke(null, 0);
         Class<?> ar = k("android.app.appfunctions.ExecuteAppFunctionAidlRequest");
-        Object areq = baueAidlRequest(ar, k("android.app.appfunctions.ExecuteAppFunctionRequest"), uh, req, user, aufrufer);
+        Object areq = buildAidlRequest(ar, k("android.app.appfunctions.ExecuteAppFunctionRequest"), uh, req, user, caller);
 
-        final CountDownLatch fertig = new CountDownLatch(1);
-        Object cb = Callback.bauen(fertig);
+        final CountDownLatch done = new CountDownLatch(1);
+        Object cb = Callback.create(done);
         mgr.getClass().getMethod("executeAppFunction", ar, k("android.app.appfunctions.IExecuteAppFunctionCallback")).invoke(mgr, areq, cb);
-        boolean ok = fertig.await(20, TimeUnit.SECONDS);
-        System.out.println(ok ? "FERTIG" : "ZEITUEBERSCHREITUNG");
+        boolean ok = done.await(20, TimeUnit.SECONDS);
+        System.out.println(ok ? "DONE" : "TIMEOUT");
         System.exit(ok ? 0 : 3);
     }
 
-    /** Der Konstruktor von ExecuteAppFunctionAidlRequest ist je Build verschieden:
-     *  (Request, UserHandle, String, long) auf BP2A, (..., long, long) auf BP4A.
-     *  Wir waehlen nach Typen: Request, UserHandle, String, danach nur long.
-     *  Die long-Werte sind angenommen: erstes = Uhr seit Start, zweites = Wanduhr
-     *  (nur aus dem Methodennamen getRequestWallTime geschlossen, nicht belegt).
-     *  Passt keiner, werden alle deklarierten Signaturen ausgegeben (Exit 4). */
-    static Object baueAidlRequest(Class<?> ar, Class<?> reqK, Class<?> uh, Object req, Object user, String aufrufer) throws Exception {
+    /** The constructor of ExecuteAppFunctionAidlRequest differs per build:
+     *  (Request, UserHandle, String, long) on BP2A, (..., long, long) on BP4A.
+     *  We select by types: Request, UserHandle, String, then only long.
+     *  The long values are assumed: first = clock since boot, second = wall clock
+     *  (inferred only from the method name getRequestWallTime, not proven).
+     *  If none matches, all declared signatures are printed (exit 4). */
+    static Object buildAidlRequest(Class<?> ar, Class<?> reqK, Class<?> uh, Object req, Object user, String caller) throws Exception {
         long wall = System.currentTimeMillis();
-        long seit;
-        try { seit = (Long) k("android.os.SystemClock").getMethod("elapsedRealtime").invoke(null); }
-        catch (Throwable t) { seit = wall; }
+        long sinceBoot;
+        try { sinceBoot = (Long) k("android.os.SystemClock").getMethod("elapsedRealtime").invoke(null); }
+        catch (Throwable t) { sinceBoot = wall; }
         StringBuilder sig = new StringBuilder();
         for (java.lang.reflect.Constructor<?> c : ar.getDeclaredConstructors()) {
             Class<?>[] t = c.getParameterTypes();
             sig.append("  ").append(c).append('\n');
             if (t.length < 4 || t[0] != reqK || t[1] != uh || t[2] != String.class) continue;
-            boolean langs = true;
-            for (int i = 3; i < t.length; i++) if (t[i] != long.class) langs = false;
-            if (!langs) continue;
+            boolean allLong = true;
+            for (int i = 3; i < t.length; i++) if (t[i] != long.class) allLong = false;
+            if (!allLong) continue;
             Object[] a = new Object[t.length];
-            a[0] = req; a[1] = user; a[2] = aufrufer;
-            for (int i = 3; i < t.length; i++) a[i] = (t.length == 4) ? (Object) wall : (i == 3 ? (Object) seit : (Object) wall);
+            a[0] = req; a[1] = user; a[2] = caller;
+            for (int i = 3; i < t.length; i++) a[i] = (t.length == 4) ? (Object) wall : (i == 3 ? (Object) sinceBoot : (Object) wall);
             c.setAccessible(true);
             return c.newInstance(a);
         }
-        // Eine Zeile im Format der anderen Fehler (code= kat= msg=), damit sie sich maschinell lesen laesst.
-        System.out.println("FEHLER: code=NO_CONSTRUCTOR kat=0 msg=kein passender Konstruktor von " + ar.getName()
-                + "; deklariert: " + sig.toString().trim().replace('\n', '|').replaceAll("\\s+", " "));
+        // One line in the format of the other errors (code= cat= msg=) so that it can be parsed by machine.
+        System.out.println("ERROR: code=NO_CONSTRUCTOR cat=0 msg=no matching constructor of " + ar.getName()
+                + "; declared: " + sig.toString().trim().replace('\n', '|').replaceAll("\\s+", " "));
         System.exit(4);
         return null;
     }

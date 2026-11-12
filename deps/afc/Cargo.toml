@@ -2,11 +2,11 @@
 name = "afc"
 version = "0.1.0"
 edition = "2021"
-description = "AppFunctions-Aufrufer: Registry, Pruefung vor dem Aufruf, Fehleruebersetzung, Binder-Weg"
+description = "AppFunctions caller: registry, validation before the call, error translation, binder route"
 license = "MIT"
 
-# Keine Abhaengigkeiten: das Binary muss statisch auf dem Geraet laufen und
-# ohne Netzzugang baubar sein (Sandkarte hat kein crates.io).
+# No dependencies: the binary has to run statically on the device and must be
+# buildable without network access (the sandbox has no crates.io).
 [dependencies]
 
 [[bin]]

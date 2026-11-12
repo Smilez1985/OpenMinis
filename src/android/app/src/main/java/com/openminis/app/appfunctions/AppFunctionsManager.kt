@@ -59,29 +59,29 @@ object AppFunctionsManager {
         listDocument(context).map { it.entries }
 
     /**
-     * Die Funktionsliste. Zuerst der Geräteabzug (`cmd app_function
-     * list-app-functions`) — er ist der frische Stand. Gibt es den Befehl nicht
-     * (auf diesem Gerät: „No shell command implementation"), trägt die
-     * mitgelieferte Registry die Angaben, samt Parametern und Pflichtfeldern.
+     * The function list. The device dump comes first (`cmd app_function
+     * list-app-functions`); it is the fresh state. If the command does not
+     * exist (on this device: "No shell command implementation"), the shipped
+     * registry supplies the data, including parameters and required fields.
      */
     fun listDocument(context: Context): Result<AppFunctionsCore.ListDocument> {
         val dump = runCatching { dumpListDocument() }
         if (dump.isSuccess) return dump
-        val grund = dump.exceptionOrNull()?.message
+        val reason = dump.exceptionOrNull()?.message
         return runCatching {
-            val funktionen = AppFunctionsRegistry.laden(context)
-            check(funktionen.isNotEmpty()) { "die mitgelieferte Registry ist leer (Geräteabzug: $grund)" }
-            Log.i(TAG, "Geraeteabzug nicht moeglich ($grund) — Registry traegt die Liste (${funktionen.size} Funktionen)")
+            val functions = AppFunctionsRegistry.load(context)
+            check(functions.isNotEmpty()) { "the shipped registry is empty (device dump: $reason)" }
+            Log.i(TAG, "device dump not possible ($reason); registry supplies the list (${functions.size} functions)")
             AppFunctionsCore.ListDocument(
-                entries = funktionen.filter { it.status != "aus" }.map { AppFunctionsRegistry.alsEintrag(it) },
+                entries = functions.filter { it.status != "off" }.map { AppFunctionsRegistry.asEntry(it) },
                 types = emptyMap(),
             )
         }
     }
 
-    /** Der Abzug vom Gerät, sofern es den Befehl gibt. */
+    /** The dump from the device, if it has the command. */
     private fun dumpListDocument(): AppFunctionsCore.ListDocument {
-        check(ShizukuManager.isReady()) { "Dump braucht Shizuku (Zustand ${ShizukuManager.snapshot.value.state})" }
+        check(ShizukuManager.isReady()) { "dump needs Shizuku (state ${ShizukuManager.snapshot.value.state})" }
         val r = ShizukuManager.runProcess(arrayOf("cmd", "app_function", "list-app-functions"), timeoutMs = LIST_TIMEOUT_MS)
         check(r.exitCode == 0) { "list-app-functions rc ${r.exitCode}: ${r.stderr.take(300)}" }
         return AppFunctionsCore.parseListDocument(r.stdout)
@@ -139,83 +139,83 @@ object AppFunctionsManager {
         Log.i(TAG, "execute $packageName/${functionId.substringAfter('#')} via ${decision.path} (${decision.reason})")
         return when (decision.path) {
             Path.DIRECT -> PlatformExecutor.execute(context, packageName, functionId, parametersJson, timeoutSeconds)
-            Path.SHIZUKU -> ueberBinder(context, packageName, functionId, parametersJson, timeoutSeconds)
+            Path.SHIZUKU -> viaBinder(context, packageName, functionId, parametersJson, timeoutSeconds)
             Path.NONE -> AppFunctionsCore.ExecOutcome.FunctionError("NO_PATH: ${decision.reason}")
         }
     }
 
     /**
-     * Der Binder-Weg: erst prüfen, dann aufrufen, dann die Antwort deuten.
+     * The binder path: check first, then call, then interpret the reply.
      *
-     * `cmd app_function` gibt es auf diesem Gerät nicht (gemessen: „No shell
-     * command implementation"), die Direktberechtigung ist privilegiert. Also
-     * geht der Aufruf als uid 2000 über [AppFunctionsBinder] — dieselbe Kette,
-     * die `deps/afc` auf der Kommandozeile gegen 13 Funktionen geprüft hat.
+     * `cmd app_function` does not exist on this device (measured: "No shell
+     * command implementation"), and the direct permission is privileged. So
+     * the call goes out as uid 2000 through [AppFunctionsBinder], the same
+     * chain `deps/afc` verified on the command line against 13 functions.
      *
-     * Geprüft wird gegen die mitgelieferte Registry: die Plattform verwirft
-     * unbekannte Felder still und nimmt eine Zahl als Text an, ohne sich zu
-     * beschweren. Was nicht passt, fällt hier auf.
+     * The check runs against the shipped registry: the platform silently drops
+     * unknown fields and accepts a number as text without complaint. What does
+     * not fit shows up here.
      */
-    private fun ueberBinder(
+    private fun viaBinder(
         context: Context,
         packageName: String,
         functionId: String,
         parametersJson: String,
         timeoutSeconds: Int,
     ): AppFunctionsCore.ExecOutcome {
-        if (AfcProzess.verfuegbar(context)) return ueberAfc(context, packageName, functionId, parametersJson, timeoutSeconds)
-        val funktionen = AppFunctionsRegistry.laden(context)
-        val f = AppFunctionsRegistry.finde(funktionen, packageName, functionId).getOrElse {
+        if (AfcProcess.available(context)) return viaAfc(context, packageName, functionId, parametersJson, timeoutSeconds)
+        val functions = AppFunctionsRegistry.load(context)
+        val f = AppFunctionsRegistry.find(functions, packageName, functionId).getOrElse {
             return AppFunctionsCore.ExecOutcome.FunctionError("1003: ${it.message}")
         }
         val args = runCatching { JSONObject(parametersJson) }.getOrElse {
-            return AppFunctionsCore.ExecOutcome.FunctionError("1001: Argumente sind kein JSON-Objekt (${it.message})")
+            return AppFunctionsCore.ExecOutcome.FunctionError("1001: arguments are not a JSON object (${it.message})")
         }
-        val p = AppFunctionsRegistry.pruefen(f, args)
-        if (p.hatFehler) {
-            Log.i(TAG, "Pruefung nicht bestanden: ${p.befunde.count { b -> b.fehler }} Regel(n)")
-            return AppFunctionsCore.ExecOutcome.FunctionError(p.bericht())
+        val c = AppFunctionsRegistry.check(f, args)
+        if (c.hasErrors) {
+            Log.i(TAG, "check failed: ${c.findings.count { x -> x.isError }} rule(s)")
+            return AppFunctionsCore.ExecOutcome.FunctionError(c.report())
         }
-        val a4 = AppFunctionsRegistry.anwenden(p.a4)
-        val roh = AppFunctionsBinder.ausfuehren(
+        val a4 = AppFunctionsRegistry.apply(c.a4)
+        val raw = AppFunctionsBinder.run(
             context,
-            AppFunctionsBinder.Aufruf(f.paket, f.id, p.a3, a4, timeoutSeconds),
+            AppFunctionsBinder.Call(f.packageName, f.id, c.a3, a4, timeoutSeconds),
         )
-        val antwort = AppFunctionsAntwort.deute(roh.text)
-        Log.i(TAG, "Antwort: ${antwort.art} (${f.kurzname}, a3=${p.a3})")
-        return when (antwort.art) {
-            AppFunctionsAntwort.Art.ERFOLG -> AppFunctionsCore.ExecOutcome.Success(antwort.json ?: "{}")
-            AppFunctionsAntwort.Art.LEER -> AppFunctionsCore.ExecOutcome.Empty
-            else -> AppFunctionsCore.ExecOutcome.FunctionError(antwort.bericht())
+        val reply = AppFunctionsReply.interpret(raw.text)
+        Log.i(TAG, "reply: ${reply.kind} (${f.shortName}, a3=${c.a3})")
+        return when (reply.kind) {
+            AppFunctionsReply.Kind.SUCCESS -> AppFunctionsCore.ExecOutcome.Success(reply.json ?: "{}")
+            AppFunctionsReply.Kind.EMPTY -> AppFunctionsCore.ExecOutcome.Empty
+            else -> AppFunctionsCore.ExecOutcome.FunctionError(reply.report())
         }
     }
 
     /**
-     * Der Weg über den Rust-Kern (DESIGN D9). `afc` prüft, ruft auf und deutet;
-     * Kotlin liest nur das erste Wort der Ergebniszeile. Schreibende Funktionen
-     * haben hier ihre Zustimmung schon bekommen (Aufrufer in AppFunctionsTool),
-     * deshalb wird `--schreiben` gesetzt.
+     * The path through the Rust core (DESIGN D9). `afc` checks, calls and
+     * interprets; Kotlin only reads the first word of the result line. Writing
+     * functions have already received their consent here (caller in
+     * AppFunctionsTool), which is why `--write` is set.
      */
-    private fun ueberAfc(
+    private fun viaAfc(
         context: Context,
         packageName: String,
         functionId: String,
         parametersJson: String,
         timeoutSeconds: Int,
     ): AppFunctionsCore.ExecOutcome {
-        val lauf = AfcProzess.ausfuehren(
+        val run = AfcProcess.run(
             context,
-            AfcProzess.callArgumente(packageName, functionId, parametersJson, timeoutSeconds, schreibenErlaubt = true),
+            AfcProcess.callArguments(packageName, functionId, parametersJson, writeAllowed = true),
             timeoutSeconds,
         )
-        val e = AfcProzess.deute(lauf.text, lauf.exitCode)
-        Log.i(TAG, "afc: ${e::class.simpleName} (exit ${lauf.exitCode})")
+        val e = AfcProcess.interpret(run.text, run.exitCode)
+        Log.i(TAG, "afc: ${e::class.simpleName} (exit ${run.exitCode})")
         return when (e) {
-            is AfcProzess.Ergebnis.Erfolg -> AppFunctionsCore.ExecOutcome.Success(e.json)
-            AfcProzess.Ergebnis.Leer -> AppFunctionsCore.ExecOutcome.Empty
-            AfcProzess.Ergebnis.BrauchtZustimmung ->
-                AppFunctionsCore.ExecOutcome.FunctionError("NEEDS_CONFIRMATION: die Funktion aendert etwas; Zustimmung fehlt")
-            is AfcProzess.Ergebnis.Fehler -> AppFunctionsCore.ExecOutcome.FunctionError(e.text)
+            is AfcProcess.Outcome.Success -> AppFunctionsCore.ExecOutcome.Success(e.json)
+            AfcProcess.Outcome.Empty -> AppFunctionsCore.ExecOutcome.Empty
+            AfcProcess.Outcome.NeedsConfirmation ->
+                AppFunctionsCore.ExecOutcome.FunctionError("NEEDS_CONFIRMATION: the function changes something; consent is missing")
+            is AfcProcess.Outcome.Failure -> AppFunctionsCore.ExecOutcome.FunctionError(e.text)
         }
     }
 }

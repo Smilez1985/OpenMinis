@@ -5,59 +5,59 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 ## Next
 
 - [x] **`afc` — Rust tool for registry, checking and calling** (`deps/afc`,
-      30.10., commit `075abf5`). The measured registry is
+      2026-10-30, commit `075abf5`). The measured registry is
       embedded (`data/registry.txt`, generated from
       `appfunctions-registry.xml`), rules P0–P7 check the arguments before a
       call, error codes are translated, and the call goes through the binder via
-      `aus.jar` (uid 2000). 27 tests, three counter-checks that turn red when a
-      rule is disabled; device test on 30.10.: 10 calls, 8 with content, 2
-      without (as measured on 29.10.), 0 errors. One finding: `findTabs`
+      `shim.jar` (uid 2000). 27 tests, three counter-checks that turn red when a
+      rule is disabled; device test on 2026-10-30: 10 calls, 8 with content, 2
+      without (as measured on 2026-10-29), 0 errors. One finding: `findTabs`
       answers 1001 "Invalid Argument" with `maxCount` alone — not confirmed.
       This fixes the data and rule layer that the Kotlin port takes over.
-- [x] **Binder path in the app, and the registry as a fallback source** (30.10.,
+- [x] **Binder path in the app, and the registry as a fallback source** (2026-10-30,
       committed on this branch as a backup, no CI run yet). `AppFunctionsBinder.kt` ships
-      `aus.jar` as an asset, puts it on the device and calls
-      `app_process … Ausfuehren` as uid 2000 through the existing Shizuku
+      `shim.jar` as an asset, puts it on the device and calls
+      `app_process … Execute` as uid 2000 through the existing Shizuku
       integration; `AppFunctionsRegistry.kt` carries the measured registry
       (assets/appfunctions/registry.txt) with rules P0–P7 and doubles as the
-      list source when `cmd app_function` is missing; `AppFunctionsAntwort.kt`
+      list source when `cmd app_function` is missing; `AppFunctionsReply.kt`
       reads the reply and names `EMPTY_RESULT`. Measured from inside the app via
       `debug.shizuku.exec`: the chain returns real contacts — see
       [TEST4-LOG.md](TEST4-LOG.md). Not compiled yet: this install's sandbox has
       no working JVM, so CI and the device still have to verify it.
-- [x] **`afc` takes the location of `aus.jar` from `--jar` or `$AFC_JAR`** instead of a fixed private path.
-- [x] **Token cost of `afc` against the plain skill** (30.10.) — measured, see
+- [x] **`afc` takes the location of `shim.jar` from `--jar` or `$AFC_JAR`** instead of a fixed private path.
+- [x] **Token cost of `afc` against the plain skill** (2026-10-30) — measured, see
       [TEST5-LOG.md](TEST5-LOG.md): the plain skill does not run on a device
       without `cmd app_function`; where both answer (parameters of a function)
       `afc` needs about half the tokens. Open: repeat on a device where the
       skill runs.
-- [x] **Compatibility matrix per device and ROM** (31.10.) — see
+- [x] **Compatibility matrix per device and ROM** (2026-10-31) — see
       [COMPATIBILITY.md](COMPATIBILITY.md): what runs where, what is missing and
       whether it can be brought along.
 - [x] **Binder call hardened against class signatures that differ between
-      builds** (31.10.) — `aus.jar` picks the `ExecuteAppFunctionAidlRequest`
+      builds** (2026-10-31) — `shim.jar` picks the `ExecuteAppFunctionAidlRequest`
       constructor by reflection and reports `NO_CONSTRUCTOR` with the declared
       signatures. Measured: 4 arguments on one Android 16 build, 5 on another;
-      both run. The source lives in `deps/afc/aus/`, its build is bit-identical
+      both run. The source lives in `deps/afc/shim/`, its build is bit-identical
       to the asset. The Kotlin port carries the new code and the same message.
       Not measured: the swapped order of the two `long` values.
-- [x] **`afc` shows why a Shizuku call failed** (31.10.) — last output line when
+- [x] **`afc` shows why a Shizuku call failed** (2026-10-31) — last output line when
       the error field is empty.
-- [x] **Plain skill `appfunktionen` 0.1.2** (31.10.) — appends `--package` only
+- [x] **Plain skill `appfunktionen` 0.1.2** (2026-10-31) — appends `--package` only
       when `help` names it, filters itself otherwise, and says so when the
       command does not exist. 21 tests, 20 mutations all red.
-- [x] **Device test: "package not installed" as its own class** (31.10.) —
-      `deps/afc/werkzeuge/geraetetest.sh` counts 1003 as "not present", not as an
+- [x] **Device test: "package not installed" as its own class** (2026-10-31) —
+      `deps/afc/tools/devicetest.sh` counts 1003 as "not present", not as an
       error; if every call is 1003 it exits 4 ("says nothing"). Test:
-      `deps/afc/tests/test_geraetetest.sh` with a fake `afc`; counter-check:
+      `deps/afc/tests/test_devicetest.sh` with a fake `afc`; counter-check:
       removing the 1003 branch turns two of three checks red. Device B:
       8 / 2 / 0 / 0 (content / empty / not present / error) as before.
-- [x] **The registry is refreshable** (31.10.) — `afc refresh` reads
+- [x] **The registry is refreshable** (2026-10-31) — `afc refresh` reads
       `dumpsys app_function` (or `--dump FILE`) and writes a registry for this
       device (`/var/minis/shared/afc/registry.txt`, atomic); `afc` prefers it
       over the embedded one (`--registry`, `$AFC_REGISTRY`). What the embedded
       registry knows (fields, examples) is kept, status comes from the dump,
-      `geprueft` is reset, functions only the dump knows carry the dump's
+      `verified` is reset, functions only the dump knows carry the dump's
       parameter name and type with unknown fields. Checked against the dump of
       device B (61 of 61 identical) and a reduced dump (19 functions, 42 named as
       missing). Not done: the Kotlin port does not refresh yet; fields of new
@@ -72,12 +72,12 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       `libafc.so` in the APK, Kotlin reduced to starting it; replaces about 600
       lines of Kotlin. `deps/build_afc_android.sh` builds `libafc.so` (untested as
       written); the Android build itself and its start from `lib/arm64` are
-      measured (TEST6-LOG.md). The Kotlin shell `AfcProzess.kt` exists and is tested on the JVM (TEST6-LOG.md). Still to do: the CI step that runs the build script before Gradle, Gradle itself, and the call from inside the running app. Shizuku-only identity measured (uid 2000, context shell): 11
+      measured (TEST6-LOG.md). The Kotlin shell `AfcProcess.kt` exists and is tested on the JVM (TEST6-LOG.md). Still to do: the CI step that runs the build script before Gradle, Gradle itself, and the call from inside the running app. Shizuku-only identity measured (uid 2000, context shell): 11
       calls, 0 errors; a device with no root at all is not.
-- [x] **Device test from the device's own registry** (31.10.) — `afc proben`
+- [x] **Device test from the device's own registry** (2026-10-31) — `afc probes`
       derives the calls from the registry of this device (read-only, switched on,
       only `query`/`maxCount` as required fields; unknown fields only with a
-      confirmed empty call); `geraetetest.sh` runs them. No fixed Samsung list. A
+      confirmed empty call); `devicetest.sh` runs them. No fixed Samsung list. A
       form that never ran on the test device counts as "deviation", not red.
       44 Rust tests, 5 device-test checks, 5 mutations all red. Measured:
       embedded registry 11 calls (9 content, 2 empty, 0 errors); a registry of
@@ -85,7 +85,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       `findTabs`, `getHistories` and the dialer's `findPersons` answer with
       `query` + `maxCount`; `findMediaItems` is empty with `query:"a"` (it had
       content with `maxCount` alone).
-- [x] **Slim tool definition** (31.10.) — strings of `definition()` 1737 B (~482
+- [x] **Slim tool definition** (2026-10-31) — strings of `definition()` 1737 B (~482
       tokens) down to 730 B (~203); the how-to text moved into the answer of
       `list`. Compiled and checked (see TEST6-LOG.md); the effect on how well
       models use the tool is not measured.
@@ -159,21 +159,21 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 
 ### Added
 
-- `AfcProzess`: the app starts the Rust core `libafc.so` through Shizuku when it is present; the Kotlin rules remain as the fallback.
+- `AfcProcess`: the app starts the Rust core `libafc.so` through Shizuku when it is present; the Kotlin rules remain as the fallback.
 - `deps/build_afc_android.sh`: builds `afc` for aarch64 Android and installs it as `libafc.so`.
-- JVM test `AppFunctionsParitaetTest`: Kotlin and `deps/afc` must give the same verdict on the same cases.
+- JVM test `AppFunctionsParityTest`: Kotlin and `deps/afc` must give the same verdict on the same cases.
 - `app_functions`: the tool definition shrinks to about 40 percent; the usage text comes with the answer to `list`.
 - `afc refresh`: renew the registry from `dumpsys app_function`; `afc --registry` / `$AFC_REGISTRY` use it.
-- Device test counts "package not installed" (1003) as its own class and derives its calls from the device's registry (`afc proben`).
+- Device test counts "package not installed" (1003) as its own class and derives its calls from the device's registry (`afc probes`).
 - `afc` runs directly as uid 0 or 2000 on the device (`su 2000` only under root); `afc refresh` works there too.
 - `docs/appfunctions/TEST5-LOG.md` section 5: standing cost of the tool definition against the skill entry.
 
-- `deps/afc/aus/`: source and build of `aus.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
+- `deps/afc/shim/`: source and build of `shim.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
 - `docs/appfunctions/COMPATIBILITY.md`: what runs on which device and ROM, what is missing, whether it can be brought along.
 - `docs/appfunctions/TEST5-LOG.md`: token cost of `afc` against the plain skill.
 - `afc` shows the reason of a failed Shizuku call; the codes 1002 and 3501 mention the lock screen.
 - `deps/afc`: Rust tool with the measured registry, argument checks before a call and error-code translation.
-- `afc --jar` and `$AFC_JAR` choose the location of `aus.jar`.
+- `afc --jar` and `$AFC_JAR` choose the location of `shim.jar`.
 - `app_functions` executes through the binder (uid 2000 via Shizuku) when `cmd app_function` is missing.
 - The function list falls back to a registry shipped with the app when the device cannot be asked.
 - A reply that reports success without content is shown as `EMPTY_RESULT`.
@@ -201,7 +201,10 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 ### Fixed
 
 - The Kotlin argument check reports a missing parameter that a call once succeeded with as a hint (P1), as `afc` does.
-- The Kotlin reply reader treats `ERFOLG: null` after a JSON line as empty, as `afc` does.
+- The Kotlin reply reader treats `SUCCESS: null` after a JSON line as empty, as `afc` does.
 - A write call the user approved says so in its result.
 - Reading an app's schema file no longer fails on Android.
 - `afc` in local mode takes `--jar` / `$AFC_JAR` before the device path instead of always reading a fixed path.
+- The app writes the shim to the device in pieces of 4000 characters and checks the checksum; one long command was cut off at 8192 characters without an error.
+- `AfcProcess` and `AppFunctionsBinder` run commands through `sh -c` instead of starting `exec` as a program.
+- Commands longer than 8000 characters are refused with a named error instead of being cut off silently.

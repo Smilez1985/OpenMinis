@@ -98,7 +98,7 @@ falsifiable: inside a class the obfuscated fields sort as `a`, `b`, `c` … and
 their **types** are in declaration order, while the second source delivers
 names plus the constructor signature.
 
-142 classes compared (`abgleich.py`):
+142 classes compared (with a one-off cross-check script that is not part of the repository):
 
 | result | count |
 |---|---|

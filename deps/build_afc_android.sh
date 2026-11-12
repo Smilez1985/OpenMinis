@@ -39,7 +39,7 @@ test -x "$CLANG" || { echo "missing: $CLANG" >&2; exit 1; }
 
 if [ "${1:-}" = "test" ]; then
   (cd "$AFC_DIR" && cargo test)
-  sh "$AFC_DIR/tests/test_geraetetest.sh"
+  sh "$AFC_DIR/tests/test_devicetest.sh"
 fi
 
 rustup target add "$TARGET" >/dev/null 2>&1 || true

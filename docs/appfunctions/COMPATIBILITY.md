@@ -39,16 +39,16 @@ portable part.
 | `list-app-functions --package P` | yes (skill uses it) | — (no command) | **no** — "Unknown option: --package", rc 255 |
 | `dumpsys app_function` | not recorded | yes: 61 functions in 10 apps | not recorded |
 | `EXECUTE_APP_FUNCTIONS` | `internal\|privileged\|knownSigner`; not grantable to a normal app | `internal\|privileged`; granted to `com.android.shell`, not to a normal app | not recorded |
-| `ExecuteAppFunctionAidlRequest(Request, UserHandle, String, long)` | not measured | **present** (`konstruktoren_BP2A.txt`) | **absent** — only the 5-argument form `(…, long, long)` exists (`NoSuchMethodException` for the 4-argument one) |
-| Binder path (`aus.jar` as uid 2000, package `com.android.shell`) | not measured | **works**: 13 confirmed calls, 10 of 10 in the device test | **fails** with the 4-argument jar (rc 137, see above); **works** with the reflection jar (row below) |
-| Plain skill `appfunktionen` | works (25.10.) | **fails** at its first step | **fails** (`--package` not accepted) |
-| Device test with the hardened `aus.jar` (constructor chosen by reflection) | not measured | **8 with content, 2 empty, 0 errors** with the screen unlocked; with the screen **locked**: 5 / 2 / 3 errors | **2 with content, 0 empty, 8 errors**, unlocked and screen on. Both Google functions answer; the 8 others fail with 1003 "App function not found" because none of the five Samsung packages is installed. That is the correct answer, not a fault of the jar. |
+| `ExecuteAppFunctionAidlRequest(Request, UserHandle, String, long)` | not measured | **present** (constructor listing of that build, read with `Constructors`) | **absent** — only the 5-argument form `(…, long, long)` exists (`NoSuchMethodException` for the 4-argument one) |
+| Binder path (`shim.jar` as uid 2000, package `com.android.shell`) | not measured | **works**: 13 confirmed calls, 10 of 10 in the device test | **fails** with the 4-argument jar (rc 137, see above); **works** with the reflection jar (row below) |
+| Plain skill `appfunktionen` | works (2026-10-25) | **fails** at its first step | **fails** (`--package` not accepted) |
+| Device test with the hardened `shim.jar` (constructor chosen by reflection) | not measured | **8 with content, 2 empty, 0 errors** with the screen unlocked; with the screen **locked**: 5 / 2 / 3 errors | **2 with content, 0 empty, 8 errors**, unlocked and screen on. Both Google functions answer; the 8 others fail with 1003 "App function not found" because none of the five Samsung packages is installed. That is the correct answer, not a fault of the jar. |
 | Registered apps | 114 functions in 15 packages, incl. Samsung apps | 61 functions in 10 apps, incl. Samsung contacts, gallery, dialer | 33 functions in 5 packages (gms 20, wellbeing 4, maestro.companion 5, googlequicksearchbox 3, permissioncontroller 1); no Samsung apps |
 
 Sources: [TEST-LOG.md](TEST-LOG.md) and [TEST2-LOG.md](TEST2-LOG.md) (device A),
 [TEST4-LOG.md](TEST4-LOG.md) and [TEST5-LOG.md](TEST5-LOG.md) (device B),
-a read-only run of the test package on device C (31.10.). Device C's
-constructor list was read with a read-only probe (31.10.): the only constructor
+a read-only run of the test package on device C (2026-10-31). Device C's
+constructor list was read with a read-only probe (2026-10-31): the only constructor
 takes five arguments, `(ExecuteAppFunctionRequest, UserHandle, String, long, long)`;
 the request class also gained a constructor with `AppFunctionAttribution`.
 
@@ -56,9 +56,9 @@ the request class also gained a constructor with `AppFunctionAttribution`.
 
 | Missing | Where | Can it be brought? | Status |
 |---|---|---|---|
-| Shell command `cmd app_function` | B | **Yes, without the ROM:** call the service through the binder (`aus.jar`, `app_process` as uid 2000). This is the path of the native tool. | measured on B |
+| Shell command `cmd app_function` | B | **Yes, without the ROM:** call the service through the binder (`shim.jar`, `app_process` as uid 2000). This is the path of the native tool. | measured on B |
 | `--package` on `list-app-functions` | C | Yes: do not pass it, filter the full list ourselves. | built in skill 0.1.2, not run on C |
-| The 4-argument constructor of `ExecuteAppFunctionAidlRequest` | C | **Yes, measured.** Device C declares `(ExecuteAppFunctionRequest, UserHandle, String, long, long)`. `aus.jar` now picks the constructor by reflection (types, then only `long`) and prints the declared signatures when none fits; with it the calls on C succeed. | measured on C |
+| The 4-argument constructor of `ExecuteAppFunctionAidlRequest` | C | **Yes, measured.** Device C declares `(ExecuteAppFunctionRequest, UserHandle, String, long, long)`. `shim.jar` now picks the constructor by reflection (types, then only `long`) and prints the declared signatures when none fits; with it the calls on C succeed. | measured on C |
 | Samsung's own AppFunctions (contacts, gallery, dialer, files, browser) | C | **No.** They come with Samsung's apps, which this ROM does not register. | measured on C |
 | `EXECUTE_APP_FUNCTIONS` for a normal app | A, B | **No.** It is `privileged`; only the shell identity (uid 2000, via Shizuku) holds it. A device without Shizuku cannot call. | measured on A, B |
 | Functions switched off by the platform (`enabled=2`) | B | Partly: `setAppFunctionEnabled` works only as the owner uid of the target app. | measured on B |
@@ -69,7 +69,7 @@ Several functions refuse to run while the device is locked: the platform
 answers 1002 "Device is locked" (`findBookmarks`) or 3501 "called while screen
 is locked" (the two Google Play services functions). Measured on device B: the
 same ten calls give 5 / 2 / 3 errors locked and 8 / 2 / 0 unlocked, with the
-same `aus.jar`. A failed test on a locked device says nothing about the build.
+same `shim.jar`. A failed test on a locked device says nothing about the build.
 
 ## 4. Consequences for the native tool
 
@@ -93,9 +93,9 @@ same `aus.jar`. A failed test on a locked device says nothing about the build.
   `getRequestWallTime`). The service accepts them; whether it rejects the
   swapped order was not tested (read-only).
 - The device test now counts "package not installed" (1003) as its own class
-  (31.10.); not yet run on device C.
+  (2026-10-31); not yet run on device C.
 - The plain skill 0.1.2 no longer passes `--package` unless `help` names it
-  (31.10.); not yet run on device C, which is the check that matters.
+  (2026-10-31); not yet run on device C, which is the check that matters.
 - Build and build number of device A are not recorded.
 - The binder path under a pure Shizuku identity (uid 2000, context `shell`) was
   measured on device B: 11 calls, 0 errors. Device A (stock, no root) itself is

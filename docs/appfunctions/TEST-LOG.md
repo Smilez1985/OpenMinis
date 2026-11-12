@@ -28,7 +28,7 @@ the device; nothing is inferred unless it says so.
 | 01:42:40 | `schema` for `createAlarm` | **failed**: `http://apache.org/xml/features/disallow-doctype-decl` |
 | 01:42:49 | `execute createAlarm {}` | error: `Parameter [createAlarmParams] cannot be null (code 1001)` |
 | 01:42:57 | `execute createAlarm {"createAlarmParams":{}}` | error: `Parameter specified as non-null is null: … CreateAlarmParams.<init>, parameter time (code 3000)` |
-| 01:43:18 | `execute createAlarm {"createAlarmParams":{"time":{"hour":7,"minute":30}}}` | **success — but the alarm landed at 00:00** (returned `time.hours=0, minutes=0`, day 27.10.) |
+| 01:43:18 | `execute createAlarm {"createAlarmParams":{"time":{"hour":7,"minute":30}}}` | **success — but the alarm landed at 00:00** (returned `time.hours=0, minutes=0`, day 2026-10-27) |
 | 01:43:25 | `findAlarms {}` / `{"query":""}` | `[]` — although the alarm from 01:43:18 exists |
 | 01:43:28 | `getAlarms {}` | error: `Parameter [alarmIds] cannot be null` |
 | 01:46:57 | `deleteAlarms {"deleteAlarmsParams":{}}` | error: `Parameter [alarmIds] cannot be null` — note: the parameter is **top level**, not nested |
@@ -36,7 +36,7 @@ the device; nothing is inferred unless it says so.
 | 01:44–02:15 | schema research (see §3) | the platform does publish parameters — we were reading the wrong place |
 
 Screenshot 01:47 CET confirms the side effect: the alarm list contains
-`00:00, Di 27. Oktober` (on) next to `12:30, Mo 26. Oktober` (off).
+`00:00, Di 27. Oktober` (on) next to `12:30, Mo 26. Oktober` (off) (the device UI is in German: Tue 27 October, Mon 26 October).
 
 ---
 

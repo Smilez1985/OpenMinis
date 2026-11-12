@@ -1,139 +1,126 @@
-//! Kleiner JSON-Leser und -Schreiber. Kein crates.io im Sandkasten, also selbst
-//! gebaut. Es wird nur gebraucht, was AppFunctions braucht: Objekt, Liste,
-//! Text, Ganzzahl, Kommazahl, Wahrheitswert, null.
+//! Small JSON reader and writer. There is no crates.io access in the sandbox,
+//! so it is hand-written. It only covers what AppFunctions needs: object,
+//! list, text, integer, floating point number, boolean, null.
 //!
-//! Wichtig: Ganzzahl und Kommazahl werden getrennt gehalten. Die Plattform
-//! unterscheidet `long` und `double`, und eine Zahl als Text ("3") nimmt sie
-//! stillschweigend an und liefert dann eine leere Liste - genau das soll die
-//! Pruefung verhindern, also darf der Leser hier nichts glattziehen.
+//! Important: integers and floating point numbers are kept apart. The platform
+//! distinguishes `long` and `double`, and it silently accepts a number given as
+//! text ("3") and then returns an empty list - exactly what the validation is
+//! meant to catch, so the reader must not smooth anything over.
 
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Wert {
+pub enum Value {
     Null,
-    Wahr(bool),
-    Zahl(i64),
-    Komma(f64),
+    Bool(bool),
+    Int(i64),
+    Float(f64),
     Text(String),
-    Liste(Vec<Wert>),
-    Objekt(BTreeMap<String, Wert>),
+    List(Vec<Value>),
+    Object(BTreeMap<String, Value>),
 }
 
-impl Wert {
-    pub fn als_text(&self) -> Option<&str> {
+impl Value {
+    pub fn as_text(&self) -> Option<&str> {
         match self {
-            Wert::Text(s) => Some(s),
+            Value::Text(s) => Some(s),
             _ => None,
         }
     }
 
-    pub fn art_name(&self) -> &'static str {
+    pub fn kind_name(&self) -> &'static str {
         match self {
-            Wert::Null => "null",
-            Wert::Wahr(_) => "boolean",
-            Wert::Zahl(_) => "ganze Zahl",
-            Wert::Komma(_) => "Kommazahl",
-            Wert::Text(_) => "Text",
-            Wert::Liste(_) => "Liste",
-            Wert::Objekt(_) => "Objekt",
+            Value::Null => "null",
+            Value::Bool(_) => "boolean",
+            Value::Int(_) => "integer",
+            Value::Float(_) => "floating point number",
+            Value::Text(_) => "text",
+            Value::List(_) => "list",
+            Value::Object(_) => "object",
         }
     }
 
-    /// Datentyp-Name, wie ihn die Registry schreibt (`long`, `string`, ...).
-    pub fn datentyp(&self) -> &'static str {
-        match self {
-            Wert::Null => "null",
-            Wert::Wahr(_) => "boolean",
-            Wert::Zahl(_) => "long",
-            Wert::Komma(_) => "double",
-            Wert::Text(_) => "string",
-            Wert::Liste(_) => "liste",
-            Wert::Objekt(_) => "document",
-        }
-    }
-
-    /// Vergleicht den Datentyp der Registry mit dem tatsaechlichen Wert.
-    /// `document` und `liste` werden nicht bis in die Tiefe geprueft: die
-    /// inneren Feldnamen sind auf diesem Geraet nicht messbar (siehe
-    /// SAMSUNG-PARAMETERS.md), eine Pruefung dort waere geraten.
-    pub fn passt_zu(&self, datentyp: &str) -> bool {
-        match datentyp {
-            "long" => matches!(self, Wert::Zahl(_)),
-            "double" => matches!(self, Wert::Komma(_) | Wert::Zahl(_)),
-            "boolean" => matches!(self, Wert::Wahr(_)),
-            "string" => matches!(self, Wert::Text(_)),
-            "liste-von-text" => match self {
-                Wert::Liste(l) => l.iter().all(|x| matches!(x, Wert::Text(_))),
+    /// Compares the data type from the registry with the actual value.
+    /// `document` and `list` are not checked in depth: the inner field names
+    /// cannot be measured on this device (see SAMSUNG-PARAMETERS.md), so a
+    /// check there would be a guess.
+    pub fn matches_type(&self, data_type: &str) -> bool {
+        match data_type {
+            "long" => matches!(self, Value::Int(_)),
+            "double" => matches!(self, Value::Float(_) | Value::Int(_)),
+            "boolean" => matches!(self, Value::Bool(_)),
+            "string" => matches!(self, Value::Text(_)),
+            "list-of-text" => match self {
+                Value::List(l) => l.iter().all(|x| matches!(x, Value::Text(_))),
                 _ => false,
             },
-            "document" => matches!(self, Wert::Objekt(_)),
+            "document" => matches!(self, Value::Object(_)),
             "" => true,
-            _ => true, // unbekannter Typ der Registry: nicht dagegen pruefen
+            _ => true, // unknown registry type: do not check against it
         }
     }
 
-    pub fn schreiben(&self) -> String {
+    pub fn write(&self) -> String {
         let mut s = String::new();
-        self.schreibe_in(&mut s);
+        self.write_into(&mut s);
         s
     }
 
-    fn schreibe_in(&self, s: &mut String) {
+    fn write_into(&self, s: &mut String) {
         match self {
-            Wert::Null => s.push_str("null"),
-            Wert::Wahr(b) => s.push_str(if *b { "true" } else { "false" }),
-            Wert::Zahl(z) => {
+            Value::Null => s.push_str("null"),
+            Value::Bool(b) => s.push_str(if *b { "true" } else { "false" }),
+            Value::Int(z) => {
                 let _ = write!(s, "{}", z);
             }
-            Wert::Komma(k) => {
+            Value::Float(k) => {
                 if k.fract() == 0.0 && k.abs() < 1e15 {
                     let _ = write!(s, "{:.1}", k);
                 } else {
                     let _ = write!(s, "{}", k);
                 }
             }
-            Wert::Text(t) => text_schreiben(t, s),
-            Wert::Liste(l) => {
+            Value::Text(t) => write_string(t, s),
+            Value::List(l) => {
                 s.push('[');
                 for (i, x) in l.iter().enumerate() {
                     if i > 0 {
                         s.push(',');
                     }
-                    x.schreibe_in(s);
+                    x.write_into(s);
                 }
                 s.push(']');
             }
-            Wert::Objekt(o) => {
+            Value::Object(o) => {
                 s.push('{');
                 for (i, (k, v)) in o.iter().enumerate() {
                     if i > 0 {
                         s.push(',');
                     }
-                    text_schreiben(k, s);
+                    write_string(k, s);
                     s.push(':');
-                    v.schreibe_in(s);
+                    v.write_into(s);
                 }
                 s.push('}');
             }
         }
     }
 
-    /// Liest einen Text als JSON-Wert. Ein blosses Wort wird nicht akzeptiert.
-    pub fn lesen(text: &str) -> Result<Wert, String> {
-        let mut l = Leser { z: text.as_bytes(), i: 0 };
-        l.leerraum();
-        let w = l.wert()?;
-        l.leerraum();
+    /// Reads a text as a JSON value. A bare word is not accepted.
+    pub fn read(text: &str) -> Result<Value, String> {
+        let mut l = Reader { z: text.as_bytes(), i: 0 };
+        l.skip_ws();
+        let w = l.value()?;
+        l.skip_ws();
         if l.i != l.z.len() {
-            return Err(format!("Ueberschuss ab Zeichen {}", l.i + 1));
+            return Err(format!("trailing data from character {}", l.i + 1));
         }
         Ok(w)
     }
 }
 
-fn text_schreiben(t: &str, s: &mut String) {
+fn write_string(t: &str, s: &mut String) {
     s.push('"');
     for c in t.chars() {
         match c {
@@ -151,158 +138,158 @@ fn text_schreiben(t: &str, s: &mut String) {
     s.push('"');
 }
 
-struct Leser<'a> {
+struct Reader<'a> {
     z: &'a [u8],
     i: usize,
 }
 
-impl<'a> Leser<'a> {
-    fn leerraum(&mut self) {
+impl<'a> Reader<'a> {
+    fn skip_ws(&mut self) {
         while self.i < self.z.len() && (self.z[self.i] as char).is_whitespace() {
             self.i += 1;
         }
     }
 
-    fn blick(&self) -> Option<u8> {
+    fn peek(&self) -> Option<u8> {
         self.z.get(self.i).copied()
     }
 
-    fn erwarte(&mut self, c: u8) -> Result<(), String> {
-        if self.blick() == Some(c) {
+    fn expect(&mut self, c: u8) -> Result<(), String> {
+        if self.peek() == Some(c) {
             self.i += 1;
             Ok(())
         } else {
             Err(format!(
-                "erwartet '{}' an Zeichen {}",
+                "expected '{}' at character {}",
                 c as char,
                 self.i + 1
             ))
         }
     }
 
-    fn wert(&mut self) -> Result<Wert, String> {
-        self.leerraum();
-        match self.blick() {
-            None => Err("unerwartetes Ende".to_string()),
+    fn value(&mut self) -> Result<Value, String> {
+        self.skip_ws();
+        match self.peek() {
+            None => Err("unexpected end".to_string()),
             Some(b'{') => {
                 self.i += 1;
                 let mut m = BTreeMap::new();
-                self.leerraum();
-                if self.blick() == Some(b'}') {
+                self.skip_ws();
+                if self.peek() == Some(b'}') {
                     self.i += 1;
-                    return Ok(Wert::Objekt(m));
+                    return Ok(Value::Object(m));
                 }
                 loop {
-                    self.leerraum();
+                    self.skip_ws();
                     let k = self.text()?;
-                    self.leerraum();
-                    self.erwarte(b':')?;
-                    let v = self.wert()?;
+                    self.skip_ws();
+                    self.expect(b':')?;
+                    let v = self.value()?;
                     m.insert(k, v);
-                    self.leerraum();
-                    match self.blick() {
+                    self.skip_ws();
+                    match self.peek() {
                         Some(b',') => {
                             self.i += 1;
                         }
                         Some(b'}') => {
                             self.i += 1;
-                            return Ok(Wert::Objekt(m));
+                            return Ok(Value::Object(m));
                         }
-                        _ => return Err(format!("',' oder '}}' erwartet an Zeichen {}", self.i + 1)),
+                        _ => return Err(format!("expected ',' or '}}' at character {}", self.i + 1)),
                     }
                 }
             }
             Some(b'[') => {
                 self.i += 1;
                 let mut l = Vec::new();
-                self.leerraum();
-                if self.blick() == Some(b']') {
+                self.skip_ws();
+                if self.peek() == Some(b']') {
                     self.i += 1;
-                    return Ok(Wert::Liste(l));
+                    return Ok(Value::List(l));
                 }
                 loop {
-                    l.push(self.wert()?);
-                    self.leerraum();
-                    match self.blick() {
+                    l.push(self.value()?);
+                    self.skip_ws();
+                    match self.peek() {
                         Some(b',') => {
                             self.i += 1;
                         }
                         Some(b']') => {
                             self.i += 1;
-                            return Ok(Wert::Liste(l));
+                            return Ok(Value::List(l));
                         }
-                        _ => return Err(format!("',' oder ']' erwartet an Zeichen {}", self.i + 1)),
+                        _ => return Err(format!("expected ',' or ']' at character {}", self.i + 1)),
                     }
                 }
             }
-            Some(b'"') => Ok(Wert::Text(self.text()?)),
-            Some(b't') => self.wort("true", Wert::Wahr(true)),
-            Some(b'f') => self.wort("false", Wert::Wahr(false)),
-            Some(b'n') => self.wort("null", Wert::Null),
-            Some(_) => self.zahl(),
+            Some(b'"') => Ok(Value::Text(self.text()?)),
+            Some(b't') => self.word("true", Value::Bool(true)),
+            Some(b'f') => self.word("false", Value::Bool(false)),
+            Some(b'n') => self.word("null", Value::Null),
+            Some(_) => self.number(),
         }
     }
 
-    fn wort(&mut self, w: &str, v: Wert) -> Result<Wert, String> {
+    fn word(&mut self, w: &str, v: Value) -> Result<Value, String> {
         if self.z[self.i..].starts_with(w.as_bytes()) {
             self.i += w.len();
             Ok(v)
         } else {
-            Err(format!("unbekanntes Wort an Zeichen {}", self.i + 1))
+            Err(format!("unknown word at character {}", self.i + 1))
         }
     }
 
-    fn zahl(&mut self) -> Result<Wert, String> {
-        let anfang = self.i;
-        if self.blick() == Some(b'-') {
+    fn number(&mut self) -> Result<Value, String> {
+        let start = self.i;
+        if self.peek() == Some(b'-') {
             self.i += 1;
         }
-        let mut komma = false;
-        while let Some(c) = self.blick() {
+        let mut is_float = false;
+        while let Some(c) = self.peek() {
             match c {
                 b'0'..=b'9' => self.i += 1,
                 b'.' | b'e' | b'E' | b'+' | b'-' => {
                     if c == b'.' {
-                        komma = true;
+                        is_float = true;
                     }
                     self.i += 1;
                 }
                 _ => break,
             }
         }
-        let roh = std::str::from_utf8(&self.z[anfang..self.i]).unwrap_or("");
-        if roh.is_empty() {
-            return Err(format!("keine Zahl an Zeichen {}", anfang + 1));
+        let raw = std::str::from_utf8(&self.z[start..self.i]).unwrap_or("");
+        if raw.is_empty() {
+            return Err(format!("no number at character {}", start + 1));
         }
-        if komma {
-            roh.parse::<f64>()
-                .map(Wert::Komma)
-                .map_err(|e| format!("Kommazahl '{}' unlesbar: {}", roh, e))
+        if is_float {
+            raw.parse::<f64>()
+                .map(Value::Float)
+                .map_err(|e| format!("floating point number '{}' unreadable: {}", raw, e))
         } else {
-            match roh.parse::<i64>() {
-                Ok(z) => Ok(Wert::Zahl(z)),
-                Err(_) => roh
+            match raw.parse::<i64>() {
+                Ok(z) => Ok(Value::Int(z)),
+                Err(_) => raw
                     .parse::<f64>()
-                    .map(Wert::Komma)
-                    .map_err(|e| format!("Zahl '{}' unlesbar: {}", roh, e)),
+                    .map(Value::Float)
+                    .map_err(|e| format!("number '{}' unreadable: {}", raw, e)),
             }
         }
     }
 
     fn text(&mut self) -> Result<String, String> {
-        self.erwarte(b'"')?;
+        self.expect(b'"')?;
         let mut s = String::new();
         loop {
             let c = self
-                .blick()
-                .ok_or_else(|| "Text ohne Ende".to_string())?;
+                .peek()
+                .ok_or_else(|| "text without end".to_string())?;
             self.i += 1;
             match c {
                 b'"' => return Ok(s),
                 b'\\' => {
                     let d = self
-                        .blick()
-                        .ok_or_else(|| "Fluchtzeichen ohne Ende".to_string())?;
+                        .peek()
+                        .ok_or_else(|| "escape character without end".to_string())?;
                     self.i += 1;
                     match d {
                         b'n' => s.push('\n'),
@@ -312,12 +299,12 @@ impl<'a> Leser<'a> {
                         b'f' => s.push('\u{c}'),
                         b'u' => {
                             if self.i + 4 > self.z.len() {
-                                return Err("\\u ohne vier Ziffern".to_string());
+                                return Err("\\u without four digits".to_string());
                             }
                             let h = std::str::from_utf8(&self.z[self.i..self.i + 4])
-                                .map_err(|_| "\\u ist kein UTF-8".to_string())?;
+                                .map_err(|_| "\\u is not UTF-8".to_string())?;
                             let n = u32::from_str_radix(h, 16)
-                                .map_err(|_| format!("\\u{} ist keine Hexzahl", h))?;
+                                .map_err(|_| format!("\\u{} is not a hex number", h))?;
                             self.i += 4;
                             s.push(char::from_u32(n).unwrap_or('\u{fffd}'));
                         }
@@ -325,12 +312,12 @@ impl<'a> Leser<'a> {
                     }
                 }
                 _ => {
-                    // UTF-8 durchreichen
+                    // pass UTF-8 through
                     let start = self.i - 1;
-                    let len = utf8_laenge(c);
+                    let len = utf8_len(c);
                     self.i = start + len;
                     let st = std::str::from_utf8(&self.z[start..self.i])
-                        .map_err(|_| "Text ist kein UTF-8".to_string())?;
+                        .map_err(|_| "text is not UTF-8".to_string())?;
                     s.push_str(st);
                 }
             }
@@ -338,12 +325,12 @@ impl<'a> Leser<'a> {
     }
 }
 
-fn utf8_laenge(erstes: u8) -> usize {
-    if erstes < 0x80 {
+fn utf8_len(first: u8) -> usize {
+    if first < 0x80 {
         1
-    } else if erstes >> 5 == 0b110 {
+    } else if first >> 5 == 0b110 {
         2
-    } else if erstes >> 4 == 0b1110 {
+    } else if first >> 4 == 0b1110 {
         3
     } else {
         4
@@ -355,34 +342,34 @@ mod tests {
     use super::*;
 
     #[test]
-    fn zahl_bleibt_zahl() {
-        let w = Wert::lesen("{\"maxCount\":3}").unwrap();
+    fn number_stays_number() {
+        let w = Value::read("{\"maxCount\":3}").unwrap();
         match w {
-            Wert::Objekt(m) => assert_eq!(m["maxCount"], Wert::Zahl(3)),
-            _ => panic!("kein Objekt"),
+            Value::Object(m) => assert_eq!(m["maxCount"], Value::Int(3)),
+            _ => panic!("not an object"),
         }
     }
 
     #[test]
-    fn zahl_als_text_bleibt_text() {
-        // Gegenprobe: die Plattform nimmt "3" stillschweigend an und liefert
-        // eine leere Liste. Der Leser darf das nicht glattziehen.
-        let w = Wert::lesen("{\"maxCount\":\"3\"}").unwrap();
+    fn number_as_text_stays_text() {
+        // Counter-check: the platform silently accepts "3" and returns an empty
+        // list. The reader must not smooth that over.
+        let w = Value::read("{\"maxCount\":\"3\"}").unwrap();
         match w {
-            Wert::Objekt(m) => assert_eq!(m["maxCount"], Wert::Text("3".to_string())),
-            _ => panic!("kein Objekt"),
+            Value::Object(m) => assert_eq!(m["maxCount"], Value::Text("3".to_string())),
+            _ => panic!("not an object"),
         }
     }
 
     #[test]
-    fn umlaut_und_liste() {
-        let w = Wert::lesen("{\"q\":\"Straße\",\"ids\":[\"73\",\"74\"]}").unwrap();
-        let s = w.schreiben();
-        assert_eq!(Wert::lesen(&s).unwrap(), w);
+    fn non_ascii_and_list_round_trip() {
+        let w = Value::read("{\"q\":\"café\",\"ids\":[\"73\",\"74\"]}").unwrap();
+        let s = w.write();
+        assert_eq!(Value::read(&s).unwrap(), w);
     }
 
     #[test]
-    fn ueberschuss_ist_fehler() {
-        assert!(Wert::lesen("{\"a\":1} x").is_err());
+    fn trailing_data_is_an_error() {
+        assert!(Value::read("{\"a\":1} x").is_err());
     }
 }

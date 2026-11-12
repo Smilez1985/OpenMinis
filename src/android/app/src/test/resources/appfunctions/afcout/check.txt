@@ -1,0 +1,6 @@
+PersonFunctions_findPersons (com.samsung.android.contacts.person#PersonFunctions_findPersons)
+  ERROR P1: Required field 'maxCount' (long) is missing. Origin of the information: schema
+
+No call made: 1 rule violations.
+afc: check failed
+exit=2
