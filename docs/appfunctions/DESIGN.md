@@ -6,7 +6,8 @@ describes the **target state**. What is still missing is in
 Whoever changes something described here changes this file first.
 
 This lives on a fork as a reference for a feature proposal; the upstream
-repository does not take pull requests.
+repository does not take pull requests. The proposal itself, with the two
+variants and what speaks for each, is in [PROPOSAL.md](PROPOSAL.md).
 
 ## Goal
 
