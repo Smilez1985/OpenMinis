@@ -30,7 +30,7 @@ Unchanged: `JSON:`, `EMPTY_RESULT`, `NEEDS_CONFIRMATION`, `NO_CONSTRUCTOR`,
 
 | Old | Current |
 |---|---|
-| `deps/afc/aus/` | `deps/afc/shim/` |
+| `deps/afc/aus/` | `deps/shim/` |
 | `aus.jar` | `shim.jar` |
 | `att/` (stub sources) | `stubs/` |
 | `bauen.sh` | `build.sh` |
