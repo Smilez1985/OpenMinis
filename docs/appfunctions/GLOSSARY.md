@@ -1,5 +1,17 @@
 # Glossary — old names in historical logs
 
+## Branch note
+
+This is the **Kotlin-only** variant of the feature: the rules live in
+`AppFunctionsRegistry`/`AppFunctionsCore`, the binder call in `deps/shim`
+(`shim.jar`). No Rust, no native library, no cargo in the build. The same
+feature with a Rust core (`afc`) exists on branch `feature/appfunctions-caller`.
+
+Entries below that describe `afc` — the Rust tool, `libafc.so`,
+`deps/build_afc_android.sh`, `deps/afc/*` — belong to **that** branch and are
+kept here only where the measurement still explains this one. Where a log says
+`deps/afc/shim/`, read `deps/shim/`.
+
 The measurement logs ([TEST-LOG.md](TEST-LOG.md) to [TEST6-LOG.md](TEST6-LOG.md))
 and the raw transcripts in [messungen/token_test_roh/](messungen/token_test_roh/)
 record commands and output as they were typed and printed at the time. The
@@ -30,7 +42,7 @@ Unchanged: `JSON:`, `EMPTY_RESULT`, `NEEDS_CONFIRMATION`, `NO_CONSTRUCTOR`,
 
 | Old | Current |
 |---|---|
-| `deps/afc/aus/` | `deps/afc/shim/` |
+| `deps/afc/aus/` | `deps/shim/` |
 | `aus.jar` | `shim.jar` |
 | `att/` (stub sources) | `stubs/` |
 | `bauen.sh` | `build.sh` |

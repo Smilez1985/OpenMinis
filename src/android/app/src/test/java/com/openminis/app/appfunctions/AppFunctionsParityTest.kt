@@ -6,10 +6,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Kotlin and `deps/afc` (Rust) must say the same thing. The expectations are
- * fixed here and come from a run of `afc check` and `Reply::interpret` over
- * the same cases (31 Oct 2026). If one side changes a rule, this test turns
- * red until the other catches up; that is its purpose.
+ * The expectations are fixed here and come from the run of the reference
+ * implementation over these cases (31 Oct 2026). If a rule changes, this test
+ * turns red; that is its purpose.
  */
 class AppFunctionsParityTest {
 

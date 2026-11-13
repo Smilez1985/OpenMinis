@@ -150,7 +150,7 @@ object AppFunctionsManager {
      * `cmd app_function` does not exist on this device (measured: "No shell
      * command implementation"), and the direct permission is privileged. So
      * the call goes out as uid 2000 through [AppFunctionsBinder], the same
-     * chain `deps/afc` verified on the command line against 13 functions.
+     * chain was verified on the command line against 13 functions before it moved here.
      *
      * The check runs against the shipped registry: the platform silently drops
      * unknown fields and accepts a number as text without complaint. What does
@@ -163,7 +163,6 @@ object AppFunctionsManager {
         parametersJson: String,
         timeoutSeconds: Int,
     ): AppFunctionsCore.ExecOutcome {
-        if (AfcProcess.available(context)) return viaAfc(context, packageName, functionId, parametersJson, timeoutSeconds)
         val functions = AppFunctionsRegistry.load(context)
         val f = AppFunctionsRegistry.find(functions, packageName, functionId).getOrElse {
             return AppFunctionsCore.ExecOutcome.FunctionError("1003: ${it.message}")
@@ -187,35 +186,6 @@ object AppFunctionsManager {
             AppFunctionsReply.Kind.SUCCESS -> AppFunctionsCore.ExecOutcome.Success(reply.json ?: "{}")
             AppFunctionsReply.Kind.EMPTY -> AppFunctionsCore.ExecOutcome.Empty
             else -> AppFunctionsCore.ExecOutcome.FunctionError(reply.report())
-        }
-    }
-
-    /**
-     * The path through the Rust core (DESIGN D9). `afc` checks, calls and
-     * interprets; Kotlin only reads the first word of the result line. Writing
-     * functions have already received their consent here (caller in
-     * AppFunctionsTool), which is why `--write` is set.
-     */
-    private fun viaAfc(
-        context: Context,
-        packageName: String,
-        functionId: String,
-        parametersJson: String,
-        timeoutSeconds: Int,
-    ): AppFunctionsCore.ExecOutcome {
-        val run = AfcProcess.run(
-            context,
-            AfcProcess.callArguments(packageName, functionId, parametersJson, writeAllowed = true),
-            timeoutSeconds,
-        )
-        val e = AfcProcess.interpret(run.text, run.exitCode)
-        Log.i(TAG, "afc: ${e::class.simpleName} (exit ${run.exitCode})")
-        return when (e) {
-            is AfcProcess.Outcome.Success -> AppFunctionsCore.ExecOutcome.Success(e.json)
-            AfcProcess.Outcome.Empty -> AppFunctionsCore.ExecOutcome.Empty
-            AfcProcess.Outcome.NeedsConfirmation ->
-                AppFunctionsCore.ExecOutcome.FunctionError("NEEDS_CONFIRMATION: the function changes something; consent is missing")
-            is AfcProcess.Outcome.Failure -> AppFunctionsCore.ExecOutcome.FunctionError(e.text)
         }
     }
 }

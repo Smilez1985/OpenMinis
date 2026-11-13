@@ -140,29 +140,3 @@ class AppFunctionsBinderTest {
         assertEquals(expected, actual)
     }
 }
-
-/** The line `AfcProcess` runs on the device. */
-class AfcProcessCommandLineTest {
-
-    @Test fun line_carries_jar_binary_and_individually_quoted_arguments() {
-        val line = AfcProcess.commandLine("/data/app/x/lib/arm64/libafc.so", listOf("call", "p.k", "p.k#f", "--args", "{\"a\":1}"))
-        assertTrue(line, line.startsWith("AFC_JAR="))
-        assertTrue(line.contains("'/data/app/x/lib/arm64/libafc.so'"))
-        assertTrue(line.contains("'call' 'p.k' 'p.k#f' '--args' '{\"a\":1}'"))
-    }
-
-    @Test fun a_quote_in_an_argument_does_not_break_the_line_open() {
-        val line = AfcProcess.commandLine("/b", listOf("a'b; id"))
-        assertTrue(line, line.endsWith("'a'\\''b; id'"))
-    }
-
-    @Test fun normal_call_stays_far_below_the_limit() {
-        val line = AfcProcess.commandLine("/data/app/~~x/com.openminis.app-y/lib/arm64/libafc.so", AfcProcess.callArguments("com.google.android.gms", "com.google.android.gms#getUncategorizedDeviceState", "{}", false))
-        assertNull(AppFunctionsBinder.tooLong(line))
-    }
-
-    @Test fun oversized_arguments_are_rejected_instead_of_truncated() {
-        val line = AfcProcess.commandLine("/b", listOf("call", "p", "f", "--args", "x".repeat(9000)))
-        assertNotNull(AppFunctionsBinder.tooLong(line))
-    }
-}

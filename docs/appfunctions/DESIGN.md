@@ -207,113 +207,47 @@ No system-prompt block: the tool describes itself.
   `packages/modules/AppSearch/framework/api/current.txt`,
   `frameworks/base/services/appfunctions/`
 
-## Rule D9 — The core is a Rust binary; Kotlin is the shell around it
+## Rule D9 — Kotlin holds the rules, the shim holds the binder call
 
-Decided by the maintainer of the fork, 2026-10-31 Reason: the route that works is
-Shizuku or root (the documented caller route is closed to a normal app, see
-below), and everything on that route costs the model tokens and the device time.
-So it is built once, small and fast, and wired into the APK.
+Two variants of this feature were built. This branch is the **Kotlin-only** one;
+the other keeps the same rules in Rust (`afc`, branch `feature/appfunctions-caller`).
+Both were measured on the same device with the same answers.
+
+**Why this variant exists.** It needs no native code: no `libafc.so`, no NDK, no
+cargo in the build, nothing per CPU architecture. The maintainer reads Kotlin in
+Kotlin, and the diff stays inside the app module.
 
 **Split of work**
 
 | Part | Does | Does not |
 |---|---|---|
-| `afc` (Rust, `deps/afc`) | registry, argument checks P0–P7, error codes, building the binder call, reading the reply, `refresh` | talk to Shizuku, hold any permission, know about the UI |
-| Kotlin (thin) | decides the identity, starts `afc` as a child process, passes the result to the tool, owns the settings switch and the confirmation dialog | contain rules, registry or code tables |
+| `AppFunctionsRegistry`, `AppFunctionsCore`, `AppFunctionsReply` (Kotlin) | registry, argument checks P0–P5, error codes, reading and explaining the reply | talk to Shizuku, hold any permission, know about the UI |
+| `AppFunctionsBinder` (Kotlin) | stages `shim.jar`, builds the call line, decides the identity | contain rules, registry or code tables |
+| `shim.jar` (Java, `deps/shim`) | finds the constructor of `ExecuteAppFunctionAidlRequest` by type and calls the platform binder by reflection | know anything about our registry |
 
-Kotlin must address Shizuku itself, because Shizuku is a separate app with its
-own binder and permission dialog. The Rust binary only ever sees the finished
-call line. This is by design and not a gap.
+The shim exists because the binder interface is hidden API, and every build
+declares a different constructor: four arguments on one build, five on the next.
+Doing that by hand in Kotlin would mean reflecting from Kotlin; the shim does it
+in one place, and the same jar works for both variants.
 
 **Identity and path, chosen by uid and measured, never by model or maker**
 
 1. The process runs as uid 0 (root): `su 2000`, then `app_process`.
 2. The process runs as uid 2000 (Shizuku without root): `app_process` directly.
-3. Anything else: Kotlin has Shizuku run the call line; `afc` builds it
-   (`--dry-run`). Root first, Shizuku-only as the fallback, as in 1 and 2.
-4. Neither is available: the tool says so with the reason; the direct path is
-   tried only on a privileged install.
+3. Anything else: the call is refused with the reason. The direct path is tried
+   only on a privileged install.
 
-`route.rs` implements 1 to 3 (`identity_of`, `launch_line`, 38 tests).
+Measured: an app uid gets `ERROR: code=1000 ... Caller does not have permission`,
+uid 2000 in the context `u:r:shell:s0` gets the answer. The caller package the
+platform accepts is `com.android.shell`, because the platform compares it with
+the calling uid; passing another package name is refused with code 1000.
 
-**Shipping**
+**Shipping.** `shim.jar` is an asset of the app; without root the app directory
+is closed to uid 2000, so the app stages it once in `/data/local/tmp/af`
+(world-readable). The staging writes in pieces of 4000 characters and checks the
+checksum, because the Shizuku route cuts a command line at 8192 characters and
+still exits 0.
 
-- `afc` is built for `aarch64-linux-android` (NDK) and ships as
-  `lib/arm64/libafc.so` with `extractNativeLibs=true`. The sandbox build for
-  musl is a test build, not the shipped one.
-- Measured on the test device: a static binary of 592 KB runs as uid 2000, and
-  the directory `lib/arm64` of the installed app is world-readable and
-  executable (mode 755). Measured (TEST6-LOG.md): the Android build of `afc`
-  started from there as the app, and as the shell, works. Not measured: a
-  Gradle build that packs it into the APK.
-- `shim.jar` stays an asset. Without root the app directory is closed to uid
-  2000, so the jar is placed once in `/data/local/tmp/af` (world-readable).
-
-**What replaces what.** `AppFunctionsBinder.kt`, `AppFunctionsRegistry.kt`,
-`AppFunctionsReply.kt` (about 600 lines of Kotlin) become one process call and
-a text reply. Rules and tables then exist once, with tests, not twice.
-
-**Contract between the two** (so the maintainer can wire it without reading Rust)
-
-| | |
-|---|---|
-| Input | `afc <list|show|check|call|refresh> ...`, arguments as in `afc --help` |
-| Output | text on stdout; the first token of a result line is one of `SUCCESS`, `EMPTY_RESULT`, `ERROR <code>`, `TIMEOUT`, `UNCLEAR`, `NEEDS_CONFIRMATION` |
-| Exit | 0 success; 2 refused or failed; 4 device test says nothing |
-| Writes | only with `--write`; Kotlin passes it only after the user's confirmation |
-| Registry | `--registry` / `$AFC_REGISTRY` / `/var/minis/shared/afc/registry.txt`, else embedded |
-
-**Open, said plainly:** no APK with the binary has been built; the Shizuku-only
-identity was measured, from an empty state and with nothing as root after the
-staging, on a rooted device with uid 2000 and SELinux context
-`u:r:shell:s0` (see below), not yet on a device that has no root at all; the packaging through Gradle and the CI step for
-`deps/build_afc_android.sh` were not done; `android-shizuku-cli` does not exist inside
-the app, so the Shizuku call stays in Kotlin.
-
-**Shizuku-only, measured (2026-10-31).** Run as `su -Z u:r:shell:s0 2000`, i.e.
-`uid=2000 gid=2000 groups=2000 context=u:r:shell:s0`, the identity Shizuku has
-without root: `app_process` direct, no `su` inside; one call answers with
-content; `afc refresh` reads `dumpsys app_function` itself (61 of 61); `afc
-probes` derives 11 probes; the device test gives 11 calls, 9 with content, 2
-empty, 0 errors. Still different from a real device without root: the parent
-process is the root-owned Shizuku server, and the process has only the group
-`shell`, not the extra groups an `adb` shell carries. What is **not** covered:
-placing `shim.jar` and the binary without root (Kotlin writes the jar through
-Shizuku in base64; the binary comes from `lib/arm64`), and any ROM that blocks
-`app_process` for the shell.
-
-**Why the direct route is not the main one:** `EXECUTE_APP_FUNCTIONS` is
-`internal|privileged` on the test devices and cannot be granted to an installed
-app (COMPATIBILITY.md); the platform pages describe the Jetpack route for apps
-that are allowed to call. We are not, so Shizuku or root is the path.
-
-## Open decision: tools as name and one line, detail on demand
-
-The app sends the full definition of every enabled tool with each request.
-A provider API is stateless, so the name must be sent each time, but the long
-description and parameter text could be fetched when the model asks for it, as
-other agents do. This reaches every tool of the app, so it goes to the maintainer as an issue
-that points at this fork, not as a pull request; `app_functions` alone can
-shrink its own text without it.
-
-## What the platform documentation says (read 2026-10-31)
-
-Source: developer.android.com/ai/appfunctions and the API reference of
-`android.app.appfunctions.AppFunctionManager`. AppFunctions is an Android
-platform API (API 36, Android 16) with a Jetpack library, not a vendor feature.
-Callers need `EXECUTE_APP_FUNCTIONS`. The documented test path is
-`adb shell cmd app_function ...`, and the page itself says that only a limited
-number of apps and system agents reach the whole pipeline in this experimental
-phase. The manager offers `searchAppFunctions`, `getAppFunctionStates`,
-`observeAppFunctions` and, from the 37.x line, `executeAppFunction` with an
-`AppInteractionSession` and the property
-`PROPERTY_SUPPORT_APP_FUNCTION_USER_CONTROL` (runtime user control). Device
-tests must therefore rest on the platform and the Google Play services
-functions; vendor apps are optional (see COMPATIBILITY.md section 0).
-
-**Consequence for the path (maintainer, 2026-10-31):** the documented caller route is
-closed to this app. `EXECUTE_APP_FUNCTIONS` is `internal|privileged` and cannot
-be handed to a sideloaded or normal app (measured, TEST2-LOG.md 4.). Shizuku or
-root, with the shell identity (uid 2000, package `com.android.shell`), is the
-only route that works, so the Shizuku/binder path is the main path, not a
-fallback. The direct path stays in the code for a privileged install only.
+**What the other variant adds.** `afc` also refreshes the registry from a device
+dump and probes the device on the command line, and it can be run from a shell
+without the app. It costs a native library in the APK and a Rust build step.

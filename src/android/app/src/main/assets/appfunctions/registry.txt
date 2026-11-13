@@ -1,4 +1,4 @@
-# AppFunctions registry for afc. Generated from the measured registry (appfunctions-registry.xml).
+# AppFunctions registry for the app_functions tool. Taken from the measured registry dump (appfunctions-registry.xml).
 # F=function P=parameter D=field B=example E=meta. source= where the information comes from.
 F	com.google.android.gms	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadata	device_state	on	yes
 P	com.google.android.gms.appfunctions.BaseGmsAppFunctionService#getDeviceStateMetadata	getDeviceStateMetadataParams	com.google.android.appfunctions.schema.devicestate.v1.GetDeviceStateMetadataParams		dump

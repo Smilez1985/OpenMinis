@@ -4,7 +4,7 @@ package com.openminis.app.appfunctions
  * Reads the reply of the binder path and explains error codes.
  *
  * `Execute` prints lines: `SUCCESS: …`, `JSON: …`, `ERROR: code=… cat=… msg=…`,
- * and finally `DONE` or `TIMEOUT`. `deps/afc` evaluates the same lines in
+ * and finally `DONE` or `TIMEOUT`. The same lines are evaluated here in
  * `src/errors.rs`; the table here is its counterpart.
  *
  * Two platform quirks that get a name here:
@@ -29,7 +29,7 @@ object AppFunctionsReply {
     ) {
         val isSuccess: Boolean get() = kind == Kind.SUCCESS
 
-        /** One line a human can read; matches `afc`. */
+        /** One line a human can read. */
         fun report(): String = when (kind) {
             Kind.SUCCESS -> "SUCCESS: ${json ?: ""}"
             Kind.EMPTY -> "EMPTY_RESULT: SUCCESS, but no content. That does not mean " +
@@ -75,7 +75,7 @@ object AppFunctionsReply {
                 l.startsWith("TIMEOUT") -> kind = Kind.TIMEOUT
                 l.startsWith("SUCCESS:") -> {
                     val rest = l.removePrefix("SUCCESS:").trim()
-                    // Same as `deps/afc/src/errors.rs`: "SUCCESS: null" or empty is EMPTY
+                    // "SUCCESS: null" or an empty json is EMPTY, not a hit.
                     // whatever came before; otherwise SUCCESS if nothing is settled yet.
                     if (rest == "null" || rest.isEmpty()) kind = Kind.EMPTY
                     else if (kind == Kind.UNCLEAR) kind = Kind.SUCCESS

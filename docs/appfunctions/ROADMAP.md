@@ -2,6 +2,18 @@
 
 What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 
+## Branch note
+
+This is the **Kotlin-only** variant of the feature: the rules live in
+`AppFunctionsRegistry`/`AppFunctionsCore`, the binder call in `deps/shim`
+(`shim.jar`). No Rust, no native library, no cargo in the build. The same
+feature with a Rust core (`afc`) exists on branch `feature/appfunctions-caller`.
+
+Entries below that describe `afc` — the Rust tool, `libafc.so`,
+`deps/build_afc_android.sh`, `deps/afc/*` — belong to **that** branch and are
+kept here only where the measurement still explains this one. Where a log says
+`deps/afc/shim/`, read `deps/shim/`.
+
 ## Next
 
 - [x] **`afc` — Rust tool for registry, checking and calling** (`deps/afc`,
@@ -38,7 +50,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       builds** (2026-10-31) — `shim.jar` picks the `ExecuteAppFunctionAidlRequest`
       constructor by reflection and reports `NO_CONSTRUCTOR` with the declared
       signatures. Measured: 4 arguments on one Android 16 build, 5 on another;
-      both run. The source lives in `deps/afc/shim/`, its build is bit-identical
+      both run. The source lives in `deps/shim/`, its build is bit-identical
       to the asset. The Kotlin port carries the new code and the same message.
       Not measured: the swapped order of the two `long` values.
 - [x] **`afc` shows why a Shizuku call failed** (2026-10-31) — last output line when
@@ -47,7 +59,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       when `help` names it, filters itself otherwise, and says so when the
       command does not exist. 21 tests, 20 mutations all red.
 - [x] **Device test: "package not installed" as its own class** (2026-10-31) —
-      `deps/afc/tools/devicetest.sh` counts 1003 as "not present", not as an
+      `deps/afc/tools/devicetest.sh` (other branch) counts 1003 as "not present", not as an
       error; if every call is 1003 it exits 4 ("says nothing"). Test:
       `deps/afc/tests/test_devicetest.sh` with a fake `afc`; counter-check:
       removing the 1003 branch turns two of three checks red. Device B:
@@ -168,7 +180,7 @@ Moves to [CHANGELOG.md](CHANGELOG.md) with the release. One line per change.
 - `afc` runs directly as uid 0 or 2000 on the device (`su 2000` only under root); `afc refresh` works there too.
 - `docs/appfunctions/TEST5-LOG.md` section 5: standing cost of the tool definition against the skill entry.
 
-- `deps/afc/shim/`: source and build of `shim.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
+- `deps/shim/`: source and build of `shim.jar`; the constructor of `ExecuteAppFunctionAidlRequest` is chosen by reflection, with `NO_CONSTRUCTOR` and the declared signatures on failure.
 - `docs/appfunctions/COMPATIBILITY.md`: what runs on which device and ROM, what is missing, whether it can be brought along.
 - `docs/appfunctions/TEST5-LOG.md`: token cost of `afc` against the plain skill.
 - `afc` shows the reason of a failed Shizuku call; the codes 1002 and 3501 mention the lock screen.

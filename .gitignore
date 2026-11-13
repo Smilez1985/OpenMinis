@@ -128,6 +128,9 @@ src/android/app/src/debug/assets/debug-skill/
 src/android/app/src/main/assets/proot-aarch64
 src/android/app/src/main/assets/alpine-minirootfs.tar.gz
 src/android/app/src/main/jniLibs/arm64-v8a/*.so
+
+# Built from deps/shim/src by deps/shim/build.sh; the app ships it as an asset.
+deps/shim/shim.jar
 # The two proot ELF loaders are TRACKED, as an exception to the rule above.
 # They are vendored Termux builds (proot 5.1.107-70) whose Android-specific
 # loader patches our deps/proot fork does not carry; pairing the fork-built

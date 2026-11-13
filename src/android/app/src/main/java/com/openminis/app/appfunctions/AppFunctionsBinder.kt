@@ -20,12 +20,11 @@ import java.security.MessageDigest
  * (by types, via reflection) because it differs per build: four arguments on
  * BP2A, five on BP4A. If it finds none it reports `NO_CONSTRUCTOR` together
  * with the declared signatures; the caller passes that line on unchanged.
- * The same jar is used by `deps/afc`.
  *
- * The binder itself is not re-implemented. `shim.jar` (6.9 KB, dex) builds
+ * The binder itself is not re-implemented. `shim.jar` (7.5 KB, dex) builds
  * the request via reflection and calls `IAppFunctionManager.executeAppFunction`.
  * That is measured on the device against 13 functions; rebuilding the Parcel
- * format by hand would be unverified. `deps/afc` (Rust) drives the same chain
+ * format by hand would be unverified. The chain is the same one verified on the command line
  * on the command line, where the rules and error codes are backed by tests.
  *
  * This class only does the transport: stage the dex, send the command,
@@ -109,10 +108,10 @@ object AppFunctionsBinder {
      */
     fun run(context: Context, call: Call): Raw {
         val shim = ensureShimOnDevice(context)
-        if (shim is Outcome.Failed) return Raw(-1, "ERROR: afc-code=NO_SHIPPED_DEX msg=${shim.reason}")
+        if (shim is Outcome.Failed) return Raw(-1, "ERROR: code=NO_SHIPPED_DEX msg=${shim.reason}")
 
         val script = script(call)
-        tooLong(script)?.let { return Raw(-1, "ERROR: afc-code=TOO_LONG msg=$it") }
+        tooLong(script)?.let { return Raw(-1, "ERROR: code=TOO_LONG msg=$it") }
         val r = ShizukuManager.runProcess(shell(script), timeoutMs = (call.timeoutSeconds + 20) * 1000L)
         val text = listOfNotNull(r.stdout, r.stderr).filter { it.isNotBlank() }.joinToString("\n")
         Log.i(TAG, "execute ${call.packageName}/${call.functionId.substringAfter('#')} — exit ${r.exitCode}")
@@ -120,7 +119,7 @@ object AppFunctionsBinder {
     }
 
     /**
-     * The script that runs on the device. It matches the call `deps/afc`
+     * The script that runs on the device. It is the call that was
      * (`src/route.rs`) builds, so both paths are the same: stage the dex, call
      * as uid 2000, capture both output streams.
      */
@@ -148,7 +147,7 @@ object AppFunctionsBinder {
         data class Failed(val reason: String) : Outcome
     }
 
-    /** For [AfcProcess]: stages `shim.jar`. `null` = it is there, otherwise the reason. */
+    /** Stages `shim.jar`. `null` = it is there, otherwise the reason. */
     internal fun ensureShim(context: Context): String? =
         (ensureShimOnDevice(context) as? Outcome.Failed)?.reason
 

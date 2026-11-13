@@ -22,7 +22,7 @@ import java.util.Locale
  *
  * The data comes from `assets/appfunctions/registry.txt`, generated from the
  * measured registry (`appfunctions-registry.xml`). The same data and the same
- * rules live in `deps/afc` (Rust), with tests and a device test.
+ * rules are implemented here, with tests.
  */
 object AppFunctionsRegistry {
 
@@ -237,7 +237,7 @@ object AppFunctionsRegistry {
         }
 
         // A top-level parameter with which a call already succeeded: if it is missing,
-        // that is a warning (like P1 in `deps/afc/src/validate.rs`), not an error.
+        // that is a warning (like P1), not an error.
         for (p in flat) {
             if (!outer.containsKey(p.name) && p.source == "call-ok") {
                 findings += Finding("P1", false,

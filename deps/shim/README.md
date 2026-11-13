@@ -2,7 +2,7 @@
 
 The small dex file that calls `IAppFunctionManager.executeAppFunction` on the device
 via reflection (as uid 2000, package `com.android.shell`, started with
-`app_process`). `afc` and the Kotlin binder call the same file; the app
+`app_process`). The Kotlin binder stages it and calls it; the app
 ships it as an asset (`assets/appfunctions/shim.jar`).
 
 - `src/Execute.java` — the call. Selects the constructor of
