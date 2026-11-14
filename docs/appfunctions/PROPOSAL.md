@@ -79,6 +79,28 @@ are identical: `deps/shim`, the assets, the tool, the design and the logs.
   from a device dump.
 - Cost: a native library in the APK, a Rust build step in the build.
 
+## What this branch is, and what it is not
+
+It is the **proof**: AppFunctions of other apps can be reached from Minis, read
+and written, measured on a device. It is **not** the form to keep.
+
+Google's guide names the documented route — `androidx.appfunctions:appfunctions:1.0.0-beta01`
+with the KSP compiler, `compileSdk 37` and AGP 9.1.0 or newer. This module is on
+`compileSdk 36` / AGP 8.7.3, and the build file already records what moving that
+costs (a dependency is pinned back for exactly this reason). So the branch uses
+what is available on 36: the framework classes plus a small dex that reflects over
+the hidden AIDL.
+
+**The proper integration is the maintainer's step**, and `DESIGN.md` rule D10 lists
+what changes with it: `AppFunctionManager` from Jetpack instead of reflection,
+`setAppFunctionEnabled` instead of the reflected AIDL, compileSdk 37 and AGP 9.1
+with the KSP plugin. The rules, the registry, the argument checks, the
+confirmation gate and every measurement stay as they are — they describe the
+behaviour, not the transport.
+
+If Minis ever *offers* its own AppFunctions, the same guide applies in full and
+compileSdk 37 is a hard requirement.
+
 ## Where to look
 
 Fork `Smilez1985/OpenMinis`. This is the branch with the Rust core
