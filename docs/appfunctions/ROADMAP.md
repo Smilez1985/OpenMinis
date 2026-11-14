@@ -76,7 +76,9 @@ kept here only where the measurement still explains this one. Where a log says
       functions stay unknown (need the probe).
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
-      `com.openminis.app.appfn`).
+      `com.openminis.app.appfn`). Historical: GitHub has since disabled Actions
+      on this fork ("due to the scale of GitHub Actions usage"), so no run of the
+      current branches exists. The proof is the device test instead.
 - [x] **Device test, Shizuku path** (D8) — done, see
       [TEST2-LOG.md](TEST2-LOG.md): `list`, `schema`, a read `execute`, a write
       with and without the confirmation switch, and the refusals.
