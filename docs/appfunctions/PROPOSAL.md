@@ -77,12 +77,13 @@ are identical: `deps/shim`, the assets, the tool, the design and the logs.
 - **Also usable outside the app.** `afc` runs from a shell, which is how the
   measurements in `docs/appfunctions/` were taken, and it can refresh the registry
   from a device dump.
-- Cost: a native library in the APK, a Rust build step in CI.
+- Cost: a native library in the APK, a Rust build step in the build.
 
 ## Where to look
 
-Fork `Smilez1985/OpenMinis`. Start with branch **`feature/appfunctions-caller-native`**
-(the simpler one); the other is one branch away.
+Fork `Smilez1985/OpenMinis`. This is the branch with the Rust core
+(`feature/appfunctions-caller`); the Kotlin-only variant is
+`feature/appfunctions-caller-native`, one branch away.
 
 - `docs/appfunctions/DESIGN.md` — the design and its rules (D1…D9), target state.
 - `docs/appfunctions/ROADMAP.md` — done but unreleased, and what is open.
@@ -119,5 +120,15 @@ the Rust one. A device test script, plus negative checks: the old protocol words
 `exec` instead of `sh -c`, and a single long command each make tests fail. Every
 measurement in `docs/appfunctions/` names the build it came from.
 
-Not measured: a Gradle build in CI, a changing call (`--write`) from the app,
-`list` through the device command, a second device or Android version.
+Reading **and** writing were measured from inside the running app, in both
+variants: a read call returns real device data, and a changing call created an
+album in the gallery, which the target app returned as a document. The album was
+removed again afterwards.
+
+No CI, on purpose: GitHub disabled Actions on this fork ("Workflows are not
+currently being run on this fork due to the scale of GitHub Actions usage"), so
+the workflow cannot run there. A Gradle build of these branches therefore comes
+from your side, not from mine.
+
+Also not measured: `list` through the device command (the `cmd app_function`
+dump is missing on the test build), and any second device or Android version.

@@ -2,6 +2,14 @@
 
 What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
 
+## Branch note
+
+This is the variant with the **Rust core**: the rules, the registry and the
+error codes live in `deps/afc` (`afc`), Kotlin is the shell that starts it. The
+same feature with the rules in Kotlin exists on branch
+`feature/appfunctions-caller-native`; apart from `deps/afc` and the call site the
+two branches are identical.
+
 ## Next
 
 - [x] **`afc` — Rust tool for registry, checking and calling** (`deps/afc`,
@@ -47,7 +55,7 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       when `help` names it, filters itself otherwise, and says so when the
       command does not exist. 21 tests, 20 mutations all red.
 - [x] **Device test: "package not installed" as its own class** (2026-10-31) —
-      `deps/afc/tools/devicetest.sh` counts 1003 as "not present", not as an
+      `deps/afc/tools/devicetest.sh` (other branch) counts 1003 as "not present", not as an
       error; if every call is 1003 it exits 4 ("says nothing"). Test:
       `deps/afc/tests/test_devicetest.sh` with a fake `afc`; counter-check:
       removing the 1003 branch turns two of three checks red. Device B:
@@ -64,7 +72,9 @@ What is still missing relative to [DESIGN.md](DESIGN.md), by priority.
       functions stay unknown (need the probe).
 - [x] **Green CI build of the branch** — debug APK as artifact (run
       `40255763109`, `b2cb2ab`; sha256 `ada12f8b…caf77`, package
-      `com.openminis.app.appfn`).
+      `com.openminis.app.appfn`). Historical: GitHub has since disabled Actions
+      on this fork ("due to the scale of GitHub Actions usage"), so no run of the
+      current branches exists. The proof is the device test instead.
 - [x] **Device test, Shizuku path** (D8) — done, see
       [TEST2-LOG.md](TEST2-LOG.md): `list`, `schema`, a read `execute`, a write
       with and without the confirmation switch, and the refusals.
