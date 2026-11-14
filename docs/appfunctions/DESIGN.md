@@ -252,3 +252,39 @@ still exits 0.
 **What the other variant adds.** `afc` also refreshes the registry from a device
 dump and probes the device on the command line, and it can be run from a shell
 without the app. It costs a native library in the APK and a Rust build step.
+
+## Rule D10 — This branch is the proof; the shipped form belongs to Jetpack
+
+Decided 2026-11-14. What this branch proves: AppFunctions of other apps can be
+reached from Minis, read and written, measured on a device. What it is **not**:
+the form to keep.
+
+The documented route is the Jetpack library. Google's guide
+(`developer.android.com/ai/appfunctions`, read 2026-11-14) names its price:
+`androidx.appfunctions:appfunctions:1.0.0-beta01` plus the KSP compiler,
+`compileSdk 37` and Android Gradle Plugin 9.1.0 or newer.
+
+This module is on `compileSdk 36` / AGP 8.7.3. Moving either is not a one-line
+change — the build file says so itself for `material3-adaptive` 1.3.0 ("it fails
+at configuration time, not with a warning"). So this branch stays on 36 and uses
+what is there: the framework classes `android.app.appfunctions.*` (present in 36)
+and, for the binder call, a small dex that reflects over the hidden AIDL.
+
+**What a maintainer has to change to do it the documented way**
+
+| Today (this branch) | Documented way |
+|---|---|
+| Shim `deps/shim` reflects over `IAppFunctionManager` / `ExecuteAppFunctionRequest` | `AppFunctionManager` from `androidx.appfunctions` |
+| `Toggle` reflects over `setAppFunctionEnabled` | `manager.setAppFunctionEnabled(id, APP_FUNCTION_STATE_ENABLED)` |
+| `compileSdk 36`, AGP 8.7.3 | `compileSdk 37`, AGP 9.1.0+, the KSP plugin |
+| manual parsing of the schema assets and of `cmd app_function list-app-functions` | the library's own metadata, where it offers it |
+| rules in Kotlin or in `afc` (Rust) | unchanged — they are ours either way |
+
+What does not change: the design rules D1–D9, the registry, the argument checks,
+the confirmation gate, and the measurements in the logs. They describe the
+behaviour, not the transport.
+
+**If Minis ever offers its own AppFunctions** (still out of scope, see above), the
+same guide applies in full: `@AppFunctionServiceEntryPoint`,
+`@AppFunctionDeclaration`, `BIND_APP_FUNCTION_SERVICE`, generated XML in
+`assets/`, and compileSdk 37 is a hard requirement, not a preference.
