@@ -55,7 +55,27 @@ impl Check {
 /// * `input` are the fields as a human would write them (field name ->
 ///   value), without knowing whether they sit at the top level or inside a
 ///   composite parameter.
-pub fn validate(f: &Function, input: &BTreeMap<String, Value>) -> Check {
+/// The fields of a composite parameter, unwrapped when the caller wrote them
+/// the way the platform wants them (`{"createAlbumParams":{"title":"x"}}`).
+///
+/// Measured on a device (14 Nov 2026): the platform validates a call against
+/// what it publishes, which is the wrapper, while the registry lists the fields
+/// one level higher. Both spellings must mean the same thing; the wrapper is
+/// dropped here and rebuilt by [validate] from the registry.
+fn unwrap_nested<'a>(f: &Function, input: &'a BTreeMap<String, Value>) -> std::borrow::Cow<'a, BTreeMap<String, Value>> {
+    let Some(c) = f.composite() else { return std::borrow::Cow::Borrowed(input) };
+    if input.len() != 1 {
+        return std::borrow::Cow::Borrowed(input);
+    }
+    match input.get(&c.name) {
+        Some(Value::Object(m)) => std::borrow::Cow::Owned(m.clone()),
+        _ => std::borrow::Cow::Borrowed(input),
+    }
+}
+
+pub fn validate(f: &Function, input_given: &BTreeMap<String, Value>) -> Check {
+    let input = unwrap_nested(f, input_given);
+    let input = input.as_ref();
     let mut findings = Vec::new();
     let mut document: BTreeMap<String, Value> = BTreeMap::new();
     let composite = f.composite();
@@ -413,5 +433,37 @@ mod tests {
         let f = r.find(Some("com.samsung.android.app.contacts"), "getPersons").unwrap();
         let p = validate(f, &obj("{\"personIds\":\"73\"}"));
         assert_eq!(fehler_regeln(&p), vec!["P3"]);
+    }
+
+    /// Both spellings must pass: measured on a device, 14 Nov 2026.
+    #[test]
+    fn nested_and_flat_arguments_are_the_same_call() {
+        let reg = Registry::embedded();
+        let flat = validate_for(&reg, Some("com.sec.android.gallery3d"), "AlbumFunctions_createAlbum",
+            r#"{"title":"x"}"#).unwrap();
+        let nested = validate_for(&reg, Some("com.sec.android.gallery3d"), "AlbumFunctions_createAlbum",
+            r#"{"createAlbumParams":{"title":"x"}}"#).unwrap();
+        assert!(!flat.has_errors(), "{:?}", flat.findings);
+        assert!(!nested.has_errors(), "{:?}", nested.findings);
+        assert_eq!(flat.a3, nested.a3);
+        assert_eq!(flat.a4, nested.a4);
+        assert!(flat.a4.contains("\"title\""));
+    }
+
+    #[test]
+    fn a_missing_required_field_is_still_reported_in_both_spellings() {
+        let reg = Registry::embedded();
+        for json in [r#"{}"#, r#"{"createAlbumParams":{}}"#] {
+            let c = validate_for(&reg, Some("com.sec.android.gallery3d"), "AlbumFunctions_createAlbum", json).unwrap();
+            assert!(c.has_errors(), "{} must be an error", json);
+        }
+    }
+
+    #[test]
+    fn an_unrelated_single_field_is_not_unwrapped() {
+        let reg = Registry::embedded();
+        let c = validate_for(&reg, Some("com.sec.android.gallery3d"), "AlbumFunctions_createAlbum",
+            r#"{"nonsense":"x"}"#).unwrap();
+        assert!(c.has_errors());
     }
 }
