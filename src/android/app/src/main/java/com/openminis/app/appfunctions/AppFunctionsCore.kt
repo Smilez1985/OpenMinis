@@ -232,6 +232,34 @@ object AppFunctionsCore {
      * guessed `hour` became 00:00 on the device). Returns the problems; empty =
      * valid. [Entry.parameters] null = nothing published, nothing to check.
      */
+    /**
+     * Wraps flat arguments into the composite parameter the target app declares.
+     *
+     * Measured on the device (13 Nov 2026): the registry lists the fields of a
+     * single document parameter as if they were the function's parameters, so
+     * `{"maxCount":1}` reads naturally — but the platform validates the call
+     * against what it publishes, which is `{"findBookmarksParams":{"maxCount":1}}`,
+     * and answers `unknown field 'maxCount' (allowed: findBookmarksParams)`.
+     * Nothing was executed; the call was refused by the platform before the
+     * target app saw it. Wrapping here keeps both shapes working, and the
+     * registry stays as measured.
+     */
+    fun wrapFlatArguments(
+        entry: FunctionEntry,
+        types: Map<String, List<Param>>,
+        arguments: JSONObject,
+    ): JSONObject {
+        val params = entry.parameters ?: return arguments
+        if (params.size != 1) return arguments
+        val p = params.first()
+        val fields = types[p.type] ?: return arguments
+        if (arguments.has(p.name)) return arguments
+        val names = fields.map { it.name }.toSet()
+        val keys = arguments.keys().asSequence().toList()
+        if (keys.isEmpty() || keys.any { it !in names }) return arguments
+        return JSONObject().put(p.name, JSONObject(arguments.toString()))
+    }
+
     fun validate(entry: FunctionEntry, types: Map<String, List<Param>>, arguments: JSONObject): List<String> {
         val params = entry.parameters ?: return emptyList()
         val out = mutableListOf<String>()

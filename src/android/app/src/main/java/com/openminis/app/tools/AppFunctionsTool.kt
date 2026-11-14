@@ -142,14 +142,16 @@ object AppFunctionsTool {
         }
         val entry = doc.entries.firstOrNull { it.packageName == pkg && it.id == fid }
             ?: return fail("function $fid is not registered for $pkg", title)
-        val problems = AppFunctionsCore.validate(entry, doc.types[pkg].orEmpty(), JSONObject(arguments))
+        val declared = doc.types[pkg].orEmpty()
+        val given = AppFunctionsCore.wrapFlatArguments(entry, declared, JSONObject(arguments))
+        val problems = AppFunctionsCore.validate(entry, declared, given)
         if (problems.isNotEmpty()) {
             return fail("INVALID_ARGUMENTS for ${entry.shortName}: ${problems.joinToString("; ")}. Nothing was executed; " +
                 "use 'schema' for the declared fields.", title)
         }
         val unvalidated = entry.parameters == null
         val needsConfirmation = AppFunctionsCore.needsConfirmation(fid, AppFunctionsSettings.confirmWrites(context))
-        if (needsConfirmation && !confirm(pkg, fid, arguments)) {
+        if (needsConfirmation && !confirm(pkg, fid, given.toString())) {
             return fail("NEEDS_CONFIRMATION: the user did not approve ${fid.substringAfter('#')} " +
                 "(verb '${AppFunctionsCore.verbOf(fid)}' changes something). Do not retry without asking.", title)
         }
@@ -157,7 +159,7 @@ object AppFunctionsTool {
         // the result has to say so, see [AppFunctionsCore.successNotes].
         val confirmed = needsConfirmation
         val timeout = args.optInt("timeout_s", DEFAULT_TIMEOUT_S).coerceIn(1, 120)
-        return when (val r = AppFunctionsManager.execute(context, pkg, fid, arguments, timeout)) {
+        return when (val r = AppFunctionsManager.execute(context, pkg, fid, given.toString(), timeout)) {
             is AppFunctionsCore.ExecOutcome.Success -> ok(
                 buildString {
                     append(r.json)

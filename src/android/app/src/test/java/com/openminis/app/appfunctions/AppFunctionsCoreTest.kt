@@ -323,3 +323,87 @@ class AppFunctionsCoreTest {
         assertTrue(AppFunctionsReply.explanation("3501")!!.contains("unlock"))
     }
 }
+
+/** Flat arguments against a single document parameter, as measured on 13 Nov 2026. */
+class AppFunctionsCoreWrapTest {
+    private val params = AppFunctionsCore.Param(
+        "findBookmarksParams",
+        "com.google.android.appfunctions.schema.common.v1.browser.FindBookmarksParams",
+        true, "convention",
+    )
+    private val fields = listOf(
+        AppFunctionsCore.Param("maxCount", "long", true, "schema"),
+        AppFunctionsCore.Param("query", "string", false, "schema"),
+    )
+    private val entry = AppFunctionsCore.FunctionEntry(
+        packageName = "com.sec.android.app.sbrowser",
+        id = "com.sec.android.app.sbrowser.cross_app_action#BrowserFunctions_findBookmarks",
+        schemaName = "BrowserFunctions_findBookmarks",
+        category = "browser",
+        scope = null,
+        enabledByDefault = true,
+        parameters = listOf(params),
+    )
+    private val types = mapOf(params.type to fields)
+
+    @Test fun flat_fields_are_wrapped_into_the_declared_parameter() {
+        val out = AppFunctionsCore.wrapFlatArguments(entry, types, org.json.JSONObject("""{"maxCount":1}"""))
+        assertEquals("""{"findBookmarksParams":{"maxCount":1}}""", out.toString())
+    }
+
+    @Test fun an_already_wrapped_argument_stays_untouched() {
+        val given = """{"findBookmarksParams":{"maxCount":1}}"""
+        assertEquals(given, AppFunctionsCore.wrapFlatArguments(entry, types, org.json.JSONObject(given)).toString())
+    }
+
+    @Test fun empty_arguments_stay_empty_so_the_missing_field_is_reported() {
+        assertEquals("{}", AppFunctionsCore.wrapFlatArguments(entry, types, org.json.JSONObject("{}")).toString())
+    }
+
+    @Test fun an_unknown_field_is_not_wrapped_and_is_reported_later() {
+        val given = """{"nonsense":1}"""
+        assertEquals(given, AppFunctionsCore.wrapFlatArguments(entry, types, org.json.JSONObject(given)).toString())
+    }
+
+    @Test fun the_wrapped_form_validates_against_the_published_schema() {
+        val flat = org.json.JSONObject("""{"maxCount":1}""")
+        val wrapped = AppFunctionsCore.wrapFlatArguments(entry, types, flat)
+        assertTrue(AppFunctionsCore.validate(entry, types, wrapped).isEmpty())
+        // The flat form is what the platform refused; against the schema it is wrong.
+        assertTrue(AppFunctionsCore.validate(entry, types, flat).isNotEmpty())
+    }
+}
+
+/** Both shapes must pass the registry check: measured on 14 Nov 2026. */
+class AppFunctionsRegistryNestedTest {
+    private val registry: List<AppFunctionsRegistry.Function> by lazy {
+        val text = javaClass.classLoader!!.getResourceAsStream("appfunctions/registry.txt")!!
+            .use { it.readBytes().toString(Charsets.UTF_8) }
+        AppFunctionsRegistry.fromText(text)
+    }
+    private val f by lazy {
+        AppFunctionsRegistry.find(registry, "com.sec.android.gallery3d", "AlbumFunctions_createAlbum").getOrThrow()
+    }
+
+    @Test fun flat_title_is_accepted() {
+        val c = AppFunctionsRegistry.check(f, org.json.JSONObject("""{"title":"x"}"""))
+        assertFalse(c.report(), c.hasErrors)
+    }
+
+    @Test fun nested_createAlbumParams_is_accepted_too() {
+        val c = AppFunctionsRegistry.check(f, org.json.JSONObject("""{"createAlbumParams":{"title":"x"}}"""))
+        assertFalse(c.report(), c.hasErrors)
+    }
+
+    @Test fun both_shapes_produce_the_same_call_arguments() {
+        val flat = AppFunctionsRegistry.check(f, org.json.JSONObject("""{"title":"x"}"""))
+        val nested = AppFunctionsRegistry.check(f, org.json.JSONObject("""{"createAlbumParams":{"title":"x"}}"""))
+        assertEquals(flat.a3, nested.a3)
+        assertEquals(flat.a4, nested.a4)
+    }
+
+    @Test fun a_missing_required_field_is_still_reported_in_both_shapes() {
+        assertTrue(AppFunctionsRegistry.check(f, org.json.JSONObject("""{"createAlbumParams":{}}""")).hasErrors)
+        assertTrue(AppFunctionsRegistry.check(f, org.json.JSONObject("""{}""")).hasErrors)
+    }
+}

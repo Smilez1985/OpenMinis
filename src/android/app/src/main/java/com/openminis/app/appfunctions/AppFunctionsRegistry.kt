@@ -176,7 +176,20 @@ object AppFunctionsRegistry {
      * whether they sit at top level or inside a composite parameter. The
      * registry decides that, not the caller.
      */
-    fun check(f: Function, args: JSONObject): Check {
+    /**
+     * The inverse of [AppFunctionsCore.wrapFlatArguments], for the registry check:
+     * the platform wants the fields under the declared parameter name, and callers
+     * send them that way, while the registry lists them one level higher.
+     * `{"createAlbumParams":{"title":"x"}}` and `{"title":"x"}` mean the same thing.
+     */
+    fun unwrapNested(f: Function, args: JSONObject): JSONObject {
+        val composite = f.composite ?: return args
+        if (args.length() != 1 || !args.has(composite.name)) return args
+        return args.optJSONObject(composite.name) ?: args
+    }
+
+    fun check(f: Function, argsGiven: JSONObject): Check {
+        val args = unwrapNested(f, argsGiven)
         val findings = ArrayList<Finding>()
         val outer = LinkedHashMap<String, Any?>()
         val inner = LinkedHashMap<String, Any?>()
